@@ -46,7 +46,6 @@
     <Compile Include="ItemArchipelago\Archipelagun.cs" />
     <Compile Include="Archipelago\ArchipelagoGUI.cs" />
     <Compile Include="Archipelago\GungeonPlayerEventListener.cs" />
-    <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
