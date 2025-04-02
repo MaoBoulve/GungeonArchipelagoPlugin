@@ -148,5 +148,15 @@ namespace ArchiGungeon.Archipelago
             }
         }
 
+        public static void SpawnAPItem(int numberToSpawn)
+        {
+            for(int i=0; i < numberToSpawn; i++)
+            {
+                GameObject archipelItem = PickupObjectDatabase.GetById(APItem.SpawnItemID).gameObject;
+                LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+            }
+
+            return;
+        }
     }
 }

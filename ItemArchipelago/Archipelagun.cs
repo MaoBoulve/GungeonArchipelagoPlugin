@@ -87,7 +87,7 @@ namespace ArchiGungeon
 
         public override void OnSwitchedToPlayer(PlayerController owner, GunInventory inventory, Gun oldGun, bool isNewGun)
         {
-            ArchipelagoGUI.ConsoleLog("Switched to");
+            //ArchipelagoGUI.ConsoleLog("Switched to");
 
             return;
         }
@@ -121,8 +121,8 @@ namespace ArchiGungeon
         public override void OnReloadedPlayer(PlayerController owner, Gun gun)
         {
             //base.OnReloadedPlayer(owner, gun);
-            ArchipelagoGUI.ConsoleLog("Reload");
-            ArchipelagoGungeonBridge.DeathlinkKillPlayer();
+            //ArchipelagoGUI.ConsoleLog("Reload");
+            //ArchipelagoGungeonBridge.DeathlinkKillPlayer();
         }
     }
 }

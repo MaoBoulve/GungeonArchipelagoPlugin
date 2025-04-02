@@ -38,11 +38,11 @@
     <Compile Include="Archipelago\ArchipelagoGungeonBridge.cs" />
     <Compile Include="Archipelago\PlayerPersistentDataHandler.cs" />
     <Compile Include="Archipelago\SessionHandler.cs" />
+    <Compile Include="ArchipelaGunPlugin.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
     <Compile Include="ItemArchipelago\APItem.cs" />
     <Compile Include="ItemArchipelago\ReceivedLocationItemHandler.cs" />
-    <Compile Include="ItemArchipelago\SentLocationItemHandler.cs" />
     <Compile Include="ItemArchipelago\Archipelagun.cs" />
     <Compile Include="Archipelago\ArchipelagoGUI.cs" />
     <Compile Include="Archipelago\GungeonPlayerEventListener.cs" />

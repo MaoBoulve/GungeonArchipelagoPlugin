@@ -124,6 +124,19 @@ namespace ArchiGungeon.Archipelago
                             Foreground = UnityEngine.Color.green
                         },
 
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.spawnAPItemCommandText}</color>")
+                        {
+                            Foreground = UnityEngine.Color.white
+                        },
+                        (SElement)new SLabel("    (DEBUG) Spawn an AP Item")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+                        (SElement)new SLabel("")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        }
+
                     }
                 },
 
@@ -289,6 +302,13 @@ namespace ArchiGungeon.Archipelago
                     break;
                 }
 
+                case ArchipelConsoleCommandParser.spawnAPItemCommandText:
+                {
+                    string spawnCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.spawnAPItemCommandText} ";
+                    archipelagoCommands.SendETGConsoleCommand(spawnCommand);
+                    break;
+                }
+
                 default:
                     ConsoleLog($"ERROR: '{commandGroup}' not recognized as a command");
                     break;
@@ -344,6 +364,7 @@ namespace ArchiGungeon.Archipelago
         public const string connectCommandText = "connect";
         public const string retrieveCommandText = "retrieve";
         public const string progressCommandText = "progress";
+        public const string spawnAPItemCommandText = "APspawn";
 
 
         // Instance archipelago commands inside ETGModConsole
@@ -381,6 +402,12 @@ namespace ArchiGungeon.Archipelago
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{progressCommandText}", delegate (string[] args)
             {
                 SessionHandler.OutputGameGoalStatus();
+
+            });
+
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{spawnAPItemCommandText}", delegate (string[] args)
+            {
+                ArchipelagoGungeonBridge.SpawnAPItem(1);
 
             });
         }
