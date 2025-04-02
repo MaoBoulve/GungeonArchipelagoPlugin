@@ -12,14 +12,14 @@ namespace ArchiGungeon.ItemArchipelago
 
         private static Gun GetRandomGunByQualities(PickupObject.ItemQuality[] itemQuals)
         {
-            Gun gunToReturn = PickupObjectDatabase.GetRandomGunOfQualities(random, [], itemQuals);
+            Gun gunToReturn = PickupObjectDatabase.GetRandomGunOfQualities(random, new List<int>(), itemQuals);
 
             return gunToReturn;
         }
 
         private static PassiveItem GetRandomPassiveByQualities(PickupObject.ItemQuality[] itemQuals)
         {
-            PassiveItem passiveItem = PickupObjectDatabase.GetRandomPassiveOfQualities(random, [], itemQuals);
+            PassiveItem passiveItem = PickupObjectDatabase.GetRandomPassiveOfQualities(random, new List<int>(), itemQuals);
 
             return passiveItem;
         }

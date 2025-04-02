@@ -31,10 +31,11 @@ namespace ArchiGungeon.Archipelago
         // Backend class for bridging Gungeon to Archipelago
         private static ArchipelConsoleCommandParser archipelagoCommands = new();
 
-
-        // Summary:
-        // The current instance of the console.
+        // The current instance of the GUI class
         public static ArchipelagoGUI Instance { get; protected set; }
+
+        // Command parsing helpers
+        private static bool isCombiningCommands = false;
 
         public ArchipelagoGUI()
         {
@@ -119,14 +120,11 @@ namespace ArchiGungeon.Archipelago
                         {
                             Foreground = UnityEngine.Color.green
                         },
-                        (SElement)new SLabel("")
-                        {
-                            Foreground = UnityEngine.Color.green
-                        },
+
 
                         (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.spawnAPItemCommandText}</color>")
                         {
-                            Foreground = UnityEngine.Color.white
+                            Foreground = UnityEngine.Color.yellow
                         },
                         (SElement)new SLabel("    (DEBUG) Spawn an AP Item")
                         {
@@ -196,8 +194,7 @@ namespace ArchiGungeon.Archipelago
         {
             if (Instance == null)
             {
-                ETGModGUI.Create();
-                ETGModGUI.Start();
+                new ArchipelagoGUI();
             }
 
             SLabel result = Instance?._Log(text, null);
@@ -263,11 +260,31 @@ namespace ArchiGungeon.Archipelago
 
         protected void ParseCommandForArchipelago(string command)
         {
-            // Command group, sub command group
-            string[] array = SplitArgs(command);
+            string[] commandInputs;
+            string commandGroup;
 
-            var commandInputs = array.Skip(1).ToArray();
-            string commandGroup = array[0];
+            if (isCombiningCommands)
+            {
+                // grab prior command
+                List<string> bulkCommand = SplitArgs(lastCommands.Last<string>()).ToList<string>();
+                commandGroup = bulkCommand[0];
+
+                bulkCommand.Add(command);
+
+                commandInputs = bulkCommand.Skip(1).ToArray<string>();
+
+                isCombiningCommands = false;
+            }
+
+            else
+            {   // Command group, sub command group
+                string[] array = SplitArgs(command);
+
+                commandInputs = array.Skip(1).ToArray();
+                commandGroup = array[0];
+
+            }
+            
 
             // CONNECT: IP, port, player slot
 
@@ -276,14 +293,26 @@ namespace ArchiGungeon.Archipelago
                 case ArchipelConsoleCommandParser.connectCommandText:
                 {
 
-                    if (commandInputs.Length != 3)
+                    if (commandInputs.Length > 3)
                     {
-                        ConsoleLog("ERROR: [Connect] expected input [IP Address] [Port] [Player Slot Name]");
+                        ConsoleLog("ERROR: Too many inputs - [Connect] expected input [IP Address] [Port] [Player Slot Name]");
+                        ConsoleLog("If name contains spaces, please use [connect] [IP Address] [Port] option");
                         return;
+                    }
+                    else if (commandInputs.Length != 2)
+                    {
+                        ConsoleLog("Please enter player slot name");
+                        isCombiningCommands = true;
+
+                        return;
+
                     }
 
                     string connectCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.connectCommandText} " + command;
                     archipelagoCommands.SendETGConsoleCommand(connectCommand);
+
+
+                    //TODO: handle password entry
 
                     break;
                 }
