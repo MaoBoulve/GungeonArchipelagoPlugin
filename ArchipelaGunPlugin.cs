@@ -55,7 +55,6 @@ namespace ArchiGungeon
         private void RegisterItems()
         {
             Archipelagun.Register();
-            PassiveBasil.Register();
             APItem.RegisterItemBase();
         }
 
