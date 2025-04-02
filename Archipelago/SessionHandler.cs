@@ -40,7 +40,7 @@ namespace ArchiGungeon.Archipelago
             Instance = this;
         }
 
-        public void ArchipelagoConnect(string ip, string port, string name)
+        public void ArchipelagoConnect(string ip, string port, string name, string password = null)
         {
             allow_traps = false;
             // check for session already in progress
@@ -56,7 +56,7 @@ namespace ArchiGungeon.Archipelago
             // Handle try login
             try
             {
-                loginResult = LoginToArchipelago(ip, port, name);
+                loginResult = LoginToArchipelago(ip, port, name, password: password);
             }
             catch (Exception ex)
             {
@@ -85,11 +85,21 @@ namespace ArchiGungeon.Archipelago
             return;
         }
 
-        private static LoginResult LoginToArchipelago(string ip, string port, string name)
+        private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = null)
         {
             session = ArchipelagoSessionFactory.CreateSession(ip, int.Parse(port));
+            LoginResult loginResult;
 
-            LoginResult loginResult = session.TryConnectAndLogin("Enter The Gungeon", name, ItemsHandlingFlags.IncludeOwnItems);
+            if (password == null || password == "")
+            {
+                loginResult = session.TryConnectAndLogin("Enter The Gungeon", name, ItemsHandlingFlags.IncludeOwnItems);
+            }
+
+            else
+            {
+                loginResult = session.TryConnectAndLogin("Enter The Gungeon", name, ItemsHandlingFlags.IncludeOwnItems, password: password);
+            }
+
             return loginResult;
         }
 
