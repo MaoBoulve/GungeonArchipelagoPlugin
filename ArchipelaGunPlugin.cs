@@ -1,4 +1,5 @@
 ﻿using ArchiGungeon.Archipelago;
+using ArchiGungeon.ItemArchipelago;
 using BepInEx;
 
 namespace ArchiGungeon
@@ -54,7 +55,8 @@ namespace ArchiGungeon
         private void RegisterItems()
         {
             Archipelagun.Register();
-
+            PassiveBasil.Register();
+            APItem.RegisterItemBase();
         }
 
         private void InitModMenu()

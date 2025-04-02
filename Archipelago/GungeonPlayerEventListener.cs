@@ -96,11 +96,11 @@ namespace ArchiGungeon.Archipelago
             }
 
             chest.contents.Clear();
-            chest.contents.Add(SessionHandler.GetNextAPItem());
+            chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
 
             //chest.ExplodeInSadness();
 
-            SessionHandler.DataSender.ParseOpenedChestToLocationCheck();
+            //SessionHandler.DataSender.ParseOpenedChestToLocationCheck();
 
             return;
         }

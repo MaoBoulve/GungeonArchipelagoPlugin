@@ -34,7 +34,6 @@ namespace ArchiGungeon.Archipelago
         private static List<long> item_add_queue = new();
         public static bool allow_traps = false;
 
-        private static List<APItem> remainingAPItems;
 
         public SessionHandler()
         {
@@ -280,24 +279,21 @@ namespace ArchiGungeon.Archipelago
 
         private static void InitializeAPItems()
         {
-            //TODO: pull from json file to reduce heavy calls
 
             ReadOnlyCollection<long> serverRemainingLocations = session.Locations.AllMissingLocations;
-            long[] locationIDs = serverRemainingLocations.ToArray<long>();  
+
+            List<long> serverRemaining = new List<long>();
+
+            foreach (long location in serverRemainingLocations)
+            {
+                serverRemaining.Add(location);
+            }
             
+            APItem.RegisterLocationIDs(serverRemaining.ToArray());
 
-            DataSender.CreateAPItemsFromLocationIDs(locationIDs);
-            return ;
+            return;
         }
 
-        public static APItem GetNextAPItem()
-        {
-            APItem itemToPop = remainingAPItems[0];
-            remainingAPItems.RemoveAt(0);
-
-            return itemToPop;
-
-        }
 
         public class DataSender
         {
@@ -311,6 +307,7 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendFoundLocationCheck(long idToSend)
             {
+                ScoutFoundLocationCheck(idToSend);
                 session.Locations.CompleteLocationChecks(idToSend);
 
                 return;
@@ -367,21 +364,9 @@ namespace ArchiGungeon.Archipelago
 
                 string locationName = session.Locations.GetLocationNameFromId(locationCheckCompleted) ?? $"Location: {locationCheckCompleted}";
 
-                session.Locations.ScoutLocationsAsync(locationInfoPacket => PrintScoutedLocationInfo(locationInfoPacket), 
-                    [locationCheckCompleted]);
 
                 ArchipelagoGUI.ConsoleLog($"{locationCheckCompleted} is location: {locationName}");
 
-                //SendFoundLocationCheck(locationCheckCompleted);
-            }
-
-            private static void PrintScoutedLocationInfo(Dictionary<long, ScoutedItemInfo> scoutedInfo)
-            {
-                foreach(long key in scoutedInfo.Keys)
-                {
-                    ArchipelagoGUI.ConsoleLog($"ID: {key} Item: {scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName}");
-                }    
-                
             }
 
             /*
@@ -396,10 +381,14 @@ namespace ArchiGungeon.Archipelago
             }
             */
 
-            public static void CreateAPItemsFromLocationIDs(long[] locationIDs)
+
+            public static void ScoutFoundLocationCheck(long locationID)
             {
+                long[] locationList = new long[1];
+                locationList[0] = locationID;
+
                 session.Locations.ScoutLocationsAsync(locationInfoPacket => DataReceiver.OnScoutedItemLocationReceived(locationInfoPacket),
-                    locationIDs);
+                    locationList);
 
                 return;
             }
@@ -473,14 +462,13 @@ namespace ArchiGungeon.Archipelago
 
                 foreach (long key in scoutedInfo.Keys)
                 {
-                    ArchipelagoGUI.ConsoleLog($"ID: {key} Item: {scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName}");
-                    string itemName = $"{scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName}";
+                    ArchipelagoGUI.ConsoleLog($"ID: {key} Item: {scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName} from {scoutedInfo[key].ItemGame}");
+                    string name = $"{scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName}";
 
                     int randomIndex = random.Next(0, APItemData.itemFunnyPrefix.Length);
 
-                    string shortDesc = $"{APItemData.itemFunnyPrefix[randomIndex]} item from {scoutedInfo[key].ItemGame}";
+                    string description = $"{APItemData.itemFunnyPrefix[randomIndex]} item from {scoutedInfo[key].ItemGame}";
 
-                    remainingAPItems.Add(APItem.RegisterAPItem(key, passiveName: itemName, shortDesc: shortDesc));
                 }
 
                 return;

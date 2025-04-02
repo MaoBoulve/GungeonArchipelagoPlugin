@@ -8,41 +8,60 @@ using UnityEngine;
 
 namespace ArchiGungeon.ItemArchipelago
 {
+
     public class APItem: PassiveItem
     {
-        public int GungeonAPItemSpawnID = -1;
-        public long ArchipelagoItemID;
+        public static int SpawnItemID = -1;
+        private static List<long> locationIDs;
+
+        private static string displayName = "AP Item";
         private static string spriteDirectory = "ArchiGungeon/Resources/archipelago.png";
-        private static string longDesc = "A mysterious item from another world";
 
-        // Dynamically create APItem with names
-        public static APItem RegisterAPItem(long itemIDstring, string passiveName = "APItem", string shortDesc = "Short Description")
+
+
+        public static void RegisterItemBase()
         {
-            GameObject obj = new GameObject(passiveName);
+            GameObject obj = new GameObject(displayName);
             var item = obj.AddComponent<APItem>();
-            ItemBuilder.AddSpriteToObject(passiveName, spriteDirectory, obj);
 
-            item.ArchipelagoItemID = itemIDstring;
+            ItemBuilder.AddSpriteToObject(displayName, spriteDirectory, obj);
 
-            ItemBuilder.SetupItem(item, shortDesc, longDesc, ArchipelaGunPlugin.MOD_ITEM_PREFIX);
+            ItemBuilder.SetupItem(item, "A crossover!", "A cool item from another world", ArchipelaGunPlugin.MOD_ITEM_PREFIX);
 
             item.CanBeDropped = false;
             item.CanBeSold = false;
             item.IgnoredByRat = true;
 
-            item.GungeonAPItemSpawnID = PickupObjectDatabase.GetId(item);
+            SpawnItemID = PickupObjectDatabase.GetId(item);
+            ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
-            return item;
+            return;
+        }
+
+        
+
+        public static void RegisterLocationIDs(long[] serverLocationIDs)
+        {
+            locationIDs = serverLocationIDs.ToList<long>();
+
+            return;
         }
 
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);
 
-            SessionHandler.DataSender.SendFoundLocationCheck(this.ArchipelagoItemID);
+            if(locationIDs.Count > 0)
+            {
+                SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
 
+                locationIDs.RemoveAt(0);
+            }
+
+            
             return;
         }
+
 
     }
 }
