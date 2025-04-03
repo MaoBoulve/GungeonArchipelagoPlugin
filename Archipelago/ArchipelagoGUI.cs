@@ -463,7 +463,7 @@ namespace ArchiGungeon.Archipelago
         public const string progressCmd = "progress";
         public const string spawnAPItemCmd = "apspawn";
         public const string setConnectionParameterCmd = "set";
-        public const string fullConnectCmd = "fullcommand";
+        public const string fullConnectCmd = "fullconnect";
 
 
         // Instance archipelago commands inside ETGModConsole
