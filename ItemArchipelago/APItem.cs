@@ -17,8 +17,6 @@ namespace ArchiGungeon.ItemArchipelago
         private static string displayName = "AP Item";
         private static string spriteDirectory = "ArchiGungeon/Resources/archipelago.png";
 
-
-
         public static void RegisterItemBase()
         {
             GameObject obj = new GameObject(displayName);
@@ -33,7 +31,8 @@ namespace ArchiGungeon.ItemArchipelago
             item.IgnoredByRat = true;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
-            ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
+
+            //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
             return;
         }

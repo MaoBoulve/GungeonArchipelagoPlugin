@@ -12,24 +12,24 @@ namespace ArchiGungeon
 
         private static string itemName = "Archipelagun";
 
-        private static string shortDesc = "Fire - menu, Reload - reconnect";
-        private static string longDesc = "long desc TKTKTK";
+        private static string shortDesc = "Fire to open menu";
+        private static string longDesc = "Does no damage. A hop away to other worlds. Fire to open the main mod menu.";
 
         public static void Register()
         {
-            // Get yourself a new gun "base" first.
-            // Let's just call it "Basic Gun", and use "jpxfrd" for all sprites and as "codename" All sprites must begin with the same word as the codename. For example, your firing sprite would be named "jpxfrd_fire_001".
+            // Instance base gun
+
             Gun gun = ETGMod.Databases.Items.NewGun(itemName, "archipelagun"); // based off pea gun
             gun.gameObject.AddComponent<Archipelagun>();
 
             gun.SetupSprite(null, "archipelagun_idle_001", 4);
 
             
-            // Every modded gun has base projectile it works with that is borrowed from other guns in the game. 
-            // The gun names are the names from the JSON dump! While most are the same, some guns named completely different things. If you need help finding gun names, ask a modder on the Gungeon discord.
-            
+            // Load dart gun from JSON dump
+
             gun.AddProjectileModuleFrom("dart_gun", true, false);
 
+            // Parameters
             gun.quality = PickupObject.ItemQuality.EXCLUDED;
 
             gun.DefaultModule.ammoCost = 1;
@@ -38,7 +38,13 @@ namespace ArchiGungeon
             gun.LocalInfiniteAmmo = true;
             gun.DefaultModule.cooldownTime = 2f;
             gun.doesScreenShake = false;
-            
+
+            gun.CanBeDropped = false;
+            gun.CanBeSold = false;
+            gun.ShouldBeExcludedFromShops = true;
+            gun.RespawnsIfPitfall = true;
+            gun.IgnoredByRat = true;
+
 
             // AUDIO
             gun.gunSwitchGroup = $"{ArchipelaGunPlugin.MOD_ITEM_PREFIX}_{itemName}";
@@ -47,13 +53,7 @@ namespace ArchiGungeon
             SoundManager.AddCustomSwitchData("WPN_Guns", gun.gunSwitchGroup, "Play_WPN_Gun_Reload_01",
                                             "Play_WPN_LowerCaseR_Magical_Kadabra_01");
 
-            gun.CanBeDropped = false;
-            gun.CanBeSold = false;
-            gun.ShouldBeExcludedFromShops = true;
-            gun.RespawnsIfPitfall = true;
-            gun.IgnoredByRat = true;
-
-            // projectile setup
+            // projectile setup -- need to setup or causes a compile error
             Projectile projectile = UnityEngine.Object.Instantiate<Projectile>(gun.DefaultModule.projectiles[0]);
             projectile.gameObject.SetActive(false);
             FakePrefab.MarkAsFakePrefab(projectile.gameObject);
@@ -69,7 +69,7 @@ namespace ArchiGungeon
             ItemBuilder.SetupItem(gun, shortDesc, longDesc, "bas");
             SpawnItemID = PickupObjectDatabase.GetId(gun);
 
-            ArchipelagoGUI.ConsoleLog($"{gun} + {gun.name} + {gun.PickupObjectId}");
+            // ArchipelagoGUI.ConsoleLog($"{gun} + {gun.name} + {gun.PickupObjectId}");
 
             return;
         }
