@@ -24,19 +24,12 @@ namespace ArchiGungeon.Archipelago
             { "Infinilich(Clone)", "Lich Killed" }
         };
 
+        private static int roomsClearedThisRun;
+
         public void StartSystemEventListens()
         {
             ArchipelagoGUI.OnMenuOpen += OnArchipelagoMenuOpen;
             ArchipelagoGUI.OnMenuClose += OnArchipelagoMenuClose;
-
-
-            //OnEnteredCombat
-            
-            //GunChanged
-            //OnUsedPlayerItem
-            //OnItemPurchased
-            //OnItemStolen
-            //OnRoomClearEvent
 
             CustomActions.OnRunStart += OnRunStarted;
             CustomActions.OnBossKilled += OnBossKilled;
@@ -94,6 +87,8 @@ namespace ArchiGungeon.Archipelago
             chest.contents.Clear();
             chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
 
+            SessionHandler.DataSender.SendChestOpened(1);
+
             //ArchipelagoGUI.ConsoleLog($"Pre open: {chest}, Should Open: {shouldOpen}");
 
             return shouldOpen;
@@ -112,6 +107,7 @@ namespace ArchiGungeon.Archipelago
         {
             ETGModConsole.Log($"Run started!");
 
+            roomsClearedThisRun = 0;
             SessionHandler.RetrievedServerItemsThisRun = false;
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
@@ -124,6 +120,8 @@ namespace ArchiGungeon.Archipelago
         private void OnBossKilled(HealthHaver haver, bool arg2)
         {
             string bossName = haver.name;
+
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
 
             if (bossGameNameMap.ContainsKey(bossName))
             {
@@ -165,19 +163,71 @@ namespace ArchiGungeon.Archipelago
 
         public void StartPlayerControllerEventListens()
         {
+
             playerController = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
+            playerController.OnNewFloorLoaded += OnNewFloorLoad;
+            playerController.OnEnteredCombat += OnPlayerEnterCombat;
+            playerController.OnRoomClearEvent += OnRoomClear;
+
+            // playerController.OnReloadPressed += OnReloadPress; ReloadPress should be listened to by gun classes instead
             playerController.OnRealPlayerDeath += OnPlayerDeath;
+            playerController.OnItemPurchased += OnItemPurchased;
+
+            playerController.OnKilledEnemyContext += OnKilledEnemy;
+            playerController.OnTableFlipped += OnTableFlip;
 
             ArchipelagoGUI.ConsoleLog(playerController);
 
             return;
         }
 
+        private void OnNewFloorLoad(PlayerController playerController)
+        {
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+            return;
+        }
+
+        private void OnPlayerEnterCombat()
+        {
+            // TODO: hide archipelagun
+            return;
+        }
+
         private void OnPlayerDeath(PlayerController controller)
         {
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
             SessionHandler.DataSender.SendDeathlink(causeOfDeath:deathCause);
+        }
+
+        private void OnRoomClear(PlayerController playerController)
+        {
+            roomsClearedThisRun += 1;
+            SessionHandler.DataSender.SendRoomPointsToAdd(roomsClearedThisRun);
+
+            return;
+        }
+
+        private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
+        {
+            int spentMoney = shopItem.CurrentPrice;
+            // TODO: add to purchase cost
+            return;
+        }
+
+        private void OnKilledEnemy(PlayerController playerController, HealthHaver enemy)
+        {
+            string enemyName = enemy.name;
+            // TODO: add enemy headhunter check
+            return;
+        }
+
+        private void OnTableFlip(FlippableCover tableFlipped)
+        {
+
+            return;
         }
     }
 
