@@ -69,20 +69,6 @@ namespace ArchiGungeon.Archipelago
 
         private bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
         {
-            if (shouldOpen == false)
-            {
-                return shouldOpen;
-            }
-
-            if (SessionHandler.session == null || SessionHandler.session.Socket.Connected == false)
-            {
-                return shouldOpen;
-            }
-
-            chest.contents.Clear();
-            chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
-
-            SessionHandler.DataSender.SendChestOpened(1);
 
             //ArchipelagoGUI.ConsoleLog($"Pre open: {chest}, Should Open: {shouldOpen}");
 
@@ -91,6 +77,16 @@ namespace ArchiGungeon.Archipelago
 
         private void OnChestOpen(Chest chest, PlayerController controller)
         {
+            if (SessionHandler.session == null || SessionHandler.session.Socket.Connected == false)
+            {
+                return;
+            }
+
+            chest.contents.Clear();
+            chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
+
+            SessionHandler.DataSender.SendChestOpened(1);
+
             //ArchipelagoGUI.ConsoleLog($"OPEN: {chest}");
 
             return;
