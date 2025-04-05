@@ -61,6 +61,19 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
+        public static void TDD_CallNextLocationCheck()
+        {
+            if (locationIDs.Count > 0)
+            {
+                SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
+
+                locationIDs.RemoveAt(0);
+            }
+
+
+            return;
+        }
+
 
     }
 }
