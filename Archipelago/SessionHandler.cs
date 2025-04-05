@@ -26,15 +26,32 @@ namespace ArchiGungeon.Archipelago
 
         public readonly int location_check_initial_ID = 8755000;
 
-        //public static Dictionary<string, int> server_slot_data = new Dictionary<string, int>();
-        public static ArchipelagoSession session;
+        public static ArchipelagoSession session { get; protected set; }
+        private static Dictionary<string, object> player_slot_settings = new Dictionary<string, object>(); // player settings, use to initialize data
+
+        // TEMP MILESTONE VALUES
+        private static Dictionary<string, int> counting_save_data = new Dictionary<string, int>()
+        {
+            { "Init", 0 },
+            { "ChestsOpened", 0 },
+            { "NextGoalChestsOpened", 1 },
+            { "RoomPoints", 0 },
+            { "NextGoalRoomPoints", 1 }
+
+        };
+
+        private static int currentOpenedChestGoal = 1;
+        private static int[] openedChestMilestones = { 4, 8, 13, 18, 24, 30, 37, 44};
+        private static int currentRoomPointsGoal = 1;
+        private static int[] clearedRoomPointMilestones = { 2, 6, 24, 120, 720, 5040, 10000, 15000};
+
         public static DeathLinkService deathLinkService;
         public static bool RetrievedServerItemsThisRun = false;
 
         private static List<long> item_add_queue = new();
-        public static bool allow_traps = false;
+        private static bool allow_traps = false;
 
-
+        
         public SessionHandler()
         {
             Instance = this;
@@ -70,16 +87,21 @@ namespace ArchiGungeon.Archipelago
             }
 
             // Success after this point
-
-            BindToArchipelagoEvents();
-
-            LoginSuccessful loginSuccessful = (LoginSuccessful)loginResult;
-            PlayerPersistentDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+            //LoginSuccessful loginSuccessful = (LoginSuccessful)loginResult;
 
             InitializeServerDataStorage();
-            InitializeAPItems();
+            PullLatestSlotData();
 
+            BindToArchipelagoEvents();
+            CheckToCreateDeathlink();
+
+            // todo > write stuff to JSON
+            PlayerPersistentDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+
+            
+            InitializeAPItems();
             allow_traps = true;
+
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
             return;
@@ -125,23 +147,61 @@ namespace ArchiGungeon.Archipelago
             return;
         }
 
+        private static void InitializeServerDataStorage()
+        {
+            ArchipelagoGUI.ConsoleLog("Init keys");
+            // todo: test if can write new etire entry
+            session.DataStorage[Scope.Slot, "ChestsOpened"].Initialize(0);
+            //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
+            session.DataStorage[Scope.Slot, "NextGoalChestsOpened"].Initialize(1);
+
+            session.DataStorage[Scope.Slot, "RoomPoints"].Initialize(0);
+            //session.DataStorage["RoomPoints"].OnValueChanged += DataReceiver.OnRoomPointsValueChange;
+            session.DataStorage[Scope.Slot, "NextGoalRoomPoints"].Initialize(1);
+
+            // GAME COMPLETION
+            session.DataStorage[Scope.Slot, "Blobulord Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Old King Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Resourceful Rat Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Agunim Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Dragun Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Advanced Dragun Killed"].Initialize(0);
+            session.DataStorage[Scope.Slot, "Lich Killed"].Initialize(0);
+
+            
+        }
+
+        private static void PullLatestSlotData()
+        {
+            player_slot_settings = session.DataStorage.GetSlotData();
+
+            foreach (string key in player_slot_settings.Keys)
+            {
+                ArchipelagoGUI.ConsoleLog($"KEY: {key} -- VALUE: {player_slot_settings[key]}");
+            }
+
+            ArchipelagoGUI.ConsoleLog("Pulling keys");
+            //nextOpenedChestGoal = Convert.ToInt32(archipelago_slot_save_data["NextGoalChestsOpened"]);
+            //nextRoomPointsGoal = Convert.ToInt32(archipelago_slot_save_data["NextGoalRoomPoints"]);
+        }
+
 
         private static void BindToArchipelagoEvents()
         {
-            Dictionary<string, object> slotData = session.DataStorage.GetSlotData();
-            foreach (string key in slotData.Keys)
-            {
-                ArchipelagoGUI.ConsoleLog($"KEY: {key} -- VALUE: {slotData[key]}");
-            }
-            
             // binds
             session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
             session.Items.ItemReceived += DataReceiver.OnItemReceived;
             session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
 
-            
+            return;
+        }
+
+
+
+        private static void CheckToCreateDeathlink()
+        {
             // deathlink
-            if (Convert.ToInt32(slotData["DeathLink"]) == 1)
+            if (Convert.ToInt32(player_slot_settings["DeathLink"]) == 1)
             {
                 InitializeDeathlink(true);
                 ArchipelagoGUI.ConsoleLog("Deathlink ON");
@@ -150,10 +210,6 @@ namespace ArchiGungeon.Archipelago
             {
                 ArchipelagoGUI.ConsoleLog("Deathlink off");
             }
-
-           
-
-            return;
         }
 
         private static void InitializeDeathlink(bool isDeathlinkEnabled)
@@ -171,19 +227,6 @@ namespace ArchiGungeon.Archipelago
         }
 
 
-        private static void InitializeServerDataStorage()
-        {
-            session.DataStorage[Scope.Slot, "ChestsOpened"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Blobulord Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Old King Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Resourceful Rat Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Agunim Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Dragun Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Advanced Dragun Killed"].Initialize(0);
-            session.DataStorage[Scope.Slot, "Lich Killed"].Initialize(0);
-
-            // session.DataStorage[Scope.Slot, "ChestsOpened"].OnValueChanged += DataSender.OnLocationCheckChestOpened;
-        }
 
         public static void RetrieveServerItems()
         {
@@ -268,7 +311,7 @@ namespace ArchiGungeon.Archipelago
                 ArchipelagoGUI.ConsoleLog($"Dragun killed: {(bool)session.DataStorage[Scope.Slot, "Dragun Killed"]}");
             }
 
-            //if (session.DataStorage[Scope.Slot, "Goal"] == 1)
+            if (session.DataStorage[Scope.Slot, "Goal"] == 1)
             {
                 ArchipelagoGUI.ConsoleLog($"Lich killed: {(bool)session.DataStorage[Scope.Slot, "Lich Killed"]}");
             }
@@ -326,7 +369,7 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendDeathlink(string playerName = "Gungeoneer", string causeOfDeath = "Died to Gungeon")
             {
-                if(deathLinkService == null)
+                if (deathLinkService == null)
                 {
                     ArchipelagoGUI.ConsoleLog("Tried to send Deathlink but not connected!");
                     return;
@@ -366,31 +409,82 @@ namespace ArchiGungeon.Archipelago
                 });
             }
 
-            public static void ParseOpenedChestToLocationCheck()
+
+            public static void SendChestOpened(int numberToAdd)
             {
-                session.DataStorage[Scope.Slot, "ChestsOpened"] += 1;
-
-                long locationCheckCompleted = session.DataStorage[Scope.Slot, "ChestsOpened"] + SessionHandler.Instance.location_check_initial_ID;
-
-                string locationName = session.Locations.GetLocationNameFromId(locationCheckCompleted) ?? $"Location: {locationCheckCompleted}";
-
-
-                ArchipelagoGUI.ConsoleLog($"{locationCheckCompleted} is location: {locationName}");
-
-            }
-
-            /*
-            public static void OnLocationCheckChestOpened(JToken previousChestId, JToken newChestId, Dictionary<string, JToken> additionalArguments)
-            {
-                for (int locationChecks = 0; locationChecks < newChestId.ToObject<int>(); locationChecks++)
+                if(counting_save_data["Init"] != 1)
                 {
-                    SendFoundLocationCheck(SessionHandler.Instance.location_check_initial_ID + locationChecks);
+                    PullServerCountSaveDataToLocalVariable();
+                }
+
+                counting_save_data["ChestsOpened"] = counting_save_data["ChestsOpened"] + numberToAdd;
+                bool IsGoalMet = counting_save_data["ChestsOpened"] > currentOpenedChestGoal;
+                
+                ArchipelagoGUI.ConsoleLog($"{counting_save_data["ChestsOpened"]} check against: {currentOpenedChestGoal}");
+               
+                if (IsGoalMet)
+                {
+                    SendChestGoalLocationCheckComplete(currentOpenedChestGoal);
+                    SendLocalIncrementalCountValuesToServer();
+                    return;
                 }
 
                 return;
             }
-            */
 
+            public static void SendRoomPointsToAdd(int numberToAdd)
+            {
+                if (counting_save_data["Init"] != 1)
+                {
+                    PullServerCountSaveDataToLocalVariable();
+                }
+
+                counting_save_data["RoomPoints"] = counting_save_data["RoomPoints"] + numberToAdd;
+                bool IsGoalMet = counting_save_data["RoomPoints"] > currentRoomPointsGoal;
+
+                ArchipelagoGUI.ConsoleLog($"{counting_save_data["RoomPoints"]} check against: {currentRoomPointsGoal}");
+
+                if (IsGoalMet)
+                {
+                    SendRoomPointGoalLocationCheckComplete(currentRoomPointsGoal);
+                    SendLocalIncrementalCountValuesToServer();
+                }
+
+                return;
+            }
+
+            private static void PullServerCountSaveDataToLocalVariable()
+            {
+                if (session == null || session.Socket.Connected == false)
+                {
+                    return;
+                }
+
+                counting_save_data["ChestsOpened"] = session.DataStorage[Scope.Slot, "ChestsOpened"];
+                counting_save_data["RoomPoints"] = session.DataStorage[Scope.Slot, "RoomPoints"];
+
+                counting_save_data["NextGoalChestsOpened"] = session.DataStorage[Scope.Slot, "NextGoalChestsOpened"];
+                counting_save_data["NextGoalRoomPoints"] = session.DataStorage[Scope.Slot, "NextGoalRoomPoints"];
+
+                counting_save_data["Init"] = 1;
+
+            }
+
+            public static void SendLocalIncrementalCountValuesToServer()
+            {
+                if(session == null || session.Socket.Connected == false)
+                {
+                    return;
+                }
+
+                ArchipelagoGUI.ConsoleLog($"Sending count for chests: {counting_save_data["ChestsOpened"]}");
+                ArchipelagoGUI.ConsoleLog($"Sending count for room points: {counting_save_data["RoomPoints"]}");
+
+                session.DataStorage[Scope.Slot, "ChestsOpened"] = Convert.ToInt32(counting_save_data["ChestsOpened"]);
+                session.DataStorage[Scope.Slot, "RoomPoints"] = Convert.ToInt32(counting_save_data["RoomPoints"]);
+
+                return;
+            }
 
             public static void ScoutFoundLocationCheck(long locationID)
             {
@@ -399,6 +493,32 @@ namespace ArchiGungeon.Archipelago
 
                 session.Locations.ScoutLocationsAsync(locationInfoPacket => DataReceiver.OnScoutedItemLocationReceived(locationInfoPacket),
                     locationList);
+
+                return;
+            }
+
+            public static void SendChestGoalLocationCheckComplete(int currentGoalValue)
+            {
+                APItem.TDD_CallNextLocationCheck();
+
+                int currentStep = Array.IndexOf(openedChestMilestones, currentGoalValue);
+                currentOpenedChestGoal = openedChestMilestones[currentStep + 1];
+
+                counting_save_data["NextGoalChestsOpened"] = currentOpenedChestGoal;
+                session.DataStorage[Scope.Slot, "NextGoalChestsOpened"] = currentOpenedChestGoal;
+
+                return;
+            }
+
+            public static void SendRoomPointGoalLocationCheckComplete(int currentGoalPoints)
+            {
+                APItem.TDD_CallNextLocationCheck();
+
+                int currentStep = Array.IndexOf(clearedRoomPointMilestones, currentGoalPoints);
+                currentRoomPointsGoal = clearedRoomPointMilestones[currentStep + 1];
+
+                counting_save_data["NextGoalRoomPoints"] = currentRoomPointsGoal;
+                session.DataStorage[Scope.Slot, "NextGoalRoomPoints"] = currentRoomPointsGoal;
 
                 return;
             }
@@ -483,6 +603,55 @@ namespace ArchiGungeon.Archipelago
 
                 return;
             }
+
+            /*
+            public static void OnChestsOpenedValueChange(JToken originalValue, JToken newValue, Dictionary<string, JToken> additionalArguments)
+            {
+                // Check updated value against next milestone
+
+                ArchipelagoGUI.ConsoleLog("Checking chests opened value from server async: " + newValue);
+
+                if (newValue.ToObject<int>() > nextOpenedChestGoal)
+                {
+                    // need to send location check
+                    APItem.TDD_CallNextLocationCheck();
+
+                    // update next milestone
+                    DataSender.UpdateChestGoalToNextValue(nextOpenedChestGoal);
+                }
+                return;
+            }
+
+            public static void OnRoomPointsValueChange(JToken originalValue, JToken newValue, Dictionary<string, JToken> additionalArguments)
+            {
+                ArchipelagoGUI.ConsoleLog("Checking room points value from server async: " + newValue);
+
+                if (newValue.ToObject<int>() > nextRoomPointsGoal)
+                {
+                    // need to send location check
+                    APItem.TDD_CallNextLocationCheck();
+
+                    // update next milestone
+
+                    DataSender.UpdateRoomPointsGoalToNextvalue(nextRoomPointsGoal);
+                }
+
+                return;
+            }
+
+            */
+
+            /*
+            public static void OnLocationCheckChestOpened(JToken previousChestId, JToken newChestId, Dictionary<string, JToken> additionalArguments)
+            {
+                for (int locationChecks = 0; locationChecks < newChestId.ToObject<int>(); locationChecks++)
+                {
+                    SendFoundLocationCheck(SessionHandler.Instance.location_check_initial_ID + locationChecks);
+                }
+
+                return;
+            }
+            */
         }
 
     }
