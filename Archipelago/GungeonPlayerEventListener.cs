@@ -74,12 +74,7 @@ namespace ArchiGungeon.Archipelago
                 return shouldOpen;
             }
 
-            if (SessionHandler.session == null)
-            {
-                return shouldOpen;
-            }
-
-            if (SessionHandler.session.Socket.Connected == false)
+            if (SessionHandler.session == null || SessionHandler.session.Socket.Connected == false)
             {
                 return shouldOpen;
             }
@@ -120,6 +115,7 @@ namespace ArchiGungeon.Archipelago
         private void OnBossKilled(HealthHaver haver, bool arg2)
         {
             string bossName = haver.name;
+
 
             SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
 
@@ -205,6 +201,8 @@ namespace ArchiGungeon.Archipelago
         private void OnRoomClear(PlayerController playerController)
         {
             roomsClearedThisRun += 1;
+
+            ArchipelagoGUI.ConsoleLog("Room points sent: " + roomsClearedThisRun);
             SessionHandler.DataSender.SendRoomPointsToAdd(roomsClearedThisRun);
 
             return;

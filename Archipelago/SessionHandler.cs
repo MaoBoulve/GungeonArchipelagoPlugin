@@ -164,8 +164,8 @@ namespace ArchiGungeon.Archipelago
         {
             archipelago_slot_save_data = session.DataStorage.GetSlotData();
 
-            nextOpenedChestGoal = Convert.ToInt32((object)session.DataStorage[Scope.Slot, "NextGoalChestsOpened"]);
-            nextRoomPointsGoal = Convert.ToInt32((object)session.DataStorage[Scope.Slot, "NextGoalRoomPoints"]);
+            nextOpenedChestGoal = session.DataStorage[Scope.Slot, "NextGoalChestsOpened"];
+            nextRoomPointsGoal = session.DataStorage[Scope.Slot, "NextGoalRoomPoints"];
 
             foreach (string key in archipelago_slot_save_data.Keys)
             {
@@ -400,9 +400,10 @@ namespace ArchiGungeon.Archipelago
             public static void SendChestOpened(int numberToAdd)
             {
                 archipelago_slot_save_data["ChestsOpened"] = (Convert.ToInt32(archipelago_slot_save_data["ChestsOpened"]) + numberToAdd);
-
                 bool IsGoalMet = Convert.ToInt32(archipelago_slot_save_data["ChestsOpened"]) > nextOpenedChestGoal;
-
+                
+                ArchipelagoGUI.ConsoleLog($"{archipelago_slot_save_data["ChestsOpened"]} check against: {nextOpenedChestGoal}");
+               
                 if (IsGoalMet)
                 {
                     SendLocalIncrementalCountValuesToServer();
@@ -417,6 +418,8 @@ namespace ArchiGungeon.Archipelago
                 archipelago_slot_save_data["RoomPoints"] = (Convert.ToInt32(archipelago_slot_save_data["RoomPoints"]) + numberToAdd);
                 bool IsGoalMet = Convert.ToInt32(archipelago_slot_save_data["RoomPoints"]) > nextRoomPointsGoal;
 
+                ArchipelagoGUI.ConsoleLog($"{archipelago_slot_save_data["RoomPoints"]} check against: {nextRoomPointsGoal}");
+
                 if (IsGoalMet)
                 {
                     SendLocalIncrementalCountValuesToServer();
@@ -427,8 +430,18 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendLocalIncrementalCountValuesToServer()
             {
+                if(session == null || session.Socket.Connected == false)
+                {
+                    return;
+                }
+
+                ArchipelagoGUI.ConsoleLog($"Sending count for chests: {archipelago_slot_save_data["ChestsOpened"]}");
+                ArchipelagoGUI.ConsoleLog($"Sending count for room points: {archipelago_slot_save_data["RoomPoints"]}");
+
                 session.DataStorage[Scope.Slot, "ChestsOpened"] = Convert.ToInt32(archipelago_slot_save_data["ChestsOpened"]);
                 session.DataStorage[Scope.Slot, "RoomPoints"] = Convert.ToInt32(archipelago_slot_save_data["RoomPoints"]);
+
+                return;
             }
 
             public static void ScoutFoundLocationCheck(long locationID)
