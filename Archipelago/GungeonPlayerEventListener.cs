@@ -77,7 +77,7 @@ namespace ArchiGungeon.Archipelago
 
         private void OnChestOpen(Chest chest, PlayerController controller)
         {
-            if (SessionHandler.session == null || SessionHandler.session.Socket.Connected == false)
+            if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
             {
                 return;
             }
@@ -99,7 +99,7 @@ namespace ArchiGungeon.Archipelago
             ETGModConsole.Log($"Run started!");
 
             roomsClearedThisRun = 0;
-            SessionHandler.RetrievedServerItemsThisRun = false;
+            SessionHandler.ResetItemRetrieveState();
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);

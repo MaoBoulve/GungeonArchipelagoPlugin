@@ -78,7 +78,7 @@ namespace ArchiGungeon
             StartGungeonPlayerListener();
 
             // Print all directories BepInEx will allow
-            PlayerPersistentDataHandler.TDD_PrintAllPathsDirectory();
+            SaveDataHandler.TDD_PrintAllPathsDirectory();
 
             return;
         }
