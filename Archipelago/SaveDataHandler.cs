@@ -62,6 +62,22 @@ namespace ArchiGungeon.Archipelago
 
     }
 
+    public enum MilestoneGoals
+    {
+        ChestsOpened,
+        RoomPoints,
+        CashSpent,
+        Floor1Clears,
+        Floor2Clears,
+        Floor3Clears,
+        Floor4Clears,
+        Floor5Clears,
+        Floor6Clears,
+        FloorGoopClears,
+        FloorAbbeyClears,
+        FloorRatClears,
+        FloorDeptClears
+    }
 
     public class CountMilestones()
     {
@@ -127,6 +143,182 @@ namespace ArchiGungeon.Archipelago
         public int[] FloorAbbeyMilestones { get { return floorAbbeyMilestones; } set { floorAbbeyMilestones = value; } }
         public int[] FloorRatMilestones { get { return floorRatMilestones; } set { floorRatMilestones = value; } }
         public int[] FloorDeptMilestones { get { return floorDeptClearMilestones; } set { floorDeptClearMilestones = value; } }
+
+        public void UpdateMilestoneGoalToNext(MilestoneGoals goalToChange)
+        {
+            switch (goalToChange)
+            {
+                case MilestoneGoals.ChestsOpened:
+                    {
+                        int currentStep = Array.IndexOf(ChestMilestones, currentOpenedChestGoal);
+
+                        if(currentStep > (openedChestMilestones.Length - 1))
+                        {
+                            currentOpenedChestGoal = -9999;
+                            return;
+                        }
+
+                        currentOpenedChestGoal = ChestMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.RoomPoints:
+                    {
+                        int currentStep = Array.IndexOf(RoomPointsMilestones, currentRoomPointsGoal);
+
+                        if (currentStep > (clearedRoomPointMilestones.Length - 1))
+                        {
+                            currentRoomPointsGoal = -9999;
+                            return;
+                        }
+
+                        currentRoomPointsGoal = RoomPointsMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.CashSpent:
+                    {
+                        int currentStep = Array.IndexOf(CashSpentMilestones, cashSpentGoal);
+
+                        if (currentStep > (cashSpentMilestones.Length - 1))
+                        {
+                            cashSpentGoal = -9999;
+                            return;
+                        }
+
+                        cashSpentGoal = CashSpentMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor1Clears:
+                    {
+                        int currentStep = Array.IndexOf(Floor1Milestones, floor1clearsGoal);
+
+                        if (currentStep > (floor1Milestones.Length - 1))
+                        {
+                            floor1clearsGoal = -9999;
+                            return;
+                        }
+
+                        currentOpenedChestGoal = ChestMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor2Clears:
+                    {
+                        int currentStep = Array.IndexOf(Floor2Milestones, floor2clearsGoal);
+
+                        if (currentStep > (floor2Milestones.Length - 1))
+                        {
+                            floor2clearsGoal = -9999;
+                            return;
+                        }
+
+                        currentOpenedChestGoal = ChestMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor3Clears:
+                    {
+                        int currentStep = Array.IndexOf(floor3Milestones, floor3clearsGoal);
+
+                        if (currentStep > (floor3Milestones.Length - 1))
+                        {
+                            floor3clearsGoal = -9999;
+                            return;
+                        }
+
+                        floor3clearsGoal = floor3Milestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor4Clears:
+                    {
+                        int currentStep = Array.IndexOf(floor4Milestones, floor4clearsGoal);
+
+                        if (currentStep > (floor4Milestones.Length - 1))
+                        {
+                            floor4clearsGoal = -9999;
+                            return;
+                        }
+
+                        floor4clearsGoal = floor4Milestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor5Clears:
+                    {
+                        int currentStep = Array.IndexOf(floor5Milestones, floor5clearsGoal);
+
+                        if (currentStep > (floor5Milestones.Length - 1))
+                        {
+                            floor5clearsGoal = -9999;
+                            return;
+                        }
+
+                        floor5clearsGoal = floor5Milestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.Floor6Clears:
+                    {
+                        int currentStep = Array.IndexOf(floor6Milestones, floor6clearsGoal);
+
+                        if (currentStep > (floor6Milestones.Length - 1))
+                        {
+                            floor6clearsGoal = -9999;
+                            return;
+                        }
+
+                        floor6clearsGoal = floor6Milestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.FloorGoopClears:
+                    {
+                        int currentStep = Array.IndexOf(floorGoopMilestones, floorGoopClearsGoal);
+
+                        if (currentStep > (floorGoopMilestones.Length - 1))
+                        {
+                            floorGoopClearsGoal = -9999;
+                            return;
+                        }
+
+                        floorGoopClearsGoal = floor6Milestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.FloorAbbeyClears:
+                    {
+                        int currentStep = Array.IndexOf(floorAbbeyMilestones, floorAbbeyClearsGoal);
+
+                        if (currentStep > (floorAbbeyMilestones.Length - 1))
+                        {
+                            floorAbbeyClearsGoal = -9999;
+                            return;
+                        }
+
+                        floorAbbeyClearsGoal = floorAbbeyMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.FloorRatClears:
+                    {
+                        int currentStep = Array.IndexOf(floorRatMilestones, floorRatClearGoal);
+
+                        if (currentStep > (floorRatMilestones.Length - 1))
+                        {
+                            floorRatClearGoal = -9999;
+                            return;
+                        }
+
+                        floorRatClearGoal = floorRatMilestones[currentStep];
+                        return;
+                    }
+                case MilestoneGoals.FloorDeptClears:
+                    {
+                        int currentStep = Array.IndexOf(floorDeptClearMilestones, floorDeptClearGoal);
+
+                        if (currentStep > (floorDeptClearMilestones.Length - 1))
+                        {
+                            currentOpenedChestGoal = -9999;
+                            return;
+                        }
+
+                        floorDeptClearGoal = floorDeptClearMilestones[currentStep];
+                        return;
+                    }
+            }
+        }
     }
 
     public class SaveDataHandler
