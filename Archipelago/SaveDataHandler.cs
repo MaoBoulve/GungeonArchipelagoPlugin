@@ -79,7 +79,7 @@ namespace ArchiGungeon.Archipelago
         FloorDeptClears
     }
 
-    public class CountMilestones()
+    public class CountMilestones
     {
         private static Dictionary<MilestoneGoals, Object> enumToGoal = new Dictionary<MilestoneGoals, Object>()
         {
@@ -346,14 +346,14 @@ namespace ArchiGungeon.Archipelago
     public class APItemData
     {
         public static string[] itemFunnyPrefix =
-                    [
+                    {
                         "A moist",
                         "A cubic",
                         "A mushy",
                         "An orb-like",
                         "A smelly",
                         "A mysterious"
-                    ];
+                    };
     }
 
 
