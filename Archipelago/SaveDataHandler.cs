@@ -15,6 +15,15 @@ namespace ArchiGungeon.Archipelago
         {
         }
 
+        public static Dictionary<string, string> GoalKeyToSaveKey { get; } = new Dictionary<string, string>()
+        {
+            { "Blobulord Goal", "Blobulord Killed"},
+            { "Old King Goal", "Old King Killed"},
+            { "Resourceful Rat Goal", "Resourceful Rat Killed"},
+            { "Agunim Goal", "Agunim Killed"},
+            { "Advanced Dragun Goal", "Advanced Dragun Killed"},
+        };
+
         public static Dictionary<string, object> player_slot_settings = new Dictionary<string, object>();
 
         private static Dictionary<string, int> saveData = new Dictionary<string, int>()
@@ -38,28 +47,33 @@ namespace ArchiGungeon.Archipelago
             { "FloorDeptClears", 0 },
         };
 
-        public Dictionary<string, int> SaveData{get { return saveData; }}
+        public static Dictionary<string, int> SaveData{get { return saveData; }}
 
-        public int IsSaveDataInitialize{get { return saveData["Init"]; } set { saveData["Init"] = value; } }
+        public static int IsSaveDataInitialize{get { return saveData["Init"]; } set { saveData["Init"] = value; } }
 
-        public int ChestsOpened{get { return saveData["ChestsOpened"]; }set { saveData["ChestsOpened"] = value; }}
+        public static int ChestsOpened{get { return saveData["ChestsOpened"]; }set { saveData["ChestsOpened"] = value; }}
 
-        public int RoomPoints { get { return saveData["RoomPoints"]; }set { saveData["RoomPoints"] = value; }}
+        public static int RoomPoints { get { return saveData["RoomPoints"]; }set { saveData["RoomPoints"] = value; }}
 
-        public int ItemsRetrievedThisRun{ get { return saveData["ItemsRetrievedThisRun"]; } set { saveData["ItemsRetrievedThisRun"] = value; }}
+        public static int ItemsRetrievedThisRun{ get { return saveData["ItemsRetrievedThisRun"]; } set { saveData["ItemsRetrievedThisRun"] = value; }}
 
-        public int Floor1Clears { get { return saveData["Floor1Clears"]; } set { saveData["Floor1Clears"] = value; } }
-        public int Floor2Clears { get { return saveData["Floor2Clears"]; } set { saveData["Floor2Clears"] = value; } }
-        public int Floor3Clears { get { return saveData["Floor3Clears"]; } set { saveData["Floor3Clears"] = value; } }
-        public int Floor4Clears { get { return saveData["Floor4Clears"]; } set { saveData["Floor4Clears"] = value; } }
-        public int Floor5Clears { get { return saveData["Floor5Clears"]; } set { saveData["Floor5Clears"] = value; } }
-        public int Floor6Clears { get { return saveData["Floor6Clears"]; } set { saveData["Floor6Clears"] = value; } }
+        public static int Floor1Clears { get { return saveData["Floor1Clears"]; } set { saveData["Floor1Clears"] = value; } }
+        public static int Floor2Clears { get { return saveData["Floor2Clears"]; } set { saveData["Floor2Clears"] = value; } }
+        public static int Floor3Clears { get { return saveData["Floor3Clears"]; } set { saveData["Floor3Clears"] = value; } }
+        public static int Floor4Clears { get { return saveData["Floor4Clears"]; } set { saveData["Floor4Clears"] = value; } }
+        public static int Floor5Clears { get { return saveData["Floor5Clears"]; } set { saveData["Floor5Clears"] = value; } }
+        public static int Floor6Clears { get { return saveData["Floor6Clears"]; } set { saveData["Floor6Clears"] = value; } }
 
-        public int FloorGoopClears { get { return saveData["FloorGoopClears"]; } set { saveData["FloorGoopClears"] = value; } }
-        public int FloorAbbeyClears { get { return saveData["FloorAbbeyClears"]; } set { saveData["FloorAbbeyClears"] = value; } }
-        public int FloorRatClears { get { return saveData["FloorRatClears"]; } set { saveData["FloorRatClears"] = value; } }
-        public int FloorDeptClears { get { return saveData["FloorDeptClears"]; } set { saveData["FloorDeptClears"] = value; } }
+        public static int FloorGoopClears { get { return saveData["FloorGoopClears"]; } set { saveData["FloorGoopClears"] = value; } }
+        public static int FloorAbbeyClears { get { return saveData["FloorAbbeyClears"]; } set { saveData["FloorAbbeyClears"] = value; } }
+        public static int FloorRatClears { get { return saveData["FloorRatClears"]; } set { saveData["FloorRatClears"] = value; } }
+        public static int FloorDeptClears { get { return saveData["FloorDeptClears"]; } set { saveData["FloorDeptClears"] = value; } }
 
+        public static Dictionary<string, object> ServerKeyToSaveProperty { get; } = new Dictionary<string, object>
+        {
+            {"ChestsOpened", ChestsOpened},
+            {"RoomPoints", RoomPoints }
+        };
     }
 
     public enum MilestoneGoals
