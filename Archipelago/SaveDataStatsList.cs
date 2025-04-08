@@ -49,6 +49,17 @@ namespace ArchiGungeon.Archipelago
 
     public class SaveStatsInfo
     {
+        public static Dictionary<CompletionGoals, SaveStats> GoalToSaveStat = new Dictionary<CompletionGoals, SaveStats>()
+        {
+            { CompletionGoals.Blobulord, SaveStats.BlobulordKills },
+            { CompletionGoals.OldKing, SaveStats.OldKingKills},
+            { CompletionGoals.Rat, SaveStats.RatKills},
+            { CompletionGoals.Agunim, SaveStats.DeptAgunimKills},
+            { CompletionGoals.AdvancedDragun, SaveStats.AdvancedDragunKills},
+            { CompletionGoals.Dragun, SaveStats.DragunKills},
+            { CompletionGoals.Lich, SaveStats.LichKills },
+        };
+
         public static Dictionary<SaveStats, string> StatToKey { get; } = new Dictionary<SaveStats, string>()
         {
             { SaveStats.ChestsOpened, "ChestsOpened"},

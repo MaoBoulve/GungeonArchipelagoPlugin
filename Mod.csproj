@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="Archipelago\ArchipelagoGungeonBridge.cs" />
     <Compile Include="Archipelago\SaveDataHandler.cs" />
+    <Compile Include="Archipelago\SaveDataStatsList.cs" />
     <Compile Include="Archipelago\SessionHandler.cs" />
     <Compile Include="ArchipelaGunPlugin.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
