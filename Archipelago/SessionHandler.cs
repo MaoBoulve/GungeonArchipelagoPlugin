@@ -17,23 +17,21 @@ using System.Collections.ObjectModel;
 
 namespace ArchiGungeon.Archipelago
 {
+    
+
 
     public class SessionHandler:MonoBehaviour
     {
-        // Summary:
         // The current instance of the console.
         public static SessionHandler Instance { get; protected set; }
-
-        // public readonly int location_check_initial_ID = 8755000;
-
         public static ArchipelagoSession Session { get; protected set; }
+        public static DeathLinkService DeathLinkService { get; protected set; }
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
 
         
-        private static RandomizerSaveData CountSaveData { get; } = new();
         private static CountMilestones CountMilestones { get; } = new();
 
-        public static DeathLinkService deathLinkService;
+        
 
         private static bool pulledItemsThisRun = false;
         private static List<long> item_add_queue = new();
@@ -139,15 +137,20 @@ namespace ArchiGungeon.Archipelago
         {
             ArchipelagoGUI.ConsoleLog("Init keys");
 
-            Session.DataStorage[Scope.Slot, "ChestsOpened"].Initialize(0);
             //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
-            Session.DataStorage[Scope.Slot, "NextGoalChestsOpened"].Initialize(1);
+
+            // basic counting
+            Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[SaveStats.ChestsOpened]].Initialize(0);
+            
+            // TODO: compose as array[3] - [currentCount, nextMilestone, milestoneList]
+
+            //Session.DataStorage[Scope.Slot, "NextGoalChestsOpened"].Initialize(1);
 
             Session.DataStorage[Scope.Slot, "RoomPoints"].Initialize(0);
-            Session.DataStorage[Scope.Slot, "NextGoalRoomPoints"].Initialize(1);
+            //Session.DataStorage[Scope.Slot, "NextGoalRoomPoints"].Initialize(1);
 
             Session.DataStorage[Scope.Slot, "CashSpent"].Initialize(0);
-            Session.DataStorage[Scope.Slot, "NextGoalCashSpent"].Initialize(50);
+            //Session.DataStorage[Scope.Slot, "NextGoalCashSpent"].Initialize(50);
 
             // GAME COMPLETION
             Session.DataStorage[Scope.Slot, "Blobulord Killed"].Initialize(0);
@@ -205,14 +208,14 @@ namespace ArchiGungeon.Archipelago
 
         private static void InitializeDeathlink(bool isDeathlinkEnabled)
         {
-            deathLinkService = Session.CreateDeathLinkService();
+            DeathLinkService = Session.CreateDeathLinkService();
 
             if (isDeathlinkEnabled)
             {
-                deathLinkService.EnableDeathLink();
+                DeathLinkService.EnableDeathLink();
             }
 
-            deathLinkService.OnDeathLinkReceived += DataReceiver.OnDeathlink;
+            DeathLinkService.OnDeathLinkReceived += DataReceiver.OnDeathlink;
 
             return;
         }
@@ -369,7 +372,7 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendDeathlink(string playerName = "Gungeoneer", string causeOfDeath = "Died to Gungeon")
             {
-                if (deathLinkService == null)
+                if (DeathLinkService == null)
                 {
                     ArchipelagoGUI.ConsoleLog("Tried to send Deathlink but not connected!");
                     return;
@@ -377,7 +380,7 @@ namespace ArchiGungeon.Archipelago
 
                 string deathName = ConnectionSettings.PlayerName;
 
-                deathLinkService.SendDeathLink(new DeathLink(deathName, causeOfDeath));
+                DeathLinkService.SendDeathLink(new DeathLink(deathName, causeOfDeath));
                 return;
             }
 

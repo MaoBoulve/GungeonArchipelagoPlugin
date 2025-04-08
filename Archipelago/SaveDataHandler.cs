@@ -235,7 +235,7 @@ namespace ArchiGungeon.Archipelago
                 case MilestoneGoals.FloorDeptClears:
                     return floorDeptClearMilestones;
                 default:
-                    return [-9999, -9999];
+                    return new int[]{ -9999, -9999};
             }
         }
 
@@ -295,8 +295,8 @@ namespace ArchiGungeon.Archipelago
 
         public static Dictionary<MilestoneGoals, string[]> GoalEnumToServerKey { get; } = new Dictionary<MilestoneGoals, string[]>()
         {
-            { MilestoneGoals.ChestsOpened, ["NextGoalChestsOpened", "ChestsOpenedMilestones"] },
-            { MilestoneGoals.RoomPoints, ["NextGoalRoomPoints", "RoomPointsMilestones"] }
+            { MilestoneGoals.ChestsOpened, new string[]{"NextGoalChestsOpened", "ChestsOpenedMilestones" } },
+            { MilestoneGoals.RoomPoints, new string[]{"NextGoalRoomPoints", "RoomPointsMilestones" } }
         };
 
         private static int chestsOpenedGoal = 1;
