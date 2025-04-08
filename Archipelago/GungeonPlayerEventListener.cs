@@ -13,7 +13,8 @@ namespace ArchiGungeon.Archipelago
     {
         private static PlayerController playerController;
 
-        private static Dictionary<string, string> bossGameNameMap = new Dictionary<string, string>
+        /*
+        private static Dictionary<string, string> bossGameNameMap { get; } = new Dictionary<string, string>
         {
             { "Blobulord(Clone)", "Blobulord Killed" },
             { "OldBulletKing(Clone)", "Old King Killed" },
@@ -22,6 +23,18 @@ namespace ArchiGungeon.Archipelago
             { "AdvancedDraGun(Clone)", "Advanced Dragun Killed" },
             { "DraGun(Clone)", "Dragun Killed" },
             { "Infinilich(Clone)", "Lich Killed" }
+        };
+        */
+
+        private static Dictionary<string, CompletionGoals> bossObjectNameToSaveStat { get; } = new Dictionary<string, CompletionGoals>
+        {
+            { "Blobulord(Clone)", CompletionGoals.Blobulord },
+            { "OldBulletKing(Clone)", CompletionGoals.OldKing },
+            { "MetalGearRat(Clone)", CompletionGoals.Rat },
+            { "Helicopter(Clone)", CompletionGoals.Agunim },
+            { "AdvancedDraGun(Clone)", CompletionGoals.AdvancedDragun },
+            { "DraGun(Clone)", CompletionGoals.Dragun },
+            { "Infinilich(Clone)", CompletionGoals.Lich }
         };
 
         private static int roomsClearedThisRun;
@@ -115,11 +128,19 @@ namespace ArchiGungeon.Archipelago
 
             SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
 
+            /*
             if (bossGameNameMap.ContainsKey(bossName))
             {
                 ETGModConsole.Log($"Possible goal boss killed: {haver}");
                 ETGModConsole.Log($"========== Checking for game completion ===========");
                 SessionHandler.DataSender.SendGoalCompletion(bossGameNameMap[bossName]);
+            }
+            */
+
+            if (bossObjectNameToSaveStat.ContainsKey(bossName))
+            {
+                ArchipelagoGUI.ConsoleLog($"Possible goal boss killed: {bossName}");
+                SessionHandler.DataSender.SendGoalCompletion(bossObjectNameToSaveStat[bossName]);
             }
 
             ETGModConsole.Log($"Boss killed: {haver}");
@@ -138,6 +159,7 @@ namespace ArchiGungeon.Archipelago
             //throw new NotImplementedException();
         }
 
+        /*
         public void Update()
         {
             if (playerController == null)
@@ -152,6 +174,7 @@ namespace ArchiGungeon.Archipelago
 
             return;
         }
+        */
 
         public void StartPlayerControllerEventListens()
         {

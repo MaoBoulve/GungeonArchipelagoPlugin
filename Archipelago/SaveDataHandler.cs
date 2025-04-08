@@ -86,18 +86,6 @@ namespace ArchiGungeon.Archipelago
         public static string PlayerName;
     }
 
-    public class APItemData
-    {
-        public static string[] itemFunnyPrefix =
-                    {
-                        "A moist",
-                        "A cubic",
-                        "A mushy",
-                        "An orb-like",
-                        "A smelly",
-                        "A mysterious"
-                    };
-    }
 
 
 }

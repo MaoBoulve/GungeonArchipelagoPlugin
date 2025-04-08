@@ -87,7 +87,7 @@ namespace ArchiGungeon.Archipelago
             { SaveStats.FloorDeptClears, "FloorDept"},
         };
 
-        private static Dictionary<SaveStats, StatInfo> StatInitValue { get; } = new Dictionary<SaveStats, StatInfo>()
+        private static Dictionary<SaveStats, StatInfo> InitialStatValues { get; } = new Dictionary<SaveStats, StatInfo>()
         {
             { SaveStats.ChestsOpened, new StatInfo(0, 1,  new int[]{ 4, 8, 13, 18, 24, 30, 37, 44 }  ) },
             { SaveStats.RoomPoints, new StatInfo(0, 1,  new int[]{ 2, 6, 24, 120, 720, 5040, 10000, 15000 }  )},
@@ -114,6 +114,8 @@ namespace ArchiGungeon.Archipelago
             { SaveStats.FloorDeptClears, new StatInfo(0, 1,  new int[]{1}  )},
         };
 
+        public static Dictionary<SaveStats, StatInfo> SaveDataTrackedStats { get; protected set; } = InitialStatValues;
+
         public static JObject CreateSaveJObj(int count, int nextGoal, int[] goalList)
         {
             JObject JSONObject = JObject.FromObject(new { CurrentCount = count, NextGoal = nextGoal, GoalList = goalList });
@@ -121,9 +123,10 @@ namespace ArchiGungeon.Archipelago
             return JSONObject;
         }
 
+
         public static JObject GetStatInitValueJObject(SaveStats statToGet)
         {
-            StatInfo statData = StatInitValue[statToGet];
+            StatInfo statData = InitialStatValues[statToGet];
 
             JObject initValJObject = CreateSaveJObj(statData.Count, statData.NextGoal, statData.GoalList);
             return initValJObject;

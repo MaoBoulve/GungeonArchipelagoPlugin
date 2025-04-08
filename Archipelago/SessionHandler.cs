@@ -177,7 +177,7 @@ namespace ArchiGungeon.Archipelago
 
             initValueJObject = SaveStatsInfo.GetStatInitValueJObject(SaveStats.LichKills);
             Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[SaveStats.LichKills]].Initialize(initValueJObject);
-            
+
         }
 
         private static void PullLatestSlotData()
@@ -314,7 +314,12 @@ namespace ArchiGungeon.Archipelago
             if (Session.DataStorage[Scope.Slot, "Goal"] == 1)
             {
                 SaveStats correspondingStat = SaveStatsInfo.GoalToSaveStat[CompletionGoals.Lich];
-                ArchipelagoGUI.ConsoleLog($"Dragun killed: {Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[correspondingStat]]}");
+                ArchipelagoGUI.ConsoleLog($"Lich killed: {Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[correspondingStat]]}");
+            }
+
+            if(DataSender.CheckForGameCompletion())
+            {
+                DataSender.SendGameCompletion();
             }
 
             return;
@@ -335,26 +340,13 @@ namespace ArchiGungeon.Archipelago
         {
 
             ReadOnlyCollection<long> serverRemainingLocations = Session.Locations.AllMissingLocations;
-
-            List<long> serverRemaining = new List<long>();
-
-            serverRemaining = serverRemainingLocations.ToList();
+            List<long> serverRemaining = serverRemainingLocations.ToList();
             
             APItem.RegisterLocationIDs(serverRemaining.ToArray());
 
             return;
         }
 
-        private static void CheckForSaveStatsToInitialize()
-        {
-            if (Session == null || Session.Socket.Connected == false)
-            {
-                return;
-            }
-
-
-            return;
-        }
 
 
         public class DataSender
@@ -390,16 +382,65 @@ namespace ArchiGungeon.Archipelago
                 return;
             }
 
-            public static void SendGoalCompletion(string goalName)
+            public static void SendGoalCompletion(CompletionGoals goalCompleted)
             {
-                Session.DataStorage[Scope.Slot, goalName] = 1;
+                //Session.DataStorage[Scope.Slot, goalName] = 1;
+                SaveStats correspondingStat = SaveStatsInfo.GoalToSaveStat[goalCompleted];
 
+                Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[correspondingStat]] += 1;
+
+                /*
                 if ((Session.DataStorage[Scope.Slot, "Blobulord Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Blobulord Killed"]) && (Session.DataStorage[Scope.Slot, "Old King Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Old King Killed"]) && (Session.DataStorage[Scope.Slot, "Resourceful Rat Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Resourceful Rat Killed"]) && (Session.DataStorage[Scope.Slot, "Agunim Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Agunim Killed"]) && (Session.DataStorage[Scope.Slot, "Advanced Dragun Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Advanced Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 0 || (bool)Session.DataStorage[Scope.Slot, "Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Lich Killed"]))
                 {
                     SendGameCompletion();
                 }
 
+                */
+
+                if (CheckForGameCompletion())
+                {
+                    SendGameCompletion();
+                }
+
                 return;
+            }
+
+            public static bool CheckForGameCompletion()
+            {
+                foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
+                {
+                    if(goalEnum == CompletionGoals.Dragun)
+                    {
+                        if (Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[SaveStats.DragunKills]] < 1)
+                        {
+                            return false;
+                        }
+                    }
+
+                    else if(goalEnum == CompletionGoals.Lich)
+                    {
+                        if (Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[SaveStats.LichKills]] < 1)
+                        {
+                            return false;
+                        }
+                    }
+
+                    else
+                    {
+                        if (Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]] == 1)
+                        {
+                            SaveStats correspondingStat = SaveStatsInfo.GoalToSaveStat[goalEnum];
+
+                            if (Session.DataStorage[Scope.Slot, SaveStatsInfo.StatToKey[correspondingStat]] < 1)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
+                }
+
+                return true;
             }
 
             public static void SendGameCompletion()
@@ -421,8 +462,7 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendChestOpened(int numberToAdd)
             {
-                CheckForSaveStatsToInitialize();
-
+                ArchipelagoGUI.ConsoleLog("Chest opened broken ATM");
 
                 //RandomizerSaveData.ChestsOpened += numberToAdd;
                 //bool IsGoalMet = RandomizerSaveData.ChestsOpened >= CountMilestones.ChestsOpenedGoal;
@@ -437,7 +477,8 @@ namespace ArchiGungeon.Archipelago
 
             public static void SendRoomPointsToAdd(int numberToAdd)
             {
-                CheckForSaveStatsToInitialize();
+
+                ArchipelagoGUI.ConsoleLog("Room points broken ATM");
 
                 // RandomizerSaveData.RoomPoints += numberToAdd;
                 // bool IsGoalMet = RandomizerSaveData.RoomPoints >= CountMilestones.RoomPointsGoal;
@@ -562,10 +603,6 @@ namespace ArchiGungeon.Archipelago
                 {
                     ArchipelagoGUI.ConsoleLog($"ID: {key} Item: {scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName} from {scoutedInfo[key].ItemGame}");
                     string name = $"{scoutedInfo[key].Player}'s + {scoutedInfo[key].ItemName}";
-
-                    int randomIndex = random.Next(0, APItemData.itemFunnyPrefix.Length);
-
-                    string description = $"{APItemData.itemFunnyPrefix[randomIndex]} item from {scoutedInfo[key].ItemGame}";
 
                 }
 
