@@ -10,7 +10,7 @@ using System.IO;
 namespace ArchiGungeon.Archipelago
 {
 
-    public class SaveDataHandler
+    public class LocalSaveDataHandler
     {
 
 

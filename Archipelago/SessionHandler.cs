@@ -99,7 +99,7 @@ namespace ArchiGungeon.Archipelago
             CheckToCreateDeathlink();
 
             // todo > write stuff to JSON
-            SaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+            LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
 
             
             InitializeAPItems();
