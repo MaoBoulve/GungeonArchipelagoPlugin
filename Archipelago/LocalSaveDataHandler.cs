@@ -35,17 +35,15 @@ namespace ArchiGungeon.Archipelago
 
         public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
         {
-            ArchipelagoGUI.ConsoleLog($"============== ProgressDataHandler JSON WIP DOESN'T WORK YET ==========");
+            ArchipelagoGUI.ConsoleLog($"============== LocalSaveDataHandler JSON WIP ==========");
 
-            ConnectionSettings.IP = ip;
-            ConnectionSettings.Port = port;
-            ConnectionSettings.PlayerName = playerName;
+            PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 
 
             JObject JSONoutput = new(
-                new JProperty("IP", ConnectionSettings.IP),
-                new JProperty("Port", ConnectionSettings.Port),
-                new JProperty("Name", ConnectionSettings.PlayerName)
+                new JProperty("IP", connectionSettings.IP),
+                new JProperty("Port", connectionSettings.Port),
+                new JProperty("Name", connectionSettings.PlayerName)
                 );
 
             ArchipelagoGUI.ConsoleLog($"{JSONoutput}");
@@ -65,26 +63,20 @@ namespace ArchiGungeon.Archipelago
             return;
         }
 
-        public static ConnectionSettings LoadLocalConnectionSettings()
+        public static PlayerConnectionInfo LoadLocalConnectionSettings()
         {
             // TKTK READ JSON
 
             string JSONoutput = "TEST TKTKTK";
 
-            ConnectionSettings connectionSettingsInstance = JsonConvert.DeserializeObject<ConnectionSettings>(JSONoutput);
+            PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
 
 
-            return connectionSettingsInstance;
+            return connectionSettings;
         }
 
     }
 
-    public class ConnectionSettings
-    {
-        public static string IP;
-        public static string Port;
-        public static string PlayerName;
-    }
 
 
 

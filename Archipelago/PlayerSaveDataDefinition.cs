@@ -6,6 +6,22 @@ using Newtonsoft.Json.Linq;
 
 namespace ArchiGungeon.Archipelago
 {
+    public struct PlayerConnectionInfo
+    {
+        public string IP;
+        public string Port;
+        public string PlayerName;
+
+        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString)
+        {
+            IP = IPstring;
+            Port = portString;
+            PlayerName = playerNameString;
+
+            return;
+        }
+    }
+
     public enum SaveCountStats
     {
         // public readonly int location_check_initial_ID = 8755000;

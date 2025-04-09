@@ -36,6 +36,7 @@ namespace ArchiGungeon.Archipelago
         public static ArchipelagoSession Session { get; protected set; }
         public static DeathLinkService DeathLinkService { get; protected set; }
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
+        private static PlayerConnectionInfo PlayerServerInfo { get; set; }
 
         private static Dictionary<CompletionGoals, string> CompletionKeys { get; } = new Dictionary<CompletionGoals, string>()
         {
@@ -99,6 +100,8 @@ namespace ArchiGungeon.Archipelago
             CheckToCreateDeathlink();
 
             // todo > write stuff to JSON
+
+            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
             LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
 
             
@@ -384,7 +387,7 @@ namespace ArchiGungeon.Archipelago
                     return;
                 }
 
-                string deathName = ConnectionSettings.PlayerName;
+                string deathName = PlayerServerInfo.PlayerName;
 
                 DeathLinkService.SendDeathLink(new DeathLink(deathName, causeOfDeath));
                 return;
