@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ArchiGungeon.Archipelago
 {
-    public enum SaveStats
+    public enum SaveCountStats
     {
         // public readonly int location_check_initial_ID = 8755000;
         ChestsOpened,
@@ -33,13 +33,13 @@ namespace ArchiGungeon.Archipelago
         FloorDeptClears
     }
 
-    public struct StatInfo
+    public struct CountStatInfo
     {
         public int Count;
         public int NextGoal;
         public int[] GoalList;
 
-        public StatInfo(int countVal, int goalVal, int[] listVal)
+        public CountStatInfo(int countVal, int goalVal, int[] listVal)
         {
             Count = countVal;
             NextGoal = goalVal;
@@ -47,89 +47,169 @@ namespace ArchiGungeon.Archipelago
         }
     }
 
-    public class SaveStatsInfo
+    public class CountSaveData
     {
-        public static Dictionary<CompletionGoals, SaveStats> GoalToSaveStat = new Dictionary<CompletionGoals, SaveStats>()
+        public static Dictionary<CompletionGoals, SaveCountStats> GoalToSaveStat = new Dictionary<CompletionGoals, SaveCountStats>()
         {
-            { CompletionGoals.Blobulord, SaveStats.BlobulordKills },
-            { CompletionGoals.OldKing, SaveStats.OldKingKills},
-            { CompletionGoals.Rat, SaveStats.RatKills},
-            { CompletionGoals.Agunim, SaveStats.DeptAgunimKills},
-            { CompletionGoals.AdvancedDragun, SaveStats.AdvancedDragunKills},
-            { CompletionGoals.Dragun, SaveStats.DragunKills},
-            { CompletionGoals.Lich, SaveStats.LichKills },
+            { CompletionGoals.Blobulord, SaveCountStats.BlobulordKills },
+            { CompletionGoals.OldKing, SaveCountStats.OldKingKills},
+            { CompletionGoals.Rat, SaveCountStats.RatKills},
+            { CompletionGoals.Agunim, SaveCountStats.DeptAgunimKills},
+            { CompletionGoals.AdvancedDragun, SaveCountStats.AdvancedDragunKills},
+            { CompletionGoals.Dragun, SaveCountStats.DragunKills},
+            { CompletionGoals.Lich, SaveCountStats.LichKills },
         };
 
-        public static Dictionary<SaveStats, string> StatToKey { get; } = new Dictionary<SaveStats, string>()
+        public static Dictionary<SaveCountStats, string> StatToKey { get; } = new Dictionary<SaveCountStats, string>()
         {
-            { SaveStats.ChestsOpened, "ChestsOpened"},
-            { SaveStats.RoomPoints, "RoomPoints"},
-            { SaveStats.CashSpent, "CashSpent"},
+            { SaveCountStats.ChestsOpened, "ChestsOpened"},
+            { SaveCountStats.RoomPoints, "RoomPoints"},
+            { SaveCountStats.CashSpent, "CashSpent"},
 
-            { SaveStats.BlobulordKills, "Blobulord"},
-            { SaveStats.OldKingKills, "OldKing"},
-            { SaveStats.RatKills, "Rat"},
-            { SaveStats.DeptAgunimKills, "DeptAgunim"},
-            { SaveStats.AdvancedDragunKills, "AdvancedDragun"},
-            { SaveStats.DragunKills, "Dragun"},
-            { SaveStats.LichKills, "Lich"},
+            { SaveCountStats.BlobulordKills, "Blobulord"},
+            { SaveCountStats.OldKingKills, "OldKing"},
+            { SaveCountStats.RatKills, "Rat"},
+            { SaveCountStats.DeptAgunimKills, "DeptAgunim"},
+            { SaveCountStats.AdvancedDragunKills, "AdvancedDragun"},
+            { SaveCountStats.DragunKills, "Dragun"},
+            { SaveCountStats.LichKills, "Lich"},
 
-            { SaveStats.Floor1Clears, "Floor1"},
-            { SaveStats.Floor2Clears, "Floor2"},
-            { SaveStats.Floor3Clears, "Floor3"},
-            { SaveStats.Floor4Clears, "Floor4"},
-            { SaveStats.Floor5Clears, "Floor5"},
+            { SaveCountStats.Floor1Clears, "Floor1"},
+            { SaveCountStats.Floor2Clears, "Floor2"},
+            { SaveCountStats.Floor3Clears, "Floor3"},
+            { SaveCountStats.Floor4Clears, "Floor4"},
+            { SaveCountStats.Floor5Clears, "Floor5"},
 
-            { SaveStats.FloorHellClears, "FloorHell"},
-            { SaveStats.FloorGoopClears, "FloorGoop"},
-            { SaveStats.FloorAbbeyClears, "FloorAbbey"},
-            { SaveStats.FloorRatClears, "FloorRat"},
-            { SaveStats.FloorDeptClears, "FloorDept"},
+            { SaveCountStats.FloorHellClears, "FloorHell"},
+            { SaveCountStats.FloorGoopClears, "FloorGoop"},
+            { SaveCountStats.FloorAbbeyClears, "FloorAbbey"},
+            { SaveCountStats.FloorRatClears, "FloorRat"},
+            { SaveCountStats.FloorDeptClears, "FloorDept"},
         };
 
-        private static Dictionary<SaveStats, StatInfo> InitialStatValues { get; } = new Dictionary<SaveStats, StatInfo>()
+        private static Dictionary<SaveCountStats, CountStatInfo> InitialStatValues { get; } = new Dictionary<SaveCountStats, CountStatInfo>()
         {
-            { SaveStats.ChestsOpened, new StatInfo(0, 1,  new int[]{ 4, 8, 13, 18, 24, 30, 37, 44 }  ) },
-            { SaveStats.RoomPoints, new StatInfo(0, 1,  new int[]{ 2, 6, 24, 120, 720, 5040, 10000, 15000 }  )},
-            { SaveStats.CashSpent, new StatInfo(0, 1,  new int[]{ 50, 100, 150, 200, 250 }  )},
+            { SaveCountStats.ChestsOpened, new CountStatInfo(0, 1,  new int[]{ 4, 8, 13, 18, 24, 30, 37, 44 }  ) },
+            { SaveCountStats.RoomPoints, new CountStatInfo(0, 1,  new int[]{ 2, 6, 24, 120, 720, 5040, 10000, 15000 }  )},
+            { SaveCountStats.CashSpent, new CountStatInfo(0, 1,  new int[]{ 50, 100, 150, 200, 250 }  )},
 
-            { SaveStats.BlobulordKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.OldKingKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.RatKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.DeptAgunimKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.AdvancedDragunKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.DragunKills, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.LichKills, new StatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.BlobulordKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.OldKingKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.RatKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.DeptAgunimKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.AdvancedDragunKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.DragunKills, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.LichKills, new CountStatInfo(0, 1,  new int[]{1}  )},
 
-            { SaveStats.Floor1Clears, new StatInfo(0, 1,  new int[]{ 1, 2, 3, 4, 5 }  )},
-            { SaveStats.Floor2Clears, new StatInfo(0, 1,  new int[]{ 1, 2, 3, 4 }  )},
-            { SaveStats.Floor3Clears, new StatInfo(0, 1,  new int[]{ 1, 2, 3 }  )},
-            { SaveStats.Floor4Clears, new StatInfo(0, 1,  new int[]{ 1, 2, 3 }  )},
-            { SaveStats.Floor5Clears, new StatInfo(0, 1,  new int[]{1, 2}  )},
+            { SaveCountStats.Floor1Clears, new CountStatInfo(0, 1,  new int[]{ 1, 2, 3, 4, 5 }  )},
+            { SaveCountStats.Floor2Clears, new CountStatInfo(0, 1,  new int[]{ 1, 2, 3, 4 }  )},
+            { SaveCountStats.Floor3Clears, new CountStatInfo(0, 1,  new int[]{ 1, 2, 3 }  )},
+            { SaveCountStats.Floor4Clears, new CountStatInfo(0, 1,  new int[]{ 1, 2, 3 }  )},
+            { SaveCountStats.Floor5Clears, new CountStatInfo(0, 1,  new int[]{1, 2}  )},
 
-            { SaveStats.FloorHellClears, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.FloorGoopClears, new StatInfo(0, 1,  new int[]{1, 2 ,3}  )},
-            { SaveStats.FloorAbbeyClears, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.FloorRatClears, new StatInfo(0, 1,  new int[]{1}  )},
-            { SaveStats.FloorDeptClears, new StatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.FloorHellClears, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.FloorGoopClears, new CountStatInfo(0, 1,  new int[]{1, 2 ,3}  )},
+            { SaveCountStats.FloorAbbeyClears, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.FloorRatClears, new CountStatInfo(0, 1,  new int[]{1}  )},
+            { SaveCountStats.FloorDeptClears, new CountStatInfo(0, 1,  new int[]{1}  )},
         };
 
-        public static Dictionary<SaveStats, StatInfo> SaveDataTrackedStats { get; protected set; } = InitialStatValues;
+        private static Dictionary<SaveCountStats, CountStatInfo> SaveDataTrackedStats { get; set; } = InitialStatValues;
 
-        public static JObject CreateSaveJObj(int count, int nextGoal, int[] goalList)
+        private static CountStatInfo nullCountStat = new CountStatInfo(-9999, 9999, new int[] { 9999 });
+
+        private static JObject CreateCountStatAsJObject(int count, int nextGoal, int[] goalList)
         {
             JObject JSONObject = JObject.FromObject(new { CurrentCount = count, NextGoal = nextGoal, GoalList = goalList });
 
             return JSONObject;
         }
 
-
-        public static JObject GetStatInitValueJObject(SaveStats statToGet)
+        public static CountStatInfo GetCountStat(SaveCountStats statToGet)
         {
-            StatInfo statData = InitialStatValues[statToGet];
+            CountStatInfo statData = SaveDataTrackedStats[statToGet];
 
-            JObject initValJObject = CreateSaveJObj(statData.Count, statData.NextGoal, statData.GoalList);
+            return statData;
+        }
+
+        public static JObject GetCountStatAsJObject(SaveCountStats statToGet)
+        {
+            CountStatInfo statData = SaveDataTrackedStats[statToGet];
+
+            JObject initValJObject = CreateCountStatAsJObject(statData.Count, statData.NextGoal, statData.GoalList);
             return initValJObject;
         }
+
+        private static void SetCountStatInfo(SaveCountStats statToSet, CountStatInfo newValue)
+        {
+            SaveDataTrackedStats[statToSet] = newValue;
+            return;
+        }
+
+        public static void SetCountStatInfoFromJObject(SaveCountStats statToSet, JObject newStat)
+        {
+            CountStatInfo statData = new CountStatInfo(newStat.Value<int>("CurrentCount"), newStat.Value<int>("NextGoal"), newStat.Value<int[]>("GoalList"));
+
+            SetCountStatInfo(statToSet, statData);
+            return;
+        }
+
+        public static bool AddToCount(SaveCountStats statToModify, int addAmount)
+        {
+            if(IsCountStatNull(statToModify))
+            {
+                return false;
+            }
+
+            bool goalMet = false;
+
+            CountStatInfo statData = SaveDataTrackedStats[statToModify];
+            statData.Count += addAmount;
+
+            if(statData.Count >= statData.NextGoal) { goalMet = true; }
+
+            SetCountStatInfo(statToModify, statData);
+
+            return goalMet;
+        }
+
+        public static bool SetGoalToNextEntry(SaveCountStats statToModify)
+        {
+            if(IsCountStatNull(statToModify))
+            {
+                return true;
+            }
+
+            bool outOfGoals = false;
+
+            CountStatInfo statData = SaveDataTrackedStats[statToModify];
+
+            int goalEntryIndex = Array.IndexOf(statData.GoalList, statData.NextGoal);
+
+            try
+            {
+                statData.NextGoal = statData.GoalList[goalEntryIndex + 1];
+                SetCountStatInfo(statToModify, statData);
+            }
+            catch
+            {
+                SetCountStatInfo(statToModify, nullCountStat);
+                ArchipelagoGUI.ConsoleLog(statToModify + " goals all complete!");
+
+                outOfGoals = true;
+            }
+
+            return outOfGoals;
+        }
+
+        private static bool IsCountStatNull(SaveCountStats statToCheck)
+        {
+            CountStatInfo statData = SaveDataTrackedStats[statToCheck];
+
+            if(statData.Count == -9999) { return true; }
+
+            else {  return false; }
+        }
+
     }
 }
