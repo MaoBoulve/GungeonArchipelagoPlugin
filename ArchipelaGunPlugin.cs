@@ -1,4 +1,4 @@
-﻿using ArchiGungeon.Archipelago;
+﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.ItemArchipelago;
 using BepInEx;
 

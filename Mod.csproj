@@ -35,18 +35,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Archipelago\ArchipelagoGungeonBridge.cs" />
-    <Compile Include="Archipelago\LocalSaveDataHandler.cs" />
-    <Compile Include="Archipelago\PlayerSaveDataDefinition.cs" />
-    <Compile Include="Archipelago\SessionHandler.cs" />
+    <Compile Include="ArchipelagoServer\ArchipelagoGungeonBridge.cs" />
+    <Compile Include="ArchipelagoServer\LocalSaveDataHandler.cs" />
+    <Compile Include="ArchipelagoServer\PlayerSaveDataDefinition.cs" />
+    <Compile Include="ArchipelagoServer\SessionHandler.cs" />
     <Compile Include="ArchipelaGunPlugin.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
+    <Compile Include="GungeonEventHandlers\EffectsController.cs" />
     <Compile Include="ItemArchipelago\APItem.cs" />
-    <Compile Include="ItemArchipelago\ReceivedLocationItemHandler.cs" />
     <Compile Include="ItemArchipelago\Archipelagun.cs" />
-    <Compile Include="Archipelago\ArchipelagoGUI.cs" />
-    <Compile Include="Archipelago\GungeonPlayerEventListener.cs" />
+    <Compile Include="ModConsoleVisuals\ArchipelagoGUI.cs" />
+    <Compile Include="GungeonEventHandlers\GungeonPlayerEventListener.cs" />
+    <Compile Include="GungeonEventHandlers\SpawningItemsHandler.cs" />
+    <Compile Include="GungeonEventHandlers\TrapSpawnHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

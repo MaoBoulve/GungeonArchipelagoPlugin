@@ -1,5 +1,5 @@
 ﻿using Alexandria.ItemAPI;
-using ArchiGungeon.Archipelago;
+using ArchiGungeon.ArchipelagoServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;

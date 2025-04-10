@@ -5,13 +5,15 @@ using System.Text;
 using Alexandria.Misc;
 using ArchiGungeon.ItemArchipelago;
 using UnityEngine;
+using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.ArchipelagoServer;
 
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.GungeonEventHandlers
 {
     // See: https://github.com/Nevernamed22/Alexandria/blob/main/Misc/CustomActions.cs#L121
     public class GungeonPlayerEventListener
     {
-        private static PlayerController playerController;
+        public static PlayerController Player { get; protected set; }
 
         /*
         private static Dictionary<string, string> bossGameNameMap { get; } = new Dictionary<string, string>
@@ -60,9 +62,9 @@ namespace ArchiGungeon.Archipelago
 
         private void OnPlayerControllerSpawned(PlayerController controller)
         {
-            playerController = controller;
+            Player = controller;
 
-            ArchipelagoGungeonBridge.SetPlayerController(playerController);
+            ArchipelagoGungeonBridge.SetPlayerController(Player);
             StartPlayerControllerEventListens();
 
             return;
@@ -179,20 +181,20 @@ namespace ArchiGungeon.Archipelago
         public void StartPlayerControllerEventListens()
         {
 
-            playerController = ArchipelaGunPlugin.GameManagerInstance.m_player;
+            Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
-            playerController.OnNewFloorLoaded += OnNewFloorLoad;
-            playerController.OnEnteredCombat += OnPlayerEnterCombat;
-            playerController.OnRoomClearEvent += OnRoomClear;
+            Player.OnNewFloorLoaded += OnNewFloorLoad;
+            Player.OnEnteredCombat += OnPlayerEnterCombat;
+            Player.OnRoomClearEvent += OnRoomClear;
 
             // playerController.OnReloadPressed += OnReloadPress; ReloadPress should be listened to by gun classes instead
-            playerController.OnRealPlayerDeath += OnPlayerDeath;
-            playerController.OnItemPurchased += OnItemPurchased;
+            Player.OnRealPlayerDeath += OnPlayerDeath;
+            Player.OnItemPurchased += OnItemPurchased;
 
-            playerController.OnKilledEnemyContext += OnKilledEnemy;
-            playerController.OnTableFlipped += OnTableFlip;
+            Player.OnKilledEnemyContext += OnKilledEnemy;
+            Player.OnTableFlipped += OnTableFlip;
 
-            ArchipelagoGUI.ConsoleLog(playerController);
+            ArchipelagoGUI.ConsoleLog(Player);
 
             return;
         }

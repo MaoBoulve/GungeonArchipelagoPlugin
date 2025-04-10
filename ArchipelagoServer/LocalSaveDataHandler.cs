@@ -7,7 +7,7 @@ using BepInEx;
 using Newtonsoft.Json.Linq;
 using System.IO;
 
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.ArchipelagoServer
 {
 
     public class LocalSaveDataHandler

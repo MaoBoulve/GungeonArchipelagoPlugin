@@ -14,9 +14,10 @@ using System.Collections;
 using Newtonsoft.Json.Linq;
 using ArchiGungeon.ItemArchipelago;
 using System.Collections.ObjectModel;
-using static ArchiGungeon.Archipelago.SessionHandler;
+using ArchiGungeon.GungeonEventHandlers;
+using ArchiGungeon.ModConsoleVisuals;
 
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.ArchipelagoServer
 {
     
     public enum CompletionGoals
@@ -69,8 +70,6 @@ namespace ArchiGungeon.Archipelago
        
         private static bool pulledItemsThisRun = false;
         private static List<long> item_add_queue = new();
-        private static bool allow_traps = false;
-
         
         public SessionHandler()
         {
@@ -79,7 +78,10 @@ namespace ArchiGungeon.Archipelago
 
         public void ArchipelagoConnect(string ip, string port, string name, string password = null)
         {
-            allow_traps = false;
+            TrapSpawnHandler.SetCanSpawn(false);
+            ConsumableSpawnHandler.SetCanSpawn(false);
+
+
             // check for session already in progress
             if (Session != null && Session.Socket.Connected)
             {
@@ -122,7 +124,9 @@ namespace ArchiGungeon.Archipelago
 
             
             InitializeAPItems();
-            allow_traps = true;
+
+            TrapSpawnHandler.SetCanSpawn(true);
+            ConsumableSpawnHandler.SetCanSpawn(true);
 
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
@@ -263,7 +267,10 @@ namespace ArchiGungeon.Archipelago
 
         public static void RetrieveServerItems()
         {
-            allow_traps = false;
+
+            TrapSpawnHandler.SetCanSpawn(false);
+            ConsumableSpawnHandler.SetCanSpawn(false);
+
             if (Session == null)
             {
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
@@ -286,14 +293,15 @@ namespace ArchiGungeon.Archipelago
                 AddItemToLocalGungeon(item);
             }
 
-            allow_traps = true;
+            TrapSpawnHandler.SetCanSpawn(true);
+            ConsumableSpawnHandler.SetCanSpawn(true);
 
             return;
         }
 
         public static void AddItemToLocalGungeon(ItemInfo itemInfo)
         {
-            if (!allow_traps || itemInfo.ItemId > 8754200)
+            if ((!TrapSpawnHandler.IsSpawnValid) && itemInfo.ItemId > 8754200)
             {
                 return;
             }
@@ -638,7 +646,7 @@ namespace ArchiGungeon.Archipelago
 
             yield return new WaitForSeconds(waitTime);
 
-            DataSender.PullCountSaveData();
+            SessionHandler.DataSender.PullCountSaveData();
 
         }
     }

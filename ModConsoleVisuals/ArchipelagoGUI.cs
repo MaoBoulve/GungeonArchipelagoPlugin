@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ArchiGungeon.ArchipelagoServer;
 
 
-
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.ModConsoleVisuals
 {
     public delegate void MenuEvent();
 
