@@ -14,6 +14,7 @@ using System.Collections;
 using Newtonsoft.Json.Linq;
 using ArchiGungeon.ItemArchipelago;
 using System.Collections.ObjectModel;
+using static ArchiGungeon.Archipelago.SessionHandler;
 
 namespace ArchiGungeon.Archipelago
 {
@@ -110,7 +111,10 @@ namespace ArchiGungeon.Archipelago
 
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
-            StartCoroutine(PullServerDataOnDelay());
+            var tempgameObject = new GameObject();
+            TimedServerCalls timedServerCalls = tempgameObject.AddComponent<TimedServerCalls>();
+
+            timedServerCalls.StartCoroutine(timedServerCalls.PullServerDataOnDelay());
 
             return;
         }
@@ -194,16 +198,6 @@ namespace ArchiGungeon.Archipelago
             return;
         }
 
-        IEnumerator PullServerDataOnDelay(float waitTime = 5.0f)
-        {
-
-            ArchipelagoGUI.ConsoleLog($"Waiting {waitTime} to pull server data");
-
-            yield return new WaitForSeconds(waitTime);
-
-            DataSender.PullCountSaveData();
-            
-        }
 
 
         private static void BindToArchipelagoEvents()
@@ -398,11 +392,19 @@ namespace ArchiGungeon.Archipelago
                 
                 foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
                 {
-                    JObject serverData = Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[countStat]].To<JObject>();
+                    var serverData = Session.DataStorage[CountSaveData.StatToKey[countStat]].To<JObject>();
 
-                    CountSaveData.SetCountStatInfoFromJObject(countStat, serverData);
+                    //CountStatInfo countStatInfo = serverData.ToObject<CountStatInfo>();
 
-                    ArchipelagoGUI.ConsoleLog($"Received count for {countStat}: {serverData.Value<int>("CurrentCount")}");
+                    //UGHHHHH
+
+                    ArchipelagoGUI.ConsoleLog($"Received {countStat} -- {serverData["CurrentCount"]} --- {serverData["GoalList"]} ");
+
+
+                    //CountSaveData.SetCountStatInfoFromJObject(countStat, serverData);
+
+                    //CountStatInfo statInfo = serverData.ToObject<CountStatInfo>();
+                    //ArchipelagoGUI.ConsoleLog($"Received count for {countStat}: {statInfo.}");
                 }
 
                 return;
@@ -615,5 +617,19 @@ namespace ArchiGungeon.Archipelago
 
         }
 
+    }
+
+    public class TimedServerCalls:MonoBehaviour
+    {
+        public IEnumerator PullServerDataOnDelay(float waitTime = 5.0f)
+        {
+
+            ArchipelagoGUI.ConsoleLog($"Waiting {waitTime} to pull server data");
+
+            yield return new WaitForSeconds(waitTime);
+
+            DataSender.PullCountSaveData();
+
+        }
     }
 }

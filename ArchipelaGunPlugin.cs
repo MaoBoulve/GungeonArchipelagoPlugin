@@ -102,7 +102,6 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            PlayerListener.Update();
             SessionHandler.Instance?.Update();
 
             return;

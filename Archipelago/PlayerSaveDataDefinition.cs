@@ -164,9 +164,11 @@ namespace ArchiGungeon.Archipelago
 
         public static void SetCountStatInfoFromJObject(SaveCountStats statToSet, JObject newStat)
         {
-            CountStatInfo statData = new CountStatInfo(newStat.Value<int>("CurrentCount"), newStat.Value<int>("NextGoal"), newStat.Value<int[]>("GoalList"));
+            CountStatInfo statInfo = newStat.ToObject<CountStatInfo>();
 
-            SetCountStatInfo(statToSet, statData);
+            //CountStatInfo statData = new CountStatInfo(newStat.Value<int>("CurrentCount"), newStat.Value<int>("NextGoal"), newStat.Value<int[]>("GoalList"));
+
+            SetCountStatInfo(statToSet, statInfo);
             return;
         }
 
