@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using BepInEx;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using ArchiGungeon.ModConsoleVisuals;
 
 namespace ArchiGungeon.ArchipelagoServer
 {

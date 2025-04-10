@@ -191,7 +191,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStatEnum].CountKey].Initialize(statInfo.Count);
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStatEnum].GoalKey].Initialize(statInfo.NextGoal);
 
-                ArchipelagoGUI.ConsoleLog($"Sending count for {countStatEnum}: {statInfo.Count}");
+                ArchipelagoGUI.ConsoleLog($"Initializing goal for {countStatEnum}: {statInfo.NextGoal}");
             }
 
             // GAME COMPLETION
@@ -410,21 +410,44 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
-            public static void PullCountSaveData()
+            public static void PullBasicCountStatsData()
             {
-                
-                foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
+                if (Session == null)
                 {
+                    ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
+                    return;
+                }
 
-                    int count = Session.DataStorage[CountSaveData.CountStatToKeys[countStat].CountKey];
-                    int nextGoal = Session.DataStorage[CountSaveData.CountStatToKeys[countStat].GoalKey];
+                SaveCountStats[] basicCountStats = new SaveCountStats[]
+                {
+                    SaveCountStats.CashSpent,
+                    SaveCountStats.RoomPoints,
+                    SaveCountStats.ChestsOpened,
+                };
 
-                    ArchipelagoGUI.ConsoleLog($"Received {countStat} -- {count} --- {nextGoal} ");
-
-                    CountSaveData.SetCountStat(countStat, count, nextGoal);
+                foreach (SaveCountStats countStat in basicCountStats)
+                {
+                    PullCountStatAndGoalFromServer(countStat);
                 }
 
                 return;
+            }
+
+            public static void PullCountStatAndGoalFromServer(SaveCountStats statToPull)
+            {
+                int count = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey];
+                int nextGoal = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].GoalKey];
+
+                ArchipelagoGUI.ConsoleLog($"Received {statToPull} -- Count: {count} --- Goal {nextGoal}");
+                CountSaveData.SetCountStat(statToPull, count, nextGoal);
+            }
+
+            public static void PullOnlyCountFromServer(SaveCountStats statToPull)
+            {
+                int count = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey];
+
+                ArchipelagoGUI.ConsoleLog($"Received {statToPull} -- {count}");
+                CountSaveData.SetCountStat(statToPull, count);
             }
 
             public static void SendGoalCompletion(CompletionGoals goalCompleted)
@@ -508,7 +531,10 @@ namespace ArchiGungeon.ArchipelagoServer
             {
 
                 bool IsGoalMet = CountSaveData.AddToCount(SaveCountStats.ChestsOpened, numberOpened);
-                if(IsGoalMet){ SendChestGoalLocationCheckComplete(); }
+                if(IsGoalMet == true)
+                { 
+                    SendChestGoalLocationCheckComplete(); 
+                }
 
                 return;
                 
@@ -517,7 +543,10 @@ namespace ArchiGungeon.ArchipelagoServer
             public static void SendRoomPointsToAdd(int numberToAdd)
             {
                 bool IsGoalMet = CountSaveData.AddToCount(SaveCountStats.RoomPoints, numberToAdd);
-                if (IsGoalMet){ SendRoomPointGoalLocationCheckComplete(); }
+                if (IsGoalMet == true)
+                { 
+                    SendRoomPointGoalLocationCheckComplete(); 
+                }
 
                 return;
             }
@@ -564,6 +593,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 CountSaveData.SetGoalToNextEntry(SaveCountStats.ChestsOpened);
 
                 CountStatInfo statData = CountSaveData.GetCountStat(SaveCountStats.ChestsOpened);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.ChestsOpened].CountKey] = statData.Count;
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.ChestsOpened].GoalKey] = statData.NextGoal;
 
                 return;
@@ -575,6 +605,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 CountSaveData.SetGoalToNextEntry(SaveCountStats.RoomPoints);
 
                 CountStatInfo statData = CountSaveData.GetCountStat(SaveCountStats.RoomPoints);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.RoomPoints].CountKey] = statData.Count;
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.RoomPoints].GoalKey] = statData.NextGoal;
 
                 return;
@@ -639,14 +670,14 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class TimedServerCalls:MonoBehaviour
     {
-        public IEnumerator PullServerDataOnDelay(float waitTime = 5.0f)
+        public IEnumerator PullServerDataOnDelay(float waitTime = 3.0f)
         {
 
-            ArchipelagoGUI.ConsoleLog($"Waiting {waitTime} to pull server data");
+            ArchipelagoGUI.ConsoleLog($"Waiting {waitTime} seconds to pull server data");
 
             yield return new WaitForSeconds(waitTime);
 
-            SessionHandler.DataSender.PullCountSaveData();
+            SessionHandler.DataSender.PullBasicCountStatsData();
 
         }
     }

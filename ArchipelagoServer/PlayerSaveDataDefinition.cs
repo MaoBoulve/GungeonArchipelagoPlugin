@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+using ArchiGungeon.ModConsoleVisuals;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -79,36 +80,36 @@ namespace ArchiGungeon.ArchipelagoServer
         public static Dictionary<SaveCountStats, CountGoalServerKeys> CountStatToKeys { get; } = new Dictionary<SaveCountStats, CountGoalServerKeys>()
         {
             { SaveCountStats.ChestsOpened, new CountGoalServerKeys("ChestsOpened")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("RoomPoints")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("CashSpent")},
+            { SaveCountStats.RoomPoints, new CountGoalServerKeys("RoomPoints")},
+            { SaveCountStats.CashSpent, new CountGoalServerKeys("CashSpent")},
 
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Blobulord")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("OldKing")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Rat")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("DeptAgunim")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("AdvancedDragun")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Dragun")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Lich")},
+            { SaveCountStats.BlobulordKills, new CountGoalServerKeys("Blobulord")},
+            { SaveCountStats.OldKingKills, new CountGoalServerKeys("OldKing")},
+            { SaveCountStats.RatKills, new CountGoalServerKeys("Rat")},
+            { SaveCountStats.DeptAgunimKills, new CountGoalServerKeys("DeptAgunim")},
+            { SaveCountStats.AdvancedDragunKills, new CountGoalServerKeys("AdvancedDragun")},
+            { SaveCountStats.DragunKills, new CountGoalServerKeys("Dragun")},
+            { SaveCountStats.LichKills, new CountGoalServerKeys("Lich")},
 
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Floor1")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Floor2")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Floor3")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Floor4")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("Floor5")},
+            { SaveCountStats.Floor1Clears, new CountGoalServerKeys("Floor1")},
+            { SaveCountStats.Floor2Clears, new CountGoalServerKeys("Floor2")},
+            { SaveCountStats.Floor3Clears, new CountGoalServerKeys("Floor3")},
+            { SaveCountStats.Floor4Clears, new CountGoalServerKeys("Floor4")},
+            { SaveCountStats.Floor5Clears, new CountGoalServerKeys("Floor5")},
 
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("FloorHell")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("FloorGoop")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("FloorAbbey")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("FloorRat")},
-            { SaveCountStats.ChestsOpened, new CountGoalServerKeys("FloorDept")},
+            { SaveCountStats.FloorHellClears, new CountGoalServerKeys("FloorHell")},
+            { SaveCountStats.FloorGoopClears, new CountGoalServerKeys("FloorGoop")},
+            { SaveCountStats.FloorAbbeyClears, new CountGoalServerKeys("FloorAbbey")},
+            { SaveCountStats.FloorRatClears, new CountGoalServerKeys("FloorRat")},
+            { SaveCountStats.FloorDeptClears, new CountGoalServerKeys("FloorDept")},
 
         };
 
         private static Dictionary<SaveCountStats, CountStatInfo> InitialStatValues { get; } = new Dictionary<SaveCountStats, CountStatInfo>()
         {
-            { SaveCountStats.ChestsOpened, new CountStatInfo(0, 1) },
-            { SaveCountStats.RoomPoints, new CountStatInfo(0, 1)},
-            { SaveCountStats.CashSpent, new CountStatInfo(0, 1)},
+            { SaveCountStats.ChestsOpened, new CountStatInfo(0, 4) },
+            { SaveCountStats.RoomPoints, new CountStatInfo(0, 6)},
+            { SaveCountStats.CashSpent, new CountStatInfo(0, 50)},
 
             { SaveCountStats.BlobulordKills, new CountStatInfo(0, 1)},
             { SaveCountStats.OldKingKills, new CountStatInfo(0, 1)},
@@ -135,7 +136,7 @@ namespace ArchiGungeon.ArchipelagoServer
         private static Dictionary<SaveCountStats, int[]> GoalList { get; } = new Dictionary<SaveCountStats, int[]>()
         {
             { SaveCountStats.ChestsOpened, new int[]{ 4, 8, 13, 18, 24, 30, 37, 44 }   },
-            { SaveCountStats.RoomPoints, new int[]{ 2, 6, 24, 120, 720, 5040, 10000, 15000 }  },
+            { SaveCountStats.RoomPoints, new int[]{ 6, 24, 120, 720, 5040, 10000, 15000, 20000 }  },
             { SaveCountStats.CashSpent, new int[]{ 50, 100, 150, 200, 250 }  },
 
             { SaveCountStats.BlobulordKills, new int[]{1}  },
@@ -163,6 +164,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static CountStatInfo nullCountStat = new CountStatInfo(-9999, 9999);
 
+
         public static CountStatInfo GetCountStat(SaveCountStats statToGet)
         {
             CountStatInfo statData = SaveDataTrackedStats[statToGet];
@@ -174,6 +176,12 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             CountStatInfo newStatInfo = new CountStatInfo(count, nextGoal);
 
+            SetCountStatInfo(statToSet, newStatInfo);
+        }
+
+        public static void SetCountStat(SaveCountStats statToSet, int count)
+        {
+            CountStatInfo newStatInfo = new CountStatInfo(count, GetCountStat(statToSet).NextGoal);
             SetCountStatInfo(statToSet, newStatInfo);
         }
 
@@ -196,7 +204,11 @@ namespace ArchiGungeon.ArchipelagoServer
             CountStatInfo statData = SaveDataTrackedStats[statToModify];
             statData.Count += addAmount;
 
-            if(statData.Count >= statData.NextGoal) { goalMet = true; }
+            ArchipelagoGUI.ConsoleLog($"[{statToModify}] New count: {statData.Count} against goal: {statData.NextGoal}");
+            if(statData.Count >= statData.NextGoal) 
+            { 
+                goalMet = true; 
+            }
 
             SetCountStatInfo(statToModify, statData);
 

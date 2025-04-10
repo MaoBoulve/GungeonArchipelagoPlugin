@@ -76,7 +76,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
-            long categoryAdjustedID = receivedItemID - 8754000;
+            long categoryAdjustedID = receivedItemID - baseItemID;
             if (itemIDToPickUpItem.ContainsKey(categoryAdjustedID))
             {
                 int itemCase = itemIDToPickUpItem[categoryAdjustedID];

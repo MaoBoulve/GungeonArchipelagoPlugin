@@ -1,6 +1,7 @@
 ﻿using Alexandria.ItemAPI;
 using ArchiGungeon.ArchipelagoServer;
 using Alexandria.SoundAPI;
+using ArchiGungeon.ModConsoleVisuals;
 
 namespace ArchiGungeon
 {
