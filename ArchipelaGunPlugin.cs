@@ -1,5 +1,7 @@
 ﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.GungeonEventHandlers;
 using BepInEx;
 
 namespace ArchiGungeon
