@@ -30,6 +30,21 @@ namespace ArchiGungeon.Archipelago
         Lich
     }
 
+    public struct CountGoalServerKeys
+    {
+        public string CountKey;
+        public string GoalKey;
+        public string GoalSettings;
+
+        public CountGoalServerKeys(string countKey)
+        {
+            CountKey = countKey;
+            GoalKey = "GOAL_" + countKey;
+            GoalSettings = "SETTINGS_" + countKey;
+            return;
+        }
+    }
+
     public class SessionHandler : MonoBehaviour
     {
         // The current instance of the console.
@@ -165,23 +180,23 @@ namespace ArchiGungeon.Archipelago
             //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
 
             // basic counting
-            foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
+            foreach (SaveCountStats countStatEnum in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
             {
-                JObject initialValueJObject = CountSaveData.GetCountStatAsJObject(countStat);
-                Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[countStat]].Initialize(initialValueJObject);
+                CountStatInfo statInfo = CountSaveData.GetCountStat(countStatEnum);
 
-                ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {initialValueJObject.Value<int>("CurrentCount")}");
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStatEnum].CountKey].Initialize(statInfo.Count);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStatEnum].GoalKey].Initialize(statInfo.NextGoal);
+
+                ArchipelagoGUI.ConsoleLog($"Sending count for {countStatEnum}: {statInfo.Count}");
             }
 
             // GAME COMPLETION
-            // composed as JSON - { Count, NextGoal, GoalList }
-            JObject initValueJObject;
-            initValueJObject = CountSaveData.GetCountStatAsJObject(SaveCountStats.DragunKills);
-            Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.DragunKills]].Initialize(initValueJObject);
 
-            initValueJObject = CountSaveData.GetCountStatAsJObject(SaveCountStats.LichKills);
-            Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.LichKills]].Initialize(initValueJObject);
+            //Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.DragunKills]].Initialize(initValueJObject);
 
+            //Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.LichKills]].Initialize(initValueJObject);
+
+            return;
         }
 
         private static void PullLatestSlotData()
@@ -305,7 +320,7 @@ namespace ArchiGungeon.Archipelago
                 {
                     SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
 
-                    ArchipelagoGUI.ConsoleLog($"{Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]]}: {Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[correspondingStat]] }");
+                    ArchipelagoGUI.ConsoleLog($"{Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]]}: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] }");
                 }
             }
 
@@ -313,13 +328,13 @@ namespace ArchiGungeon.Archipelago
             if (Session.DataStorage[Scope.Slot, "Goal"] == 0)
             {
                 SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[CompletionGoals.Dragun];
-                ArchipelagoGUI.ConsoleLog($"Dragun killed: {Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[correspondingStat]]}");
+                ArchipelagoGUI.ConsoleLog($"Dragun killed: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey]}");
             }
 
             if (Session.DataStorage[Scope.Slot, "Goal"] == 1)
             {
                 SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[CompletionGoals.Lich];
-                ArchipelagoGUI.ConsoleLog($"Lich killed: {Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[correspondingStat]]}");
+                ArchipelagoGUI.ConsoleLog($"Lich killed: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey]}");
             }
 
             if(DataSender.CheckForGameCompletion())
@@ -392,19 +407,13 @@ namespace ArchiGungeon.Archipelago
                 
                 foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
                 {
-                    var serverData = Session.DataStorage[CountSaveData.StatToKey[countStat]].To<JObject>();
 
-                    //CountStatInfo countStatInfo = serverData.ToObject<CountStatInfo>();
+                    int count = Session.DataStorage[CountSaveData.CountStatToKeys[countStat].CountKey];
+                    int nextGoal = Session.DataStorage[CountSaveData.CountStatToKeys[countStat].GoalKey];
 
-                    //UGHHHHH
+                    ArchipelagoGUI.ConsoleLog($"Received {countStat} -- {count} --- {nextGoal} ");
 
-                    ArchipelagoGUI.ConsoleLog($"Received {countStat} -- {serverData["CurrentCount"]} --- {serverData["GoalList"]} ");
-
-
-                    //CountSaveData.SetCountStatInfoFromJObject(countStat, serverData);
-
-                    //CountStatInfo statInfo = serverData.ToObject<CountStatInfo>();
-                    //ArchipelagoGUI.ConsoleLog($"Received count for {countStat}: {statInfo.}");
+                    CountSaveData.SetCountStat(countStat, count, nextGoal);
                 }
 
                 return;
@@ -414,7 +423,7 @@ namespace ArchiGungeon.Archipelago
             {
                 SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalCompleted];
 
-                Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[correspondingStat]] += 1;
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] += 1;
 
                 /*
                 if ((Session.DataStorage[Scope.Slot, "Blobulord Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Blobulord Killed"]) && (Session.DataStorage[Scope.Slot, "Old King Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Old King Killed"]) && (Session.DataStorage[Scope.Slot, "Resourceful Rat Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Resourceful Rat Killed"]) && (Session.DataStorage[Scope.Slot, "Agunim Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Agunim Killed"]) && (Session.DataStorage[Scope.Slot, "Advanced Dragun Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Advanced Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 0 || (bool)Session.DataStorage[Scope.Slot, "Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Lich Killed"]))
@@ -438,7 +447,7 @@ namespace ArchiGungeon.Archipelago
                 {
                     if(goalEnum == CompletionGoals.Dragun)
                     {
-                        if (Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.DragunKills]] < 1)
+                        if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.DragunKills].CountKey] < 1)
                         {
                             return false;
                         }
@@ -446,7 +455,7 @@ namespace ArchiGungeon.Archipelago
 
                     else if(goalEnum == CompletionGoals.Lich)
                     {
-                        if (Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.LichKills]] < 1)
+                        if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.LichKills].CountKey] < 1)
                         {
                             return false;
                         }
@@ -458,7 +467,7 @@ namespace ArchiGungeon.Archipelago
                         {
                             SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
 
-                            if (Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[correspondingStat]] < 1)
+                            if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] < 1)
                             {
                                 return false;
                             }
@@ -514,10 +523,11 @@ namespace ArchiGungeon.Archipelago
 
                 foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
                 {
-                    JObject updatedStat = CountSaveData.GetCountStatAsJObject(countStat);
-                    Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[countStat]] = updatedStat;
+                    CountStatInfo statData = CountSaveData.GetCountStat(countStat);
 
-                    ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {updatedStat.Value<int>("CurrentCount")}");
+                    Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStat].CountKey] = statData.Count;
+
+                    ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {statData.Count}");
                 }
 
                 return;
@@ -545,8 +555,8 @@ namespace ArchiGungeon.Archipelago
                 APItem.TDD_CallNextLocationCheck();
                 CountSaveData.SetGoalToNextEntry(SaveCountStats.ChestsOpened);
 
-                JObject updatedStat = CountSaveData.GetCountStatAsJObject(SaveCountStats.ChestsOpened);
-                Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.ChestsOpened]] = updatedStat;
+                CountStatInfo statData = CountSaveData.GetCountStat(SaveCountStats.ChestsOpened);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.ChestsOpened].GoalKey] = statData.NextGoal;
 
                 return;
             }
@@ -556,8 +566,8 @@ namespace ArchiGungeon.Archipelago
                 APItem.TDD_CallNextLocationCheck();
                 CountSaveData.SetGoalToNextEntry(SaveCountStats.RoomPoints);
 
-                JObject updatedStat = CountSaveData.GetCountStatAsJObject(SaveCountStats.RoomPoints);
-                Session.DataStorage[Scope.Slot, CountSaveData.StatToKey[SaveCountStats.ChestsOpened]] = updatedStat;
+                CountStatInfo statData = CountSaveData.GetCountStat(SaveCountStats.RoomPoints);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.RoomPoints].GoalKey] = statData.NextGoal;
 
                 return;
             }
