@@ -39,45 +39,45 @@ namespace ArchiGungeon.Archipelago
                 switch (num4)
                 {
                     case 0L:
-                        ReceivedLocationItemHandler.SpawnRandomGun([PickupObject.ItemQuality.D]);
+                        ReceivedLocationItemHandler.SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                         //LootEngine.SpawnItem((PickupObjectDatabase.GetRandomGunOfQualities(random, [], PickupObject.ItemQuality.D)).gameObject, spawnPosition, Vector2.down, 0f);
                         return;
                     case 1L:
-                        ReceivedLocationItemHandler.SpawnRandomGun([PickupObject.ItemQuality.C]);
+                        ReceivedLocationItemHandler.SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                         return;
                     case 2L:
-                        ReceivedLocationItemHandler.SpawnRandomGun([PickupObject.ItemQuality.B]);
+                        ReceivedLocationItemHandler.SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                         return;
                     case 3L:
-                        ReceivedLocationItemHandler.SpawnRandomGun([PickupObject.ItemQuality.A]);
+                        ReceivedLocationItemHandler.SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                         return;
                     case 4L:
-                        ReceivedLocationItemHandler.SpawnRandomGun([PickupObject.ItemQuality.S]);
+                        ReceivedLocationItemHandler.SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                         return;
                     case 5L:
-                        ReceivedLocationItemHandler.SpawnRandomPassive([PickupObject.ItemQuality.D]);
+                        ReceivedLocationItemHandler.SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                         //LootEngine.SpawnItem((PickupObjectDatabase.GetRandomPassiveOfQualities(random, [], PickupObject.ItemQuality.D)).gameObject, spawnPosition, Vector2.down, 0f);
                         return;
                     case 6L:
-                        ReceivedLocationItemHandler.SpawnRandomPassive([PickupObject.ItemQuality.C]);
+                        ReceivedLocationItemHandler.SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                         return;
                     case 7L:
-                        ReceivedLocationItemHandler.SpawnRandomPassive([PickupObject.ItemQuality.B]);
+                        ReceivedLocationItemHandler.SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                         return;
                     case 8L:
-                        ReceivedLocationItemHandler.SpawnRandomPassive([PickupObject.ItemQuality.A]);
+                        ReceivedLocationItemHandler.SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                         return;
                     case 9L:
-                        ReceivedLocationItemHandler.SpawnRandomPassive([PickupObject.ItemQuality.S]);
+                        ReceivedLocationItemHandler.SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                         return;
                     case 10L:
-                        ETGModConsole.SpawnItem(["gnawed_key", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
                         return;
                     case 11L:
-                        ETGModConsole.SpawnItem(["old_crest", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
                         return;
                     case 12L:
-                        ETGModConsole.SpawnItem(["weird_egg", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
                         return;
                 }
             }
@@ -87,25 +87,25 @@ namespace ArchiGungeon.Archipelago
                 switch (num5)
                 {
                     case 0L:
-                        ETGModConsole.Spawn(["chance_kin", "10"]);
+                        ETGModConsole.Spawn(new string[] { "chance_kin", "10" });
                         return;
                     case 1L:
-                        ETGModConsole.SpawnItem(["50_casing", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "50_casing", "1" });
                         return;
                     case 2L:
-                        ETGModConsole.SpawnItem(["key", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "key", "1" });
                         return;
                     case 3L:
-                        ETGModConsole.SpawnItem(["blank", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "blank", "1" });
                         return;
                     case 4L:
-                        ETGModConsole.SpawnItem(["armor", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "armor", "1" });
                         return;
                     case 5L:
-                        ETGModConsole.SpawnItem(["heart", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "heart", "1" });
                         return;
                     case 6L:
-                        ETGModConsole.SpawnItem(["ammo", "1"]);
+                        ETGModConsole.SpawnItem(new string[] { "ammo", "1" });
                         return;
                 }
             }
@@ -115,31 +115,31 @@ namespace ArchiGungeon.Archipelago
                 switch (num6)
                 {
                     case 0L:
-                        ETGModConsole.Spawn(["rat", "100"]);
+                        ETGModConsole.Spawn(new string[] { "rat", "100" });
                         break;
                     case 1L:
-                        ETGModConsole.Spawn(["shelleton", "3"]);
+                        ETGModConsole.Spawn(new string[] { "shelleton", "3" });
                         break;
                     case 2L:
-                        ETGModConsole.Spawn(["shotgrub", "3"]);
+                        ETGModConsole.Spawn(new string[] { "shotgrub", "3" });
                         break;
                     case 3L:
-                        ETGModConsole.Spawn(["tanker", "12"]);
-                        ETGModConsole.Spawn(["professional", "2"]);
+                        ETGModConsole.Spawn(new string[] { "tanker", "12" });
+                        ETGModConsole.Spawn(new string[] { "professional", "2" });
                         break;
                     case 4L:
-                        ETGModConsole.Spawn(["hollowpoint", "6"]);
-                        ETGModConsole.Spawn(["bombshee", "2"]);
-                        ETGModConsole.Spawn(["gunreaper", "1"]);
+                        ETGModConsole.Spawn(new string[] { "hollowpoint", "6" });
+                        ETGModConsole.Spawn(new string[] { "bombshee", "2" });
+                        ETGModConsole.Spawn(new string[] { "gunreaper", "1" });
                         break;
                     case 5L:
-                        ETGModConsole.Spawn(["gun_nut", "1"]);
-                        ETGModConsole.Spawn(["chain_gunner", "2"]);
-                        ETGModConsole.Spawn(["spectral_gun_nut", "3"]);
+                        ETGModConsole.Spawn(new string[] { "gun_nut", "1" });
+                        ETGModConsole.Spawn(new string[] {"chain_gunner", "2"});
+                        ETGModConsole.Spawn(new string[] { "spectral_gun_nut", "3" });
                         break;
                     case 6L:
-                        ETGModConsole.Spawn(["jamerlengo", "3"]);
-                        ETGModConsole.Spawn(["spirat", "15"]);
+                        ETGModConsole.Spawn(new string[] { "jamerlengo", "3" });
+                        ETGModConsole.Spawn(new string[] { "spirat", "15" });
                         break;
                     case 7L:
                         GameManager.Instance.Dungeon.SpawnCurseReaper();
