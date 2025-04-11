@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>OopsAllJammed</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <TargetFramework>net35</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>11.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="System.Core" />
+    <Reference Include="Gunfig" />
+    <Reference Include="0Harmony" />
+    <Reference Include="Assembly-CSharp" />
+    <Reference Include="MonoMod.Utils" />
+    <Reference Include="Mono.Cecil" />
+    <Reference Include="BepInEx" />
+    <Reference Include="UnityEngine.CoreModule" />
+    <Reference Include="ModTheGungeonAPI" />
+    <Reference Include="MonoMod.RuntimeDetour" />
+  </ItemGroup>
+</Project>
