@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Alexandria.VisualAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -18,6 +19,11 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             GungeonPlayerEventListener.Player.PlayEffectOnActor(ResourceCache.Acquire("Global VFX/VFX_Synergy") as GameObject, new Vector3(0f, 0.5f, 0f));
             return;
+        }
+
+        public static void PlayTestVFX()
+        {
+            LootEngine.DoDefaultPurplePoof(Vector2.zero);
         }
     }
 }

@@ -43,8 +43,9 @@
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />
-    <Compile Include="ItemArchipelago\APItem.cs" />
+    <Compile Include="ItemArchipelago\APPickUpItem.cs" />
     <Compile Include="ItemArchipelago\Archipelagun.cs" />
+    <Compile Include="ItemArchipelago\AchievementLocationCheckHandler.cs" />
     <Compile Include="ModConsoleVisuals\ArchipelagoGUI.cs" />
     <Compile Include="GungeonEventHandlers\GungeonPlayerEventListener.cs" />
     <Compile Include="GungeonEventHandlers\SpawningItemsHandler.cs" />
