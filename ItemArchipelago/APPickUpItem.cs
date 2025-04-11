@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ArchiGungeon.ItemArchipelago
 {
 
-    public class APItem: PassiveItem
+    public class APPickUpItem: PassiveItem
     {
         public static int SpawnItemID = -1;
         private static List<long> locationIDs;
@@ -20,7 +20,7 @@ namespace ArchiGungeon.ItemArchipelago
         public static void RegisterItemBase()
         {
             GameObject obj = new GameObject(displayName);
-            var item = obj.AddComponent<APItem>();
+            var item = obj.AddComponent<APPickUpItem>();
 
             ItemBuilder.AddSpriteToObject(displayName, spriteDirectory, obj);
 

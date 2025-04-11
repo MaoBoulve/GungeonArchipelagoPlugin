@@ -57,7 +57,7 @@ namespace ArchiGungeon
         private void RegisterItems()
         {
             Archipelagun.Register();
-            APItem.RegisterItemBase();
+            APPickUpItem.RegisterItemBase();
         }
 
         private void InitModMenu()

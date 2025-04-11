@@ -98,11 +98,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
 
             chest.contents.Clear();
-            chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
+            chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
 
-            SessionHandler.DataSender.SendChestOpened(1);
-
-            //ArchipelagoGUI.ConsoleLog($"OPEN: {chest}");
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
 
             return;
         }
@@ -223,8 +221,9 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             roomsClearedThisRun += 1;
 
-            ArchipelagoGUI.ConsoleLog("Room points sent: " + roomsClearedThisRun);
-            SessionHandler.DataSender.SendRoomPointsToAdd(roomsClearedThisRun);
+            ArchipelagoGUI.ConsoleLog("Adding room points: " + roomsClearedThisRun);
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
 
             return;
         }
@@ -232,7 +231,10 @@ namespace ArchiGungeon.GungeonEventHandlers
         private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
             int spentMoney = shopItem.CurrentPrice;
-            // TODO: add to purchase cost
+            ArchipelagoGUI.ConsoleLog("Adding cash spent: " + spentMoney);
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
+            
             return;
         }
 

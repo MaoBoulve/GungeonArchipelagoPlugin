@@ -51,17 +51,6 @@ namespace ArchiGungeon.ArchipelagoServer
     }
 
 
-    public struct CountStatInfo
-    {
-        public int Count;
-        public int NextGoal;
-
-        public CountStatInfo(int countVal, int goalVal)
-        {
-            Count = countVal;
-            NextGoal = goalVal;
-        }
-    }
 
     public class CountSaveData
     {
@@ -105,117 +94,113 @@ namespace ArchiGungeon.ArchipelagoServer
 
         };
 
-        private static Dictionary<SaveCountStats, CountStatInfo> InitialStatValues { get; } = new Dictionary<SaveCountStats, CountStatInfo>()
+        private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
         {
-            { SaveCountStats.ChestsOpened, new CountStatInfo(0, 4) },
-            { SaveCountStats.RoomPoints, new CountStatInfo(0, 6)},
-            { SaveCountStats.CashSpent, new CountStatInfo(0, 50)},
+            { SaveCountStats.ChestsOpened, 0 },
+            { SaveCountStats.RoomPoints, 0},
+            { SaveCountStats.CashSpent, 0},
 
-            { SaveCountStats.BlobulordKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.OldKingKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.RatKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.DeptAgunimKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.AdvancedDragunKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.DragunKills, new CountStatInfo(0, 1)},
-            { SaveCountStats.LichKills, new CountStatInfo(0, 1)},
+            { SaveCountStats.BlobulordKills, 0},
+            { SaveCountStats.OldKingKills, 0},
+            { SaveCountStats.RatKills, 0},
+            { SaveCountStats.DeptAgunimKills, 0},
+            { SaveCountStats.AdvancedDragunKills, 0},
+            { SaveCountStats.DragunKills, 0},
+            { SaveCountStats.LichKills, 0},
 
-            { SaveCountStats.Floor1Clears, new CountStatInfo(0, 1)},
-            { SaveCountStats.Floor2Clears, new CountStatInfo(0, 1)},
-            { SaveCountStats.Floor3Clears, new CountStatInfo(0, 1)},
-            { SaveCountStats.Floor4Clears, new CountStatInfo(0, 1)},
-            { SaveCountStats.Floor5Clears, new CountStatInfo(0, 1)},
+            { SaveCountStats.Floor1Clears, 0},
+            { SaveCountStats.Floor2Clears, 0},
+            { SaveCountStats.Floor3Clears, 0},
+            { SaveCountStats.Floor4Clears, 0},
+            { SaveCountStats.Floor5Clears, 0},
 
-            { SaveCountStats.FloorHellClears, new CountStatInfo(0, 1)},
-            { SaveCountStats.FloorGoopClears, new CountStatInfo(0, 1)},
-            { SaveCountStats.FloorAbbeyClears, new CountStatInfo(0, 1)},
-            { SaveCountStats.FloorRatClears, new CountStatInfo(0, 1)},
-            { SaveCountStats.FloorDeptClears, new CountStatInfo(0, 1)},
+            { SaveCountStats.FloorHellClears, 0},
+            { SaveCountStats.FloorGoopClears, 0},
+            { SaveCountStats.FloorAbbeyClears, 0},
+            { SaveCountStats.FloorRatClears, 0},
+            { SaveCountStats.FloorDeptClears, 0},
         };
 
         //TO DO: set from server settings
-        private static Dictionary<SaveCountStats, int[]> GoalList { get; } = new Dictionary<SaveCountStats, int[]>()
+        private static Dictionary<SaveCountStats, List<int>> GoalList { get; } = new Dictionary<SaveCountStats, List<int>>()
         {
-            { SaveCountStats.ChestsOpened, new int[]{ 4, 8, 13, 18, 24, 30, 37, 44 }   },
-            { SaveCountStats.RoomPoints, new int[]{ 6, 24, 120, 720, 5040, 10000, 15000, 20000 }  },
-            { SaveCountStats.CashSpent, new int[]{ 50, 100, 150, 200, 250 }  },
+            { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18, 24, 30, 37, 44 }   },
+            { SaveCountStats.RoomPoints, new List<int>{ 6, 24, 120, 720, 5040, 10000, 15000, 20000 }  },
+            { SaveCountStats.CashSpent, new List<int>{ 50, 100, 150, 200, 250 }  },
 
-            { SaveCountStats.BlobulordKills, new int[]{1}  },
-            { SaveCountStats.OldKingKills, new int[]{1}  },
-            { SaveCountStats.RatKills, new int[]{1}  },
-            { SaveCountStats.DeptAgunimKills, new int[]{1}  },
-            { SaveCountStats.AdvancedDragunKills, new int[]{1}  },
-            { SaveCountStats.DragunKills, new int[]{1}  },
-            { SaveCountStats.LichKills, new int[]{1}  },
+            { SaveCountStats.BlobulordKills, new List<int>{1}  },
+            { SaveCountStats.OldKingKills, new List<int>{1}  },
+            { SaveCountStats.RatKills, new List<int>{1}  },
+            { SaveCountStats.DeptAgunimKills, new List<int>{1}  },
+            { SaveCountStats.AdvancedDragunKills, new List<int>{1}  },
+            { SaveCountStats.DragunKills, new List<int>{1}  },
+            { SaveCountStats.LichKills, new List<int>{1}  },
 
-            { SaveCountStats.Floor1Clears, new int[]{ 1, 2, 3, 4, 5 } },
-            { SaveCountStats.Floor2Clears, new int[]{ 1, 2, 3, 4 }  },
-            { SaveCountStats.Floor3Clears, new int[]{ 1, 2, 3 }  },
-            { SaveCountStats.Floor4Clears, new int[]{ 1, 2, 3 }  },
-            { SaveCountStats.Floor5Clears, new int[]{1, 2}  },
+            { SaveCountStats.Floor1Clears, new List<int>{ 1, 2, 3, 4, 5 } },
+            { SaveCountStats.Floor2Clears, new List<int>{ 1, 2, 3, 4 }  },
+            { SaveCountStats.Floor3Clears, new List<int>{ 1, 2, 3 }  },
+            { SaveCountStats.Floor4Clears, new List<int>{ 1, 2, 3 }  },
+            { SaveCountStats.Floor5Clears, new List<int>{1, 2}  },
 
-            { SaveCountStats.FloorHellClears, new int[]{1}  },
-            { SaveCountStats.FloorGoopClears, new int[]{1, 2 ,3}  },
-            { SaveCountStats.FloorAbbeyClears,   new int[]{1}  },
-            { SaveCountStats.FloorRatClears, new int[]{1}  },
-            { SaveCountStats.FloorDeptClears, new int[]{1}  },
+            { SaveCountStats.FloorHellClears, new List<int>{1}  },
+            { SaveCountStats.FloorGoopClears, new List<int>{1, 2 ,3}  },
+            { SaveCountStats.FloorAbbeyClears,   new List<int>{1}  },
+            { SaveCountStats.FloorRatClears, new List<int>{1}  },
+            { SaveCountStats.FloorDeptClears, new List<int>{1}  },
         };
 
-        private static Dictionary<SaveCountStats, CountStatInfo> SaveDataTrackedStats { get; set; } = InitialStatValues;
-
-        private static CountStatInfo nullCountStat = new CountStatInfo(-9999, 9999);
+        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
 
 
-        public static CountStatInfo GetCountStat(SaveCountStats statToGet)
+
+        public static int GetCountStat(SaveCountStats statToGet)
         {
-            CountStatInfo statData = SaveDataTrackedStats[statToGet];
+            int statData = SaveDataTrackedStats[statToGet];
 
             return statData;
         }
 
-        public static void SetCountStat(SaveCountStats statToSet, int count, int nextGoal)
-        {
-            CountStatInfo newStatInfo = new CountStatInfo(count, nextGoal);
-
-            SetCountStatInfo(statToSet, newStatInfo);
-        }
 
         public static void SetCountStat(SaveCountStats statToSet, int count)
         {
-            CountStatInfo newStatInfo = new CountStatInfo(count, GetCountStat(statToSet).NextGoal);
-            SetCountStatInfo(statToSet, newStatInfo);
-        }
-
-        private static void SetCountStatInfo(SaveCountStats statToSet, CountStatInfo newValue)
-        {
-            SaveDataTrackedStats[statToSet] = newValue;
+            SaveDataTrackedStats[statToSet] = count;
             return;
         }
 
 
-        public static bool AddToCount(SaveCountStats statToModify, int addAmount)
+
+        public static int AddToGoalCount(SaveCountStats statToModify, int addAmount)
         {
             if(IsCountStatNull(statToModify))
             {
-                return false;
+                return 0;
             }
 
-            bool goalMet = false;
+            int goalsMet = 0;
 
-            CountStatInfo statData = SaveDataTrackedStats[statToModify];
-            statData.Count += addAmount;
+            int statCount = SaveDataTrackedStats[statToModify];
 
-            ArchipelagoGUI.ConsoleLog($"[{statToModify}] New count: {statData.Count} against goal: {statData.NextGoal}");
-            if(statData.Count >= statData.NextGoal) 
-            { 
-                goalMet = true; 
+            statCount += addAmount;
+            SetCountStat(statToModify, statCount);
+
+            foreach (int goal in GoalList[statToModify])
+            {
+                ArchipelagoGUI.ConsoleLog($"[{statToModify}] New count: {statCount} against goal: {goal}");
+
+                if(statCount >= goal)
+                {
+                    goalsMet++;
+                }
+                else
+                {
+                    break;
+                }
             }
 
-            SetCountStatInfo(statToModify, statData);
-
-            return goalMet;
+            return goalsMet;
         }
 
-        public static bool SetGoalToNextEntry(SaveCountStats statToModify)
+        public static bool RemoveClearedGoals(SaveCountStats statToModify, int goalsCleared)
         {
             if(IsCountStatNull(statToModify))
             {
@@ -224,32 +209,33 @@ namespace ArchiGungeon.ArchipelagoServer
 
             bool outOfGoals = false;
 
-            CountStatInfo statData = SaveDataTrackedStats[statToModify];
-            int[] goalList = GoalList[statToModify];
+            List<int> goalList = GoalList[statToModify];
 
-            int goalEntryIndex = Array.IndexOf(goalList, statData.NextGoal);
-
-            try
+            if(goalList.Count < 1)
             {
-                statData.NextGoal = goalList[goalEntryIndex + 1];
-                SetCountStatInfo(statToModify, statData);
-            }
-            catch
-            {
-                SetCountStatInfo(statToModify, nullCountStat);
-                ArchipelagoGUI.ConsoleLog(statToModify + " goals all complete!");
-
                 outOfGoals = true;
+
+                return outOfGoals;
             }
 
+            goalList.RemoveRange(0, goalsCleared);
+            GoalList[statToModify] = goalList;
+
+            if (goalList.Count == 0)
+            {
+                SaveDataTrackedStats[statToModify] = -9999;
+                outOfGoals = true;
+                ArchipelagoGUI.ConsoleLog(statToModify + " goals complete");
+            }
+           
             return outOfGoals;
         }
 
         private static bool IsCountStatNull(SaveCountStats statToCheck)
         {
-            CountStatInfo statData = SaveDataTrackedStats[statToCheck];
+            int statCount = SaveDataTrackedStats[statToCheck];
 
-            if(statData.Count == -9999) { return true; }
+            if(statCount == -9999) { return true; }
 
             else {  return false; }
         }

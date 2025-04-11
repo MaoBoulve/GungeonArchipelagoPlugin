@@ -104,7 +104,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             for(int i=0; i < numberToSpawn; i++)
             {
-                GameObject archipelItem = PickupObjectDatabase.GetById(APItem.SpawnItemID).gameObject;
+                GameObject archipelItem = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID).gameObject;
                 LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
             }
 
