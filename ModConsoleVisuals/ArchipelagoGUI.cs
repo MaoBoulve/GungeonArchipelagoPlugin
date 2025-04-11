@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using ArchiGungeon.ArchipelagoServer;
 
 
-
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.ModConsoleVisuals
 {
     public delegate void MenuEvent();
 
@@ -16,6 +16,7 @@ namespace ArchiGungeon.Archipelago
     {
         // bool & event for pausing gameplay & user control
         public static bool IsOpen;
+        private static bool IsHoldingInput = true;
         public static MenuEvent OnMenuClose;
         public static MenuEvent OnMenuOpen;
 
@@ -27,14 +28,15 @@ namespace ArchiGungeon.Archipelago
         private List<string> lastCommands = new List<string>();
         private int currentCommandIndex = -1;
         protected static char[] _SplitArgsCharacters = new char[1] { ' ' };
+        public static string passwordInput = null;
+        public static string manualNameInput = "UNSET";
 
         // Backend class for bridging Gungeon to Archipelago
         private static ArchipelConsoleCommandParser archipelagoCommands = new();
 
-
-        // Summary:
-        // The current instance of the console.
+        // The current instance of the GUI class
         public static ArchipelagoGUI Instance { get; protected set; }
+
 
         public ArchipelagoGUI()
         {
@@ -90,7 +92,7 @@ namespace ArchiGungeon.Archipelago
 
 
                         // CONNECT
-                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.connectCommandText}</color> [IP address] [port] [player slot]")
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.connectCmd}</color> [IP address] [port] [player slot]")
                         {
                             Foreground = UnityEngine.Color.white
                         },
@@ -99,8 +101,41 @@ namespace ArchiGungeon.Archipelago
                             Foreground = UnityEngine.Color.green
                         },
 
+                        //FULL CONNECT
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.fullConnectCmd}</color> [IP address] [port]")
+                        {
+                            Foreground = UnityEngine.Color.white
+                        },
+                        (SElement)new SLabel("    Connect to Archipelago using set Name & Password using the 'set' command")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+                        (SElement)new SLabel("    Use for player name with spaces OR server with password")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+
+                        // Set 
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.setConnectionParameterCmd}</color> [setting name] [value]")
+                        {
+                            Foreground = UnityEngine.Color.white
+                        },
+                        (SElement)new SLabel("    Set 'name' or 'password' for use with the 'fullconnect' command")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+
+                        (SElement)new SLabel("")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+                        (SElement)new SLabel("")
+                        {
+                            Foreground = UnityEngine.Color.green
+                        },
+
                         // RETRIEVE
-                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.retrieveCommandText}</color>")
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.retrieveCmd}</color>")
                         {
                             Foreground = UnityEngine.Color.white
                         },
@@ -111,7 +146,7 @@ namespace ArchiGungeon.Archipelago
 
                         // GOAL
 
-                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.progressCommandText}</color>")
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.progressCmd}</color>")
                         {
                             Foreground = UnityEngine.Color.white
                         },
@@ -119,16 +154,13 @@ namespace ArchiGungeon.Archipelago
                         {
                             Foreground = UnityEngine.Color.green
                         },
-                        (SElement)new SLabel("")
-                        {
-                            Foreground = UnityEngine.Color.green
-                        },
 
-                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.spawnAPItemCommandText}</color>")
+
+                        (SElement)new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.spawnAPItemCmd}</color>")
                         {
-                            Foreground = UnityEngine.Color.white
+                            Foreground = UnityEngine.Color.yellow
                         },
-                        (SElement)new SLabel("    (DEBUG) Spawn an AP Item")
+                        (SElement)new SLabel("    (DEBUG) Spawn an AP Item ----------")
                         {
                             Foreground = UnityEngine.Color.green
                         },
@@ -196,8 +228,7 @@ namespace ArchiGungeon.Archipelago
         {
             if (Instance == null)
             {
-                ETGModGUI.Create();
-                ETGModGUI.Start();
+                new ArchipelagoGUI();
             }
 
             SLabel result = Instance?._Log(text, null);
@@ -211,7 +242,7 @@ namespace ArchiGungeon.Archipelago
             return result;
         }
 
-        private string[] SplitArgs(string args)
+        private string[] SplitArgsBySpace(string args)
         {
             return args.Split(_SplitArgsCharacters, StringSplitOptions.RemoveEmptyEntries);
         }
@@ -231,6 +262,8 @@ namespace ArchiGungeon.Archipelago
 
             if (keyCode == ETGModGUI.ConsolePreviousCommand || keyCode == ETGModGUI.ConsoleNextCommand)
             {
+                IsHoldingInput = false;
+
                 if (lastCommands.Count <= 0)
                 {
                     field.Text = string.Empty;
@@ -263,67 +296,95 @@ namespace ArchiGungeon.Archipelago
 
         protected void ParseCommandForArchipelago(string command)
         {
+            string[] commandInputs;
+            string commandGroup;
+
             // Command group, sub command group
-            string[] array = SplitArgs(command);
+            string[] array = SplitArgsBySpace(command);
 
-            var commandInputs = array.Skip(1).ToArray();
-            string commandGroup = array[0];
+            commandInputs = array.Skip(1).ToArray();
+            commandGroup = array[0];
 
-            // CONNECT: IP, port, player slot
+
+            string consoleCommand;
 
             switch (commandGroup)
             {
-                case ArchipelConsoleCommandParser.connectCommandText:
+                case ArchipelConsoleCommandParser.connectCmd:
                 {
-
-                    if (commandInputs.Length != 3)
+                    if (commandInputs.Length > 3)
                     {
-                        ConsoleLog("ERROR: [Connect] expected input [IP Address] [Port] [Player Slot Name]");
+                        ConsoleLog("ERROR: Too many inputs - [Connect] expected input [IP Address] [Port] [Player Slot Name]");
+                        ConsoleLog("If name contains spaces or server has a password, please use the 'set' & 'fullconnect' commands");
                         return;
                     }
 
-                    string connectCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.connectCommandText} " + command;
-                    archipelagoCommands.SendETGConsoleCommand(connectCommand);
-
+                    consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.connectCmd} " + command;
                     break;
                 }
 
-                case ArchipelConsoleCommandParser.retrieveCommandText:
+                case ArchipelConsoleCommandParser.retrieveCmd:
                 {
-                    string retrieveCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.retrieveCommandText} ";
-                    archipelagoCommands.SendETGConsoleCommand(retrieveCommand);
+                    consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.retrieveCmd} ";
                     break;
                 }
 
-                case ArchipelConsoleCommandParser.progressCommandText:
+                case ArchipelConsoleCommandParser.progressCmd:
                 {
-                    string goalCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.progressCommandText} ";
-                    archipelagoCommands.SendETGConsoleCommand(goalCommand);
+                    consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.progressCmd} ";
                     break;
                 }
 
-                case ArchipelConsoleCommandParser.spawnAPItemCommandText:
+                case ArchipelConsoleCommandParser.spawnAPItemCmd:
                 {
-                    string spawnCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.spawnAPItemCommandText} ";
-                    archipelagoCommands.SendETGConsoleCommand(spawnCommand);
+                    consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.spawnAPItemCmd} ";
                     break;
+                }
+
+                case ArchipelConsoleCommandParser.setConnectionParameterCmd:
+                {
+                    // value 0 is sub command group, value 1 is value to set
+                    string fullValue = string.Join(" ", array.Skip(2).ToArray());
+
+                    SetConnectionParameter(commandInputs[0], fullValue);
+                    return;
+                }
+
+                case ArchipelConsoleCommandParser.fullConnectCmd:
+                {
+                    if (commandInputs.Length > 2)
+                    {
+                        ConsoleLog("ERROR: Too many inputs - [fullconnect] expected input [IP Address] [Port]");
+                        ConsoleLog("Use 'set' for name & password");
+                        return;
+                    }
+
+                    SessionHandler.Instance.ArchipelagoConnect(commandInputs[0], commandInputs[1], ArchipelagoGUI.manualNameInput, ArchipelagoGUI.passwordInput);
+
+                    return;
                 }
 
                 default:
                     ConsoleLog($"ERROR: '{commandGroup}' not recognized as a command");
-                    break;
+                    return;
             }
-            
+
+            archipelagoCommands.SendETGConsoleCommand(consoleCommand);
             return;
         }
 
 
         public override void Update()
         {
-            if (IsOpen)
+            if (IsOpen && IsHoldingInput)
             {
                 // keep focus on UI while open
                 base.GUI[1].Focus();
+            }
+
+            if(!IsHoldingInput)
+            {
+                IsHoldingInput = true;
             }
 
             return;
@@ -348,6 +409,42 @@ namespace ArchiGungeon.Archipelago
             return;
         }
 
+        public static void SetConnectionParameter(string paramToSet, string textValue)
+        {
+            switch (paramToSet)
+            {
+                case "name":
+                    SetNameInput(textValue);
+
+                    ConsoleLog("Name set to: " + textValue);
+
+                    break;
+                case "password":
+                    SetPasswordInput(textValue);
+
+                    ConsoleLog("Password set to: " + textValue);
+
+                    break;
+                default:
+                    ConsoleLog(paramToSet + "is not a valid connection setting to change.");
+                    break;
+            }
+
+            return;
+        }
+
+
+        private static void SetNameInput(string nameToSet)
+        {
+            manualNameInput = nameToSet;
+            return;
+        }
+
+        private static void SetPasswordInput(string password)
+        {
+            passwordInput = password;
+            return;
+        }
 
     }
 
@@ -356,15 +453,17 @@ namespace ArchiGungeon.Archipelago
     {
 
         // Summary:
-        // The current instance of the console.
+        // The current instance of the command parser.
         public static ArchipelConsoleCommandParser Instance { get; protected set; }
 
-        public static Dictionary<string, int> slot_data = new Dictionary<string, int>();
-        public const string archipelagoCommandGroup = "archie";
-        public const string connectCommandText = "connect";
-        public const string retrieveCommandText = "retrieve";
-        public const string progressCommandText = "progress";
-        public const string spawnAPItemCommandText = "APspawn";
+        public const string archipelagoCommandGroup = "arch";
+
+        public const string connectCmd = "connect";
+        public const string retrieveCmd = "retrieve";
+        public const string progressCmd = "progress";
+        public const string spawnAPItemCmd = "apspawn";
+        public const string setConnectionParameterCmd = "set";
+        public const string fullConnectCmd = "fullconnect";
 
 
         // Instance archipelago commands inside ETGModConsole
@@ -373,13 +472,18 @@ namespace ArchiGungeon.Archipelago
             Instance = this;
 
             // Add commands for use by base ETGModConsole
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {connectCommandText}", "Input [ip], [port], [player name] seperated by spaces");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup}", "-- Archipelago Multiworld randomizer mod --");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {connectCmd}", "Input [ip], [port], [player name] seperated by spaces");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "Pull received location items from server (once per run)");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "Output randomizer completion progress");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {spawnAPItemCmd}", "Spawn the next APItem");
+
             ETGModConsole.Commands.AddGroup($"{archipelagoCommandGroup}");
 
             new SessionHandler();
 
             // Hook archipelago commands to ETG mod console delegate events
-            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{connectCommandText}", delegate (string[] args)
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{connectCmd}", delegate (string[] args)
             {
                 if (args.Length > 3)
                 {
@@ -390,25 +494,25 @@ namespace ArchiGungeon.Archipelago
                 {
                     SessionHandler.Instance.ArchipelagoConnect(args[0], args[1], args[2]);
                 }
-
+                return;
             });
 
-            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{retrieveCommandText}", delegate (string[] args)
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{retrieveCmd}", delegate (string[] args)
             {
                 SessionHandler.RetrieveServerItems();
-
+                return;
             });
 
-            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{progressCommandText}", delegate (string[] args)
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{progressCmd}", delegate (string[] args)
             {
                 SessionHandler.OutputGameGoalStatus();
-
+                return;
             });
 
-            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{spawnAPItemCommandText}", delegate (string[] args)
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{spawnAPItemCmd}", delegate (string[] args)
             {
                 ArchipelagoGungeonBridge.SpawnAPItem(1);
-
+                return;
             });
         }
 

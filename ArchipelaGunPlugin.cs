@@ -1,5 +1,7 @@
-﻿using ArchiGungeon.Archipelago;
+﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.GungeonEventHandlers;
 using BepInEx;
 
 namespace ArchiGungeon
@@ -11,7 +13,7 @@ namespace ArchiGungeon
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";
         public const string NAME = "Archipelago Gungeon Randomizer";
-        public const string VERSION = "0.0.1";
+        public const string VERSION = "0.0.2";
         public const string TEXT_COLOR = "#B6FFB8";
 
         public const string MOD_ITEM_PREFIX = "arch";
@@ -55,7 +57,7 @@ namespace ArchiGungeon
         private void RegisterItems()
         {
             Archipelagun.Register();
-            APItem.RegisterItemBase();
+            APPickUpItem.RegisterItemBase();
         }
 
         private void InitModMenu()
@@ -78,7 +80,7 @@ namespace ArchiGungeon
             StartGungeonPlayerListener();
 
             // Print all directories BepInEx will allow
-            PlayerPersistentDataHandler.TDD_PrintAllPathsDirectory();
+            LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 
             return;
         }
@@ -102,7 +104,6 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            PlayerListener.Update();
             SessionHandler.Instance?.Update();
 
             return;

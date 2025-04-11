@@ -5,15 +5,18 @@ using System.Text;
 using Alexandria.Misc;
 using ArchiGungeon.ItemArchipelago;
 using UnityEngine;
+using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.ArchipelagoServer;
 
-namespace ArchiGungeon.Archipelago
+namespace ArchiGungeon.GungeonEventHandlers
 {
     // See: https://github.com/Nevernamed22/Alexandria/blob/main/Misc/CustomActions.cs#L121
     public class GungeonPlayerEventListener
     {
-        private static PlayerController playerController;
+        public static PlayerController Player { get; protected set; }
 
-        private static Dictionary<string, string> bossGameNameMap = new Dictionary<string, string>
+        /*
+        private static Dictionary<string, string> bossGameNameMap { get; } = new Dictionary<string, string>
         {
             { "Blobulord(Clone)", "Blobulord Killed" },
             { "OldBulletKing(Clone)", "Old King Killed" },
@@ -23,20 +26,25 @@ namespace ArchiGungeon.Archipelago
             { "DraGun(Clone)", "Dragun Killed" },
             { "Infinilich(Clone)", "Lich Killed" }
         };
+        */
+
+        private static Dictionary<string, CompletionGoals> bossObjectNameToSaveStat { get; } = new Dictionary<string, CompletionGoals>
+        {
+            { "Blobulord(Clone)", CompletionGoals.Blobulord },
+            { "OldBulletKing(Clone)", CompletionGoals.OldKing },
+            { "MetalGearRat(Clone)", CompletionGoals.Rat },
+            { "Helicopter(Clone)", CompletionGoals.Agunim },
+            { "AdvancedDraGun(Clone)", CompletionGoals.AdvancedDragun },
+            { "DraGun(Clone)", CompletionGoals.Dragun },
+            { "Infinilich(Clone)", CompletionGoals.Lich }
+        };
+
+        private static int roomsClearedThisRun;
 
         public void StartSystemEventListens()
         {
             ArchipelagoGUI.OnMenuOpen += OnArchipelagoMenuOpen;
             ArchipelagoGUI.OnMenuClose += OnArchipelagoMenuClose;
-
-
-            //OnEnteredCombat
-            
-            //GunChanged
-            //OnUsedPlayerItem
-            //OnItemPurchased
-            //OnItemStolen
-            //OnRoomClearEvent
 
             CustomActions.OnRunStart += OnRunStarted;
             CustomActions.OnBossKilled += OnBossKilled;
@@ -54,9 +62,9 @@ namespace ArchiGungeon.Archipelago
 
         private void OnPlayerControllerSpawned(PlayerController controller)
         {
-            playerController = controller;
+            Player = controller;
 
-            ArchipelagoGungeonBridge.SetPlayerController(playerController);
+            ArchipelagoGungeonBridge.SetPlayerController(Player);
             StartPlayerControllerEventListens();
 
             return;
@@ -76,23 +84,6 @@ namespace ArchiGungeon.Archipelago
 
         private bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
         {
-            if (shouldOpen == false)
-            {
-                return shouldOpen;
-            }
-
-            if (SessionHandler.session == null)
-            {
-                return shouldOpen;
-            }
-
-            if (SessionHandler.session.Socket.Connected == false)
-            {
-                return shouldOpen;
-            }
-
-            chest.contents.Clear();
-            chest.contents.Add(PickupObjectDatabase.GetById(APItem.SpawnItemID));
 
             //ArchipelagoGUI.ConsoleLog($"Pre open: {chest}, Should Open: {shouldOpen}");
 
@@ -101,7 +92,15 @@ namespace ArchiGungeon.Archipelago
 
         private void OnChestOpen(Chest chest, PlayerController controller)
         {
-            //ArchipelagoGUI.ConsoleLog($"OPEN: {chest}");
+            if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
+            {
+                return;
+            }
+
+            chest.contents.Clear();
+            chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
 
             return;
         }
@@ -112,7 +111,8 @@ namespace ArchiGungeon.Archipelago
         {
             ETGModConsole.Log($"Run started!");
 
-            SessionHandler.RetrievedServerItemsThisRun = false;
+            roomsClearedThisRun = 0;
+            SessionHandler.ResetItemRetrieveState();
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);
@@ -125,11 +125,22 @@ namespace ArchiGungeon.Archipelago
         {
             string bossName = haver.name;
 
+
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+
+            /*
             if (bossGameNameMap.ContainsKey(bossName))
             {
                 ETGModConsole.Log($"Possible goal boss killed: {haver}");
                 ETGModConsole.Log($"========== Checking for game completion ===========");
                 SessionHandler.DataSender.SendGoalCompletion(bossGameNameMap[bossName]);
+            }
+            */
+
+            if (bossObjectNameToSaveStat.ContainsKey(bossName))
+            {
+                ArchipelagoGUI.ConsoleLog($"Possible goal boss killed: {bossName}");
+                SessionHandler.DataSender.SendGoalCompletion(bossObjectNameToSaveStat[bossName]);
             }
 
             ETGModConsole.Log($"Boss killed: {haver}");
@@ -148,6 +159,7 @@ namespace ArchiGungeon.Archipelago
             //throw new NotImplementedException();
         }
 
+        /*
         public void Update()
         {
             if (playerController == null)
@@ -162,22 +174,81 @@ namespace ArchiGungeon.Archipelago
 
             return;
         }
+        */
 
         public void StartPlayerControllerEventListens()
         {
-            playerController = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
-            playerController.OnRealPlayerDeath += OnPlayerDeath;
+            Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
-            ArchipelagoGUI.ConsoleLog(playerController);
+            Player.OnNewFloorLoaded += OnNewFloorLoad;
+            Player.OnEnteredCombat += OnPlayerEnterCombat;
+            Player.OnRoomClearEvent += OnRoomClear;
 
+            // playerController.OnReloadPressed += OnReloadPress; ReloadPress should be listened to by gun classes instead
+            Player.OnRealPlayerDeath += OnPlayerDeath;
+            Player.OnItemPurchased += OnItemPurchased;
+
+            Player.OnKilledEnemyContext += OnKilledEnemy;
+            Player.OnTableFlipped += OnTableFlip;
+
+            ArchipelagoGUI.ConsoleLog(Player);
+
+            return;
+        }
+
+        private void OnNewFloorLoad(PlayerController playerController)
+        {
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+            return;
+        }
+
+        private void OnPlayerEnterCombat()
+        {
+            // TODO: hide archipelagun
             return;
         }
 
         private void OnPlayerDeath(PlayerController controller)
         {
+            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
             SessionHandler.DataSender.SendDeathlink(causeOfDeath:deathCause);
+        }
+
+        private void OnRoomClear(PlayerController playerController)
+        {
+            roomsClearedThisRun += 1;
+
+            ArchipelagoGUI.ConsoleLog("Adding room points: " + roomsClearedThisRun);
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
+
+            return;
+        }
+
+        private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
+        {
+            int spentMoney = shopItem.CurrentPrice;
+            ArchipelagoGUI.ConsoleLog("Adding cash spent: " + spentMoney);
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
+            
+            return;
+        }
+
+        private void OnKilledEnemy(PlayerController playerController, HealthHaver enemy)
+        {
+            string enemyName = enemy.name;
+            // TODO: add enemy headhunter check
+            return;
+        }
+
+        private void OnTableFlip(FlippableCover tableFlipped)
+        {
+
+            return;
         }
     }
 

@@ -1,5 +1,5 @@
 ﻿using Alexandria.ItemAPI;
-using ArchiGungeon.Archipelago;
+using ArchiGungeon.ArchipelagoServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using UnityEngine;
 namespace ArchiGungeon.ItemArchipelago
 {
 
-    public class APItem: PassiveItem
+    public class APPickUpItem: PassiveItem
     {
         public static int SpawnItemID = -1;
         private static List<long> locationIDs;
@@ -17,12 +17,10 @@ namespace ArchiGungeon.ItemArchipelago
         private static string displayName = "AP Item";
         private static string spriteDirectory = "ArchiGungeon/Resources/archipelago.png";
 
-
-
         public static void RegisterItemBase()
         {
             GameObject obj = new GameObject(displayName);
-            var item = obj.AddComponent<APItem>();
+            var item = obj.AddComponent<APPickUpItem>();
 
             ItemBuilder.AddSpriteToObject(displayName, spriteDirectory, obj);
 
@@ -33,7 +31,8 @@ namespace ArchiGungeon.ItemArchipelago
             item.IgnoredByRat = true;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
-            ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
+
+            //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
             return;
         }
@@ -59,6 +58,19 @@ namespace ArchiGungeon.ItemArchipelago
             }
 
             
+            return;
+        }
+
+        public static void TDD_CallNextLocationCheck()
+        {
+            if (locationIDs.Count > 0)
+            {
+                SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
+
+                locationIDs.RemoveAt(0);
+            }
+
+
             return;
         }
 
