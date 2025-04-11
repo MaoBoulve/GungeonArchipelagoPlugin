@@ -2,6 +2,7 @@
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.GungeonEventHandlers;
+using ArchiGungeon.EnemyHandlers;
 using BepInEx;
 
 namespace ArchiGungeon
@@ -35,7 +36,7 @@ namespace ArchiGungeon
             GameManagerInstance = g;
             InitItemHooks();
             RegisterItems();
-
+            InitEnemyHooks();
             InitModMenu();
             
             InitPlayerListener();
@@ -58,6 +59,11 @@ namespace ArchiGungeon
         {
             Archipelagun.Register();
             APPickUpItem.RegisterItemBase();
+        }
+
+        private void InitEnemyHooks()
+        {
+            EnemySwapping.InitializeEnemySwapper();
         }
 
         private void InitModMenu()

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 
-public class EnemyGuidDatabase
+namespace ArchiGungeon.EnemyHandlers
 {
-	public static Dictionary<string, string> Entries { get; set; } = new Dictionary<string, string>
+	public class EnemyGuidDatabase
+	{
+		public static Dictionary<string, string> Entries { get; } = new Dictionary<string, string>
 	{
 		{ "bullet_kin", "01972dee89fc4404a5c408d50007dad5" },
 		{ "ak47_bullet_kin", "db35531e66ce41cbb81d507a34366dfe" },
@@ -205,4 +207,35 @@ public class EnemyGuidDatabase
 		{ "super_space_turtle_dummy", "cc9c41aa8c194e17b44ac45f993dd212" },
 		{ "cop_android", "640238ba85dd4e94b3d6f68888e6ecb8" }
 	};
+
+		public static Dictionary<string, string> ShuffledEnemyGUIDs = new Dictionary<string, string>();
+
+		public static void ShuffleEnemyGUIDs(int seed)
+		{
+			var rng = new System.Random(seed);
+
+			List<string> baseEnemyList = new List<string>(Entries.Values);
+			List<string> shuffledEnemyList = baseEnemyList;
+
+			int n = shuffledEnemyList.Count;
+
+			while (n > 1)
+			{
+				n--;
+				int k = rng.Next(n + 1);
+				string swapValue = shuffledEnemyList[k];
+				shuffledEnemyList[k] = shuffledEnemyList[n];
+				shuffledEnemyList[n] = swapValue;
+			}
+			ShuffledEnemyGUIDs.Clear();
+			int i = 0;
+			foreach (string baseGUID in shuffledEnemyList)
+			{
+				ShuffledEnemyGUIDs.Add(baseEnemyList[i], shuffledEnemyList[i]);
+				i++;
+			}
+
+			return;
+		}
+	}
 }

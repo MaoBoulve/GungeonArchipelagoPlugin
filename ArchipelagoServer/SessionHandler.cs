@@ -16,6 +16,7 @@ using ArchiGungeon.ItemArchipelago;
 using System.Collections.ObjectModel;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.EnemyHandlers;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -135,7 +136,7 @@ namespace ArchiGungeon.ArchipelagoServer
             PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
             LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
 
-            
+            InitializeEnemySwapper();
             InitializeAPLocationChecks();
 
             TrapSpawnHandler.SetCanSpawn(true);
@@ -363,6 +364,18 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
             return;
+        }
+
+        private static void InitializeEnemySwapper()
+        {
+            string seedString = Session.RoomState.Seed;
+            System.Security.Cryptography.MD5 md5Hasher = System.Security.Cryptography.MD5.Create();
+            var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(seedString));
+            int seed = BitConverter.ToInt32(hashed, 0);
+
+            EnemyGuidDatabase.ShuffleEnemyGUIDs(seed);
+            return;
+            //TODO CHECK FOR enemy randomizer KEY
         }
 
         private static LocationCheckCategoryRange chestsOpenedIndex = new LocationCheckCategoryRange(40, 47);
