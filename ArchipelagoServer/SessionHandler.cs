@@ -378,23 +378,26 @@ namespace ArchiGungeon.ArchipelagoServer
             //TODO CHECK FOR enemy randomizer KEY
         }
 
+        // ONLY 53 checks oops
         private static LocationCheckCategoryRange chestsOpenedIndex = new LocationCheckCategoryRange(40, 47);
         private static LocationCheckCategoryRange roomPointsIndex = new LocationCheckCategoryRange(25, 32);
-        private static LocationCheckCategoryRange cashSpentIndex = new LocationCheckCategoryRange(78, 82);
+        private static LocationCheckCategoryRange cashSpentIndex = new LocationCheckCategoryRange(13, 17);
 
         private static void InitializeAPLocationChecks()
         {
             List<long> allServerLocations = Session.Locations.AllLocations.ToList();
+
+            ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
             // TODO: determine how many raw location checks there are
 
             List<long> chestsIDs = allServerLocations.GetRange(chestsOpenedIndex.startIndex, chestsOpenedIndex.range);
             AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.ChestsOpened, chestsIDs);
 
             List<long> roomIDs = allServerLocations.GetRange(roomPointsIndex.startIndex, roomPointsIndex.range);
-            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.ChestsOpened, roomIDs);
+            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.RoomPoints, roomIDs);
 
             List<long> cashIDs = allServerLocations.GetRange(cashSpentIndex.startIndex, cashSpentIndex.range);
-            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.ChestsOpened, cashIDs);
+            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.CashSpent, cashIDs);
 
             List<long> serverRemainingLocations = Session.Locations.AllMissingLocations.ToList();
 

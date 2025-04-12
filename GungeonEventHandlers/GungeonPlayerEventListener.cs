@@ -7,6 +7,7 @@ using ArchiGungeon.ItemArchipelago;
 using UnityEngine;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.ArchipelagoServer;
+using ArchiGungeon.EnemyHandlers;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -111,6 +112,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             ETGModConsole.Log($"Run started!");
 
+            EnemySwapping.ResetEnemyDamageMult();
             roomsClearedThisRun = 0;
             SessionHandler.ResetItemRetrieveState();
 
@@ -200,6 +202,9 @@ namespace ArchiGungeon.GungeonEventHandlers
         private void OnNewFloorLoad(PlayerController playerController)
         {
             SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+
+            EnemySwapping.ReduceEnemyDamageMult(1);
+
             return;
         }
 
