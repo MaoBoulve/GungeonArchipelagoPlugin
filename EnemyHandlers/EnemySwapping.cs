@@ -78,7 +78,7 @@ namespace ArchiGungeon.EnemyHandlers
 
         public static void ResetEnemyDamageMult()
         {
-            enemyDamageMult = 3.5f;
+            enemyDamageMult = 4.0f;
             return;
         }
         
