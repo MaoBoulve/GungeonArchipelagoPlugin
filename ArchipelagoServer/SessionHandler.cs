@@ -130,13 +130,14 @@ namespace ArchiGungeon.ArchipelagoServer
 
             BindToArchipelagoEvents();
             CheckToCreateDeathlink();
+            CheckToRandomizeEnemies();
 
             // todo > write stuff to JSON
 
             PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
             LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
 
-            InitializeEnemySwapper();
+            
             InitializeAPLocationChecks();
 
             TrapSpawnHandler.SetCanSpawn(true);
@@ -264,6 +265,16 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        private static void CheckToRandomizeEnemies()
+        {
+            // deathlink
+            if (Convert.ToInt32(PlayerSlotSettings["RandomEnemies"]) == 1)
+            {
+                InitializeEnemySwapper();
+                ArchipelagoGUI.ConsoleLog("Random enemies");
+            }
+        }
+
         public static void ResetItemRetrieveState()
         {
             pulledItemsThisRun = false;
@@ -379,9 +390,9 @@ namespace ArchiGungeon.ArchipelagoServer
         }
 
         // ONLY 53 checks oops
-        private static LocationCheckCategoryRange chestsOpenedIndex = new LocationCheckCategoryRange(40, 47);
-        private static LocationCheckCategoryRange roomPointsIndex = new LocationCheckCategoryRange(25, 32);
-        private static LocationCheckCategoryRange cashSpentIndex = new LocationCheckCategoryRange(13, 17);
+        private static LocationCheckCategoryRange chestsOpenedIndex = new LocationCheckCategoryRange(1, 8);
+        private static LocationCheckCategoryRange roomPointsIndex = new LocationCheckCategoryRange(10, 17);
+        private static LocationCheckCategoryRange cashSpentIndex = new LocationCheckCategoryRange(20, 24);
 
         private static void InitializeAPLocationChecks()
         {
