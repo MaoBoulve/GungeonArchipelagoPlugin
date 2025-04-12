@@ -1,5 +1,8 @@
-﻿using ArchiGungeon.Archipelago;
+﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.GungeonEventHandlers;
+using ArchiGungeon.EnemyHandlers;
 using BepInEx;
 
 namespace ArchiGungeon
@@ -33,7 +36,7 @@ namespace ArchiGungeon
             GameManagerInstance = g;
             InitItemHooks();
             RegisterItems();
-
+            InitEnemyHooks();
             InitModMenu();
             
             InitPlayerListener();
@@ -55,7 +58,12 @@ namespace ArchiGungeon
         private void RegisterItems()
         {
             Archipelagun.Register();
-            APItem.RegisterItemBase();
+            APPickUpItem.RegisterItemBase();
+        }
+
+        private void InitEnemyHooks()
+        {
+            EnemySwapping.InitializeEnemySwapper();
         }
 
         private void InitModMenu()
@@ -78,7 +86,7 @@ namespace ArchiGungeon
             StartGungeonPlayerListener();
 
             // Print all directories BepInEx will allow
-            PlayerPersistentDataHandler.TDD_PrintAllPathsDirectory();
+            LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 
             return;
         }
@@ -102,7 +110,6 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            PlayerListener.Update();
             SessionHandler.Instance?.Update();
 
             return;

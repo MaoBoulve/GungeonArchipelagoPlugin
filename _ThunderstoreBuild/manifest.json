@@ -1,0 +1,10 @@
+{
+  "name": "ArchipelaGun_Multiworld_Randomizer",
+  "version_number": "0.0.1",
+  "website_url": "https://github.com/MaoBoulve/GungeonArchipelagoPlugin",
+  "description": "Revision Mod to connect Enter the Gungeon to Archipelago (https://archipelago.gg). Credit to KinTheInfinite for the prior version of this mod, without them would not embarked on this development.",
+  "dependencies": [
+    "MtG_API-Mod_the_Gungeon_API-1.8.4",
+    "Alexandria-Alexandria-0.4.9"
+  ]
+}
