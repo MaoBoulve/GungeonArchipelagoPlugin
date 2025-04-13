@@ -7,6 +7,8 @@ A revised mod for connecting Enter The Gungeon to Archipelago https://archipelag
 https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases
 
 # Connecting To A Server
+![archipelagun sprite](archipelagun.png)
+
  * On run start, the Archipelagun will spawn. Fire to open the mod menu
  
  * Following commands are available:
