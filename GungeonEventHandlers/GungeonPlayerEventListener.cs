@@ -181,7 +181,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         public void StartPlayerControllerEventListens()
         {
 
-            Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
+            // error referring to the game manager causes a hard error
+            //Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
             Player.OnNewFloorLoaded += OnNewFloorLoad;
             Player.OnEnteredCombat += OnPlayerEnterCombat;
