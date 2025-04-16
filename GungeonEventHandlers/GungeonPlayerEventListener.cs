@@ -14,7 +14,22 @@ namespace ArchiGungeon.GungeonEventHandlers
     // See: https://github.com/Nevernamed22/Alexandria/blob/main/Misc/CustomActions.cs#L121
     public class GungeonPlayerEventListener
     {
-        public static PlayerController Player { get; protected set; }
+        private static PlayerController PlayerOne { get; set; }
+        private static PlayerController PlayerTwo { get; set; }
+
+        public static PlayerController GetFirstAlivePlayer()
+        {
+            if (PlayerOne.healthHaver.IsAlive)
+            {
+                return PlayerOne;
+            }
+            else if (PlayerTwo.healthHaver.IsAlive)
+            {
+                return PlayerTwo;
+            }
+
+            return null;
+        }
 
         /*
         private static Dictionary<string, string> bossGameNameMap { get; } = new Dictionary<string, string>
@@ -63,10 +78,22 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private void OnPlayerControllerSpawned(PlayerController controller)
         {
-            Player = controller;
+            if(controller.characterIdentity == PlayableCharacters.CoopCultist)
+            {
+                PlayerTwo = controller;
+                PlayerTwo.OnRealPlayerDeath += OnPlayerTwoDeath;
+                ArchipelagoGungeonBridge.SetPlayerTwo(PlayerTwo);
+            }
 
-            ArchipelagoGungeonBridge.SetPlayerController(Player);
-            StartPlayerControllerEventListens();
+            else
+            {
+                PlayerOne = controller;
+                PlayerOne.OnRealPlayerDeath += OnPlayerOneDeath;
+                ArchipelagoGungeonBridge.SetPlayerOne(PlayerOne);
+            }
+
+            //ArchipelagoGungeonBridge.SetPlayerController(Player);
+            StartPlayerControllerEventListens(controller);
 
             return;
         }
@@ -145,7 +172,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                 SessionHandler.DataSender.SendGoalCompletion(bossObjectNameToSaveStat[bossName]);
             }
 
-            ETGModConsole.Log($"Boss killed: {haver}");
+            ArchipelagoGUI.ConsoleLog($"Boss killed: {haver}");
 
             return;
         }
@@ -178,24 +205,24 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
         */
 
-        public void StartPlayerControllerEventListens()
+        public void StartPlayerControllerEventListens(PlayerController playerToListen)
         {
 
             // error referring to the game manager causes a hard error
             //Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
-            Player.OnNewFloorLoaded += OnNewFloorLoad;
-            Player.OnEnteredCombat += OnPlayerEnterCombat;
-            Player.OnRoomClearEvent += OnRoomClear;
+            playerToListen.OnNewFloorLoaded += OnNewFloorLoad;
+            playerToListen.OnEnteredCombat += OnPlayerEnterCombat;
+            playerToListen.OnRoomClearEvent += OnRoomClear;
 
             // playerController.OnReloadPressed += OnReloadPress; ReloadPress should be listened to by gun classes instead
-            Player.OnRealPlayerDeath += OnPlayerDeath;
-            Player.OnItemPurchased += OnItemPurchased;
+            //playerToListen.OnRealPlayerDeath += OnPlayerDeath;
+            playerToListen.OnItemPurchased += OnItemPurchased;
 
-            Player.OnKilledEnemyContext += OnKilledEnemy;
-            Player.OnTableFlipped += OnTableFlip;
+            playerToListen.OnKilledEnemyContext += OnKilledEnemy;
+            playerToListen.OnTableFlipped += OnTableFlip;
 
-            ArchipelagoGUI.ConsoleLog(Player);
+            ArchipelagoGUI.ConsoleLog($"Listening to {playerToListen}");
 
             return;
         }
@@ -215,12 +242,33 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnPlayerDeath(PlayerController controller)
+        private void OnPlayerOneDeath(PlayerController controller)
         {
+            if(PlayerTwo != null)
+            {
+                if(!PlayerTwo.healthHaver.IsDead)
+                {
+                    return;
+                }
+            }
+
             SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
 
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
             SessionHandler.DataSender.SendDeathlink(causeOfDeath:deathCause);
+        }
+
+        private void OnPlayerTwoDeath(PlayerController controller)
+        {
+
+            if(PlayerOne.healthHaver.IsDead )
+            {
+                SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+                string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
+                SessionHandler.DataSender.SendDeathlink(causeOfDeath: deathCause);
+            }
+            
+            return;
         }
 
         private void OnRoomClear(PlayerController playerController)

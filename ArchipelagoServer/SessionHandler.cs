@@ -223,13 +223,21 @@ namespace ArchiGungeon.ArchipelagoServer
             if (Session == null)
             {
                 ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
             }
             else if (Session.Socket.Connected == false)
             {
                 ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
             }
 
+
+            ArchipelagoGUI.ConsoleLog("Disconnected from server");
+
             Session.Socket.Disconnect();
+            Session = null;
+
+            return;
         }
 
         private static void BindToArchipelagoEvents()
@@ -277,9 +285,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SetDeathLinkMode(int modeToSet)
         {
-            if(DeathLinkService == null)
+            if(DeathLinkService == null || Session == null)
             {
                 ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
             }
 
             switch (modeToSet)
@@ -493,7 +502,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void SendDeathlink(string playerName = "Gungeoneer", string causeOfDeath = "Died to Gungeon")
             {
-                if (DeathLinkService == null)
+                if (DeathLinkService == null || Session == null)
                 {
                     ArchipelagoGUI.ConsoleLog("Tried to send Deathlink but not connected!");
                     return;

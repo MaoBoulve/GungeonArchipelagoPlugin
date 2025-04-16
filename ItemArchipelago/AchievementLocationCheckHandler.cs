@@ -12,7 +12,7 @@ namespace ArchiGungeon.ItemArchipelago
 
         public static void SetStatLocationIDs(SaveCountStats statToSet, List<long> idList)
         {
-            StatToLocationIDs.Add(statToSet, idList);
+            StatToLocationIDs[statToSet] = idList;
             return;
         }
 

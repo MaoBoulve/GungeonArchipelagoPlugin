@@ -22,6 +22,12 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
+            if(playerToSpawnOn == null)
+            {
+                return;
+            }
+
             switch (trapCase)
             {
                 case 0:
@@ -31,33 +37,33 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                     EffectsController.PlayCurseVFX();
                     // mimic gun
-                    GungeonPlayerEventListener.Player.AcquirePuzzleItem(PickupObjectDatabase.GetByName("mimic_gun"));
+                    playerToSpawnOn.AcquirePuzzleItem(PickupObjectDatabase.GetByName("mimic_gun"));
                     
                     break;
                 case 2:
                     EffectsController.PlayCurseVFX();
                     // add curse
-                    GungeonPlayerEventListener.Player.CurrentCurseMeterValue += 1;
+                    playerToSpawnOn.CurrentCurseMeterValue += 1;
 
                     break;
                 case 3:
                     EffectsController.PlayCurseVFX();
                     // drop ur gun!!
-                    GungeonPlayerEventListener.Player.ForceDropGun(GungeonPlayerEventListener.Player.CurrentGun);
+                    playerToSpawnOn.ForceDropGun(playerToSpawnOn.CurrentGun);
                     break;
                 case 4:
                     EffectsController.PlayCurseVFX();
-                    GungeonPlayerEventListener.Player.IncreaseFire(0.5f);
+                    playerToSpawnOn.IncreaseFire(0.5f);
                     break;
                 case 5:
                     EffectsController.PlayCurseVFX();
-                    GungeonPlayerEventListener.Player.CurrentPoisonMeterValue += 0.5f;
-                    TrapStatModifier.CheckToPoison(GungeonPlayerEventListener.Player);
+                    playerToSpawnOn.CurrentPoisonMeterValue += 0.5f;
+                    TrapStatModifier.CheckToPoison(playerToSpawnOn);
                     break;
                 case 6:
                     EffectsController.PlayCurseVFX();
-                    GungeonPlayerEventListener.Player.CurrentCurseMeterValue += 0.5f;
-                    TrapStatModifier.CheckToCurse(GungeonPlayerEventListener.Player);
+                    playerToSpawnOn.CurrentCurseMeterValue += 0.5f;
+                    TrapStatModifier.CheckToCurse(playerToSpawnOn);
                     break;
                 case 7:
                     EffectsController.PlayCurseVFX();
