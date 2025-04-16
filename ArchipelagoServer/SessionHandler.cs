@@ -537,6 +537,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
+
             protected static void PullCountFromServer(SaveCountStats statToPull)
             {
                 int count = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey];
@@ -546,24 +547,6 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
 
-            public static void SendGameCompletionGoalFinished(CompletionGoals goalCompleted)
-            {
-                SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalCompleted];
-
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] += 1;
-
-                /*
-                if ((Session.DataStorage[Scope.Slot, "Blobulord Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Blobulord Killed"]) && (Session.DataStorage[Scope.Slot, "Old King Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Old King Killed"]) && (Session.DataStorage[Scope.Slot, "Resourceful Rat Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Resourceful Rat Killed"]) && (Session.DataStorage[Scope.Slot, "Agunim Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Agunim Killed"]) && (Session.DataStorage[Scope.Slot, "Advanced Dragun Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Advanced Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 0 || (bool)Session.DataStorage[Scope.Slot, "Dragun Killed"]) && (Session.DataStorage[Scope.Slot, "Goal"] != 1 || (bool)Session.DataStorage[Scope.Slot, "Lich Killed"]))
-                {
-                    SendGameCompletion();
-                }
-
-                */
-
-                CheckForGameCompletion();
-                return;
-            }
-
             public static void CheckForGameCompletion()
             {
                 foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
@@ -571,35 +554,18 @@ namespace ArchiGungeon.ArchipelagoServer
                     SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
                     int statData = CountSaveData.GetCountStat(correspondingStat);
 
-                    if (goalEnum == CompletionGoals.Dragun)
+                    if((int)PlayerSlotSettings[CompletionKeys[goalEnum]] == 1)
                     {
-                        
-                        if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.DragunKills].CountKey] < 1)
+
+                        if(statData < 0)
+                        {
+                            PullCountFromServer(correspondingStat);
+                        }
+
+                        if (statData < 1)
                         {
                             return;
                         }
-                    }
-
-                    else if(goalEnum == CompletionGoals.Lich)
-                    {
-                        if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.LichKills].CountKey] < 1)
-                        {
-                            return;
-                        }
-                    }
-
-                    else
-                    {
-
-                        if((int)PlayerSlotSettings[CompletionKeys[goalEnum]] == 1)
-                        {
-                            if (statData < 1)
-                            {
-                                return;
-                            }
-                        }
-
-                        
                     }
 
                 }
@@ -663,9 +629,13 @@ namespace ArchiGungeon.ArchipelagoServer
                 {
                     int statData = CountSaveData.GetCountStat(countStat);
 
-                    Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStat].CountKey] = statData;
+                    if(statData > -1)
+                    {
+                        Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStat].CountKey] = statData;
 
-                    ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {statData}");
+                        ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {statData}");
+                    }
+
                 }
 
                 return;
@@ -753,10 +723,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class TimedServerCalls:MonoBehaviour
     {
-        public IEnumerator PullServerDataOnDelay(float waitTime = 3.0f)
+        public IEnumerator PullServerDataOnDelay(float waitTime = 1.0f)
         {
 
-            ArchipelagoGUI.ConsoleLog($"Waiting {waitTime} seconds to pull server data");
+            ArchipelagoGUI.ConsoleLog($"Pulling server data, please standby");
 
             yield return new WaitForSeconds(waitTime);
 

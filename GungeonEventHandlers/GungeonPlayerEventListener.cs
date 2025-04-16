@@ -174,7 +174,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
                 ArchipelagoGUI.ConsoleLog($"Possible goal boss killed: {bossName}");
-                SessionHandler.DataSender.SendGameCompletionGoalFinished(BossNameToCompletionGoal[bossName]);
+                SessionHandler.DataSender.CheckForGameCompletion();
             }
 
             ArchipelagoGUI.ConsoleLog($"Boss killed: {haver}");
