@@ -44,7 +44,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         };
         */
 
-        private static Dictionary<string, CompletionGoals> bossObjectNameToSaveStat { get; } = new Dictionary<string, CompletionGoals>
+        private static Dictionary<string, CompletionGoals> BossNameToCompletionGoal { get; } = new Dictionary<string, CompletionGoals>
         {
             { "Blobulord(Clone)", CompletionGoals.Blobulord },
             { "OldBulletKing(Clone)", CompletionGoals.OldKing },
@@ -53,6 +53,17 @@ namespace ArchiGungeon.GungeonEventHandlers
             { "AdvancedDraGun(Clone)", CompletionGoals.AdvancedDragun },
             { "DraGun(Clone)", CompletionGoals.Dragun },
             { "Infinilich(Clone)", CompletionGoals.Lich }
+        };
+
+        private static Dictionary<string, SaveCountStats> BossNameToSaveCountStat { get; } = new Dictionary<string, SaveCountStats>
+        {
+            { "Blobulord(Clone)", SaveCountStats.BlobulordKills},
+            { "OldBulletKing(Clone)", SaveCountStats.OldKingKills },
+            { "MetalGearRat(Clone)", SaveCountStats.RatKills },
+            { "Helicopter(Clone)", SaveCountStats.DeptAgunimKills },
+            { "AdvancedDraGun(Clone)", SaveCountStats.AdvancedDragunKills },
+            { "DraGun(Clone)", SaveCountStats.DragunKills },
+            { "Infinilich(Clone)", SaveCountStats.LichKills }
         };
 
         private static int roomsClearedThisRun;
@@ -153,23 +164,17 @@ namespace ArchiGungeon.GungeonEventHandlers
         private void OnBossKilled(HealthHaver haver, bool arg2)
         {
             string bossName = haver.name;
-
-
-            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
-
-            /*
-            if (bossGameNameMap.ContainsKey(bossName))
+            
+            if(BossNameToSaveCountStat.ContainsKey(bossName))
             {
-                ETGModConsole.Log($"Possible goal boss killed: {haver}");
-                ETGModConsole.Log($"========== Checking for game completion ===========");
-                SessionHandler.DataSender.SendGoalCompletion(bossGameNameMap[bossName]);
+                SessionHandler.DataSender.AddToGoalCount(BossNameToSaveCountStat[bossName], 1);
             }
-            */
 
-            if (bossObjectNameToSaveStat.ContainsKey(bossName))
+            if (BossNameToCompletionGoal.ContainsKey(bossName))
             {
+                SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
                 ArchipelagoGUI.ConsoleLog($"Possible goal boss killed: {bossName}");
-                SessionHandler.DataSender.SendGoalCompletion(bossObjectNameToSaveStat[bossName]);
+                SessionHandler.DataSender.SendGameCompletionGoalFinished(BossNameToCompletionGoal[bossName]);
             }
 
             ArchipelagoGUI.ConsoleLog($"Boss killed: {haver}");

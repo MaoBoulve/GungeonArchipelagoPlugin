@@ -8,20 +8,46 @@ using HarmonyLib;
 using MonoMod.RuntimeDetour;
 using ArchiGungeon.ModConsoleVisuals;
 using Dungeonator;
+using System.Collections.Generic;
 
 
 namespace ArchiGungeon.EnemyHandlers
 {
     class EnemySwapping : MonoBehaviour
     {
+        private static Dictionary<string, string> ShuffledEnemyGUIDs { get; set; } = new Dictionary<string, string>();
         private static float enemyDamageMult = 4.0f;
 
         public static void InitializeEnemySwapper()
         {
             ETGMod.AIActor.OnPreStart += OnActorPreStart;
             ETGMod.AIActor.OnPostStart += OnActorPostStart;
+
+
         }
 
+        public static void MakeNormalShuffleEnemies(int seed)
+        {
+            ShuffledEnemyGUIDs = EnemyGuidDatabase.GetShuffledGUIDList(EnemyShuffleCategories.NormalDifficultyShuffle, seed);
+            return;
+        }
+
+        public static void MakeDifficultShuffleEnemies(int seed)
+        {
+            ShuffledEnemyGUIDs = EnemyGuidDatabase.GetShuffledGUIDList(EnemyShuffleCategories.HardDifficultyShuffle, seed);
+            return;
+        }
+
+        public static void MakeBossShuffle(int seed)
+        {
+            return;
+        }
+
+        public static void ClearAllShuffleLists()
+        {
+            ShuffledEnemyGUIDs.Clear();
+            return;
+        }
 
         private static void OnActorPreStart(AIActor actor)
         {
@@ -29,10 +55,10 @@ namespace ArchiGungeon.EnemyHandlers
             ArchipelagoGUI.ConsoleLog(actor.name);
             string currentID = actor.EnemyGuid;
 
-            if(EnemyGuidDatabase.ShuffledEnemyGUIDs.ContainsKey(currentID))
+            if(ShuffledEnemyGUIDs.ContainsKey(currentID))
             {
                 
-                string newID = EnemyGuidDatabase.ShuffledEnemyGUIDs[currentID];
+                string newID = ShuffledEnemyGUIDs[currentID];
                 Vector2 spawnPos = actor.CenterPosition;
                 RoomHandler roomHandler = actor.parentRoom;
 
@@ -41,9 +67,6 @@ namespace ArchiGungeon.EnemyHandlers
 
                 actor.invisibleUntilAwaken = true;
 
-                //actor.EnemyGuid = newID;
-
-                //actor.Die
 
                 SpawnReplacementEnemy(newID, spawnPos, roomHandler);
 
@@ -70,7 +93,7 @@ namespace ArchiGungeon.EnemyHandlers
 
             enemyToSpawn.healthHaver.AllDamageMultiplier = enemyDamageMult;
 
-            AIActor.Spawn(enemyToSpawn, position, parentRoom);
+            AIActor.Spawn(enemyToSpawn, position, parentRoom, correctForWalls: true);
             //enemyToSpawn.aiAnimator.EndAnimation();
 
             return;
@@ -98,7 +121,7 @@ namespace ArchiGungeon.EnemyHandlers
         {
             string currentID = actor.EnemyGuid;
 
-            if (EnemyGuidDatabase.ShuffledEnemyGUIDs.ContainsKey(currentID))
+            if (ShuffledEnemyGUIDs.ContainsKey(currentID))
             {
                 actor.EraseFromExistenceWithRewards(suppressDeathSounds: true);
             }

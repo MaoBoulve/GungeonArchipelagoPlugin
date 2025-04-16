@@ -237,6 +237,8 @@ namespace ArchiGungeon.ArchipelagoServer
             Session.Socket.Disconnect();
             Session = null;
 
+            EnemySwapping.ClearAllShuffleLists();
+
             return;
         }
 
@@ -402,14 +404,18 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
             {
-                if (Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]] == 1)
+                // Wait why am i pulling from this when I pulled slot_data start of connection
+                if ((int)PlayerSlotSettings[CompletionKeys[goalEnum]] == 1)
                 {
-                    SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
 
-                    ArchipelagoGUI.ConsoleLog($"{Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]]}: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] }");
+                    SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
+                    int statData = CountSaveData.GetCountStat(correspondingStat);
+
+                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {PlayerSlotSettings[CompletionKeys[goalEnum]]} -- Kills: {statData}");
                 }
             }
 
+            /*
             //ArchipelagoGUI.ConsoleLog("Main game goal");
             if (Session.DataStorage[Scope.Slot, "Goal"] == 0)
             {
@@ -422,6 +428,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[CompletionGoals.Lich];
                 ArchipelagoGUI.ConsoleLog($"Lich killed: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey]}");
             }
+            */
 
             DataSender.CheckForGameCompletion();
 
@@ -438,7 +445,7 @@ namespace ArchiGungeon.ArchipelagoServer
             var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(seedString));
             int seed = BitConverter.ToInt32(hashed, 0);
 
-            EnemyGuidDatabase.ShuffleEnemyGUIDs(seed);
+            EnemySwapping.MakeNormalShuffleEnemies(seed);
             return;
             //TODO CHECK FOR enemy randomizer KEY
         }
@@ -483,13 +490,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public class DataSender
         {
-
-            public static void SendFoundLocationCheck(string locationName)
-            {
-                long locationID = Session.Locations.GetLocationIdFromName("Enter the Gungeon", locationName);
-                Session.Locations.CompleteLocationChecks(locationID);
-                return;
-            }
 
             public static void SendFoundLocationCheck(long idToSend)
             {
@@ -546,7 +546,7 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
 
-            public static void SendGoalCompletion(CompletionGoals goalCompleted)
+            public static void SendGameCompletionGoalFinished(CompletionGoals goalCompleted)
             {
                 SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalCompleted];
 
@@ -569,9 +569,11 @@ namespace ArchiGungeon.ArchipelagoServer
                 foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
                 {
                     SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
+                    int statData = CountSaveData.GetCountStat(correspondingStat);
 
                     if (goalEnum == CompletionGoals.Dragun)
                     {
+                        
                         if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[SaveCountStats.DragunKills].CountKey] < 1)
                         {
                             return;
@@ -588,14 +590,16 @@ namespace ArchiGungeon.ArchipelagoServer
 
                     else
                     {
-                        if (Session.DataStorage[Scope.Slot, CompletionKeys[goalEnum]] == 1)
+
+                        if((int)PlayerSlotSettings[CompletionKeys[goalEnum]] == 1)
                         {
-                            
-                            if (Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey] < 1)
+                            if (statData < 1)
                             {
                                 return;
                             }
                         }
+
+                        
                     }
 
                 }
@@ -622,7 +626,14 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void AddToGoalCount(SaveCountStats statToAdd, int numberToAdd)
             {
-                int goalsMet = CountSaveData.AddToGoalCount(SaveCountStats.RoomPoints, numberToAdd);
+                // TODO: pull from server is current value is 0
+
+                if(CountSaveData.GetCountStat(statToAdd) < 0)
+                {
+                    PullCountFromServer(statToAdd);
+                }
+
+                int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
 
                 if (goalsMet >= 1)
                 {

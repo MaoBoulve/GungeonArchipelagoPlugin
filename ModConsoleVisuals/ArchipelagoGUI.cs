@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using ArchiGungeon.ArchipelagoServer;
+using ArchiGungeon.DebugTools;
 
 
 namespace ArchiGungeon.ModConsoleVisuals
@@ -126,6 +127,22 @@ namespace ArchiGungeon.ModConsoleVisuals
                 base.GUI[0].Children.Add(helpText);
                 ((SGroup)base.GUI[0]).ScrollPosition.y = float.MaxValue;
             }
+        }
+
+        private void PrintDebugTextToConsole()
+        {
+
+            SLabel title = new SLabel("FOLLOWING ARE DEBUG COMMANDS") { Foreground = UnityEngine.Color.red };
+            base.GUI[0].Children.Add(title);
+
+            foreach(string commadText in DebugCommands.CommandToInputString.Values)
+            {
+                SLabel newEntry = new SLabel(commadText) { Foreground = UnityEngine.Color.magenta };
+                base.GUI[0].Children.Add(newEntry);
+            }
+
+            ((SGroup)base.GUI[0]).ScrollPosition.y = float.MaxValue;
+            return;
         }
 
         protected virtual SLabel _Log(object text, Texture image)
@@ -252,11 +269,6 @@ namespace ArchiGungeon.ModConsoleVisuals
                         break;
                 }
 
-                case ArchipelConsoleCommandParser.spawnAPItemCmd:
-                {
-                        consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.spawnAPItemCmd} ";
-                        break;
-                }
 
                 case ArchipelConsoleCommandParser.setConnectionParameterCmd:
                 {
@@ -310,6 +322,18 @@ namespace ArchiGungeon.ModConsoleVisuals
                         return;
                 }
 
+                case ArchipelConsoleCommandParser.debugCmd:
+                {
+                        if(commandInputs == null)
+                        {
+                            PrintDebugTextToConsole();
+                            return;
+                        }
+
+                        DebugCommands.HandleCommand(commandInputs[0]);
+
+                        return;
+                }
                 case "help":
                 {
                         PrintHelpTextToConsole();
@@ -445,8 +469,8 @@ namespace ArchiGungeon.ModConsoleVisuals
             
 
             // --- Debug
-            new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.spawnAPItemCmd}</color>") { Foreground = UnityEngine.Color.blue },
-            new SLabel("    (MOD DEBUG) Spawn an AP Item ----------") { Foreground = UnityEngine.Color.yellow },
+            new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.debugCmd}</color> [command string]") { Foreground = UnityEngine.Color.blue },
+            new SLabel("    Handle Mod Debug, leave command empty to print available commands ----------") { Foreground = UnityEngine.Color.yellow },
             new SLabel("") { Foreground = UnityEngine.Color.green }
         };
     }
@@ -471,7 +495,6 @@ namespace ArchiGungeon.ModConsoleVisuals
         public const string deathlinkCmd = "deathlink";
 
         public const string debugCmd = "debug";
-        public const string spawnAPItemCmd = "apspawn";
         
         
         // Instance archipelago commands inside ETGModConsole
@@ -485,7 +508,6 @@ namespace ArchiGungeon.ModConsoleVisuals
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {disconnectCmd}", "- Disconnect from server");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "- Pull received location items from server (once per run)");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "- Output randomizer completion progress");
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {spawnAPItemCmd}", "- Spawn the next APItem");
 
             ETGModConsole.Commands.AddGroup($"{archipelagoCommandGroup}");
 
@@ -519,12 +541,6 @@ namespace ArchiGungeon.ModConsoleVisuals
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{progressCmd}", delegate (string[] args)
             {
                 SessionHandler.OutputGameGoalStatus();
-                return;
-            });
-
-            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{spawnAPItemCmd}", delegate (string[] args)
-            {
-                ArchipelagoGungeonBridge.SpawnAPItem(1);
                 return;
             });
         }
