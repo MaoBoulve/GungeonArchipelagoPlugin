@@ -63,8 +63,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class SessionHandler : MonoBehaviour
     {
-        // The current instance of the console.
-        public static SessionHandler Instance { get; protected set; }
         public static ArchipelagoSession Session { get; protected set; }
         public static DeathLinkService DeathLinkService { get; protected set; }
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
@@ -84,13 +82,10 @@ namespace ArchiGungeon.ArchipelagoServer
        
         private static bool pulledItemsThisRun = false;
         private static List<long> item_add_queue = new();
-        
-        public SessionHandler()
-        {
-            Instance = this;
-        }
 
-        public void ArchipelagoConnect(string ip, string port, string name, string password = null)
+        // CONNECTION HANDLING ===============================
+
+        public static void ArchipelagoConnect(string ip, string port, string name, string password = null)
         {
             TrapSpawnHandler.SetCanSpawn(false);
             ConsumableSpawnHandler.SetCanSpawn(false);
@@ -223,7 +218,27 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        public static void DisconnectFromSession()
+        {
+            if (Session == null)
+            {
+                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+            else if (Session.Socket.Connected == false)
+            {
+                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
 
+
+            ArchipelagoGUI.ConsoleLog("Disconnected from server");
+
+            Session.Socket.Disconnect();
+            Session = null;
+
+            return;
+        }
 
         private static void BindToArchipelagoEvents()
         {
@@ -237,6 +252,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
 
 
+        // DEATHLINK =====================
+
         private static void CheckToCreateDeathlink()
         {
             // deathlink
@@ -247,6 +264,7 @@ namespace ArchiGungeon.ArchipelagoServer
             }
             else
             {
+                InitializeDeathlink(false);
                 ArchipelagoGUI.ConsoleLog("Deathlink off");
             }
         }
@@ -265,6 +283,33 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        public static void SetDeathLinkMode(int modeToSet)
+        {
+            if(DeathLinkService == null || Session == null)
+            {
+                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+
+            switch (modeToSet)
+            {
+                case 0:
+                    DeathLinkService.DisableDeathLink();
+                    return;
+                case 1:
+                    DeathLinkService.EnableDeathLink();
+                    return;
+                case 2:
+                    DeathLinkService.EnableDeathLink();
+                    return;
+                default:
+                    ArchipelagoGUI.ConsoleLog("Invalid deathlink mode setting!");
+                    return;
+            }
+        }
+
+        // ENEMIES =========================================================
+
         private static void CheckToRandomizeEnemies()
         {
             // deathlink
@@ -274,6 +319,10 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchipelagoGUI.ConsoleLog("Random enemies");
             }
         }
+
+        
+
+        // ITEM RETRIEVAL ===============================
 
         public static void ResetItemRetrieveState()
         {
@@ -329,6 +378,19 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        public static void Update()
+        {
+            if (item_add_queue.Count > 0)
+            {
+                ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
+                item_add_queue.RemoveAt(0);
+            }
+
+            return;
+        }
+
+        // USER OUTPUT HELPER ===============================
+
         public static void OutputGameGoalStatus()
         {
             if (Session == null)
@@ -366,16 +428,8 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public void Update()
-        {
-            if (item_add_queue.Count > 0)
-            {
-                ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
-                item_add_queue.RemoveAt(0);
-            }
-
-            return;
-        }
+        // ENEMY SWAPPER ==========================================
+        
 
         private static void InitializeEnemySwapper()
         {
@@ -421,7 +475,11 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-
+        //
+        //
+        // ============================ DATA SENDER ==========================================
+        //
+        //
 
         public class DataSender
         {
@@ -444,7 +502,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void SendDeathlink(string playerName = "Gungeoneer", string causeOfDeath = "Died to Gungeon")
             {
-                if (DeathLinkService == null)
+                if (DeathLinkService == null || Session == null)
                 {
                     ArchipelagoGUI.ConsoleLog("Tried to send Deathlink but not connected!");
                     return;
@@ -620,6 +678,12 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
         }
+
+        //
+        //
+        // ============================ DATA RECEIVER ==========================================
+        //
+        //
 
         public class DataReceiver
         {

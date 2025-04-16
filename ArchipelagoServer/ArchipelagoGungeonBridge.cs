@@ -55,22 +55,53 @@ namespace ArchiGungeon.ArchipelagoServer
             { 7L, 7 }
         };
 
-        private static PlayerController playerController;
+        private static PlayerController playerOne;
+        private static PlayerController playerTwo;
 
-        public static void SetPlayerController(PlayerController controller)
+        public static void SetPlayerOne(PlayerController controller)
         {
-            playerController = controller;
+            playerOne = controller;
+            return;
+        }
+
+        public static void SetPlayerTwo(PlayerController controller) 
+        {
+            playerTwo = controller;
             return;
         }
 
         public static void DeathlinkKillPlayer(string causeOfDeath = "Deathlink")
         {
-            ArchipelagoGUI.ConsoleLog("Die");
+            //ArchipelagoGUI.ConsoleLog("Die");
+            
+            if(playerTwo != null)
+            {
+                if(playerTwo.healthHaver.IsAlive && playerOne.healthHaver.IsDead)
+                {
+                    ArchipelagoGUI.ConsoleLog("Attempting to kill Player Two");
 
-            AkSoundEngine.PostEvent("m_WPN_windupgun_reload_04", playerController.gameObject);
+                    playerTwo.healthHaver.lastIncurredDamageSource = causeOfDeath;
+                    playerTwo.healthHaver.Die(Vector2.zero);
+                    return;
+                }
+                else if(playerTwo.healthHaver.IsAlive)
+                {
+                    ArchipelagoGUI.ConsoleLog("Soft killing Player Two");
 
-            playerController.healthHaver.lastIncurredDamageSource = causeOfDeath;
-            playerController.Die(playerController.CenterPosition);
+                    //playerTwo.healthHaver.ManualDeathHandling = true;
+                    playerTwo.healthHaver.currentHealth = 0f;
+                    playerTwo.healthHaver.lastIncurredDamageSource = causeOfDeath;
+                    playerTwo.Fall();
+
+                    return;
+                }
+
+            }
+
+            ArchipelagoGUI.ConsoleLog("Killing Player One");
+            playerOne.healthHaver.lastIncurredDamageSource = causeOfDeath;
+            playerOne.Die(Vector2.zero);
+
             return;
         }
 
@@ -102,10 +133,31 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SpawnAPItem(int numberToSpawn)
         {
+            PlayerController playerToSpawnOn;
+
+            if(playerOne.healthHaver.IsAlive)
+            {
+                playerToSpawnOn = playerOne;
+            }
+
+            else if (playerTwo != null)
+            {
+                if(playerTwo.healthHaver.IsDead)
+                {
+                    return;
+                }
+                playerToSpawnOn = playerTwo;
+            }
+
+            else
+            {
+                return;
+            }
+
             for(int i=0; i < numberToSpawn; i++)
             {
                 GameObject archipelItem = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID).gameObject;
-                LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+                LootEngine.SpawnItem(archipelItem, playerToSpawnOn.CenterPosition, Vector2.zero, 0);
             }
 
             return;

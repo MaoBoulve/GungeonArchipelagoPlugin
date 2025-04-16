@@ -14,14 +14,13 @@ namespace ArchiGungeon
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";
         public const string NAME = "Archipelago Gungeon Randomizer";
-        public const string VERSION = "0.0.2";
+        public const string VERSION = "0.0.5";
         public const string TEXT_COLOR = "#B6FFB8";
 
         public const string MOD_ITEM_PREFIX = "arch";
 
-        public static ArchipelagoGUI ArchipelagoModMenu;
-        public static GungeonPlayerEventListener PlayerListener;
-        public static GameManager GameManagerInstance;
+        public static ArchipelagoGUI ArchipelagoModMenu { get; protected set; }
+        public static GungeonPlayerEventListener PlayerListener { get; protected set; }
         private static bool isInit = false;
 
 
@@ -33,7 +32,6 @@ namespace ArchiGungeon
 
         public void GMStart(GameManager g)
         {
-            GameManagerInstance = g;
             InitItemHooks();
             RegisterItems();
             InitEnemyHooks();
@@ -97,7 +95,7 @@ namespace ArchiGungeon
             return;
         }
 
-        public static void Log(string text, string color="#FFFFFF")
+        private static void Log(string text, string color="#FFFFFF")
         {
             ETGModConsole.Log($"<color={color}>{text}</color>");
         }
@@ -110,7 +108,7 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            SessionHandler.Instance?.Update();
+            SessionHandler.Update();
 
             return;
         }
