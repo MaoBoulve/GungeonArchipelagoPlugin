@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -31,9 +32,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             switch (trapCase)
             {
                 case 0:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Rats??");
                     ETGModConsole.Spawn(new string[] { "rat", "100" });
                     break;
                 case 1:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Mimic chest");
 
                     EffectsController.PlayCurseVFX();
                     // mimic gun
@@ -41,31 +44,43 @@ namespace ArchiGungeon.GungeonEventHandlers
                     
                     break;
                 case 2:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: +1 Curse");
+
                     EffectsController.PlayCurseVFX();
                     // add curse
                     playerToSpawnOn.CurrentCurseMeterValue += 1;
 
                     break;
                 case 3:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Drop gun jumpscare");
+
                     EffectsController.PlayCurseVFX();
                     // drop ur gun!!
                     playerToSpawnOn.ForceDropGun(playerToSpawnOn.CurrentGun);
                     break;
                 case 4:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Fire!!");
+
                     EffectsController.PlayCurseVFX();
                     playerToSpawnOn.IncreaseFire(0.5f);
                     break;
                 case 5:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Poison");
+
                     EffectsController.PlayCurseVFX();
                     playerToSpawnOn.CurrentPoisonMeterValue += 0.5f;
                     TrapStatModifier.CheckToPoison(playerToSpawnOn);
                     break;
                 case 6:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Curse pot");
+
                     EffectsController.PlayCurseVFX();
                     playerToSpawnOn.CurrentCurseMeterValue += 0.5f;
                     TrapStatModifier.CheckToCurse(playerToSpawnOn);
                     break;
                 case 7:
+                    DebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Shelleton, maybe");
+
                     EffectsController.PlayCurseVFX();
                     ETGModConsole.Spawn(new string[] { "shelleton", "3" });
                     break;

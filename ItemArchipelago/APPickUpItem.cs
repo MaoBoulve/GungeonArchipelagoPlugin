@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ItemArchipelago
 {
@@ -52,6 +53,7 @@ namespace ArchiGungeon.ItemArchipelago
 
             if(locationIDs.Count > 0)
             {
+                DebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending location ID {locationIDs[0]}");
                 SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
 
                 locationIDs.RemoveAt(0);
