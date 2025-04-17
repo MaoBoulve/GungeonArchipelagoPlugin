@@ -1,11 +1,11 @@
-﻿using ArchiGungeon.ModConsoleVisuals;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -25,11 +25,11 @@ namespace ArchiGungeon.ArchipelagoServer
             { 5L, 5 },
             { 6L, 6 },
             { 7L, 7 },
-            { 8L, 7 },
-            { 9L, 7 },
-            { 10L, 7 },
-            { 11L, 7 },
-            { 12L, 7 },
+            { 8L, 8 },
+            { 9L, 9 },
+            { 10L, 10 },
+            { 11L, 11 },
+            { 12L, 12 },
         };
 
         private static Dictionary<long, int> itemIDToConsumable = new Dictionary<long, int>
@@ -72,13 +72,12 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void DeathlinkKillPlayer(string causeOfDeath = "Deathlink")
         {
-            //ArchipelagoGUI.ConsoleLog("Die");
             
             if(playerTwo != null)
             {
                 if(playerTwo.healthHaver.IsAlive && playerOne.healthHaver.IsDead)
                 {
-                    ArchipelagoGUI.ConsoleLog("Attempting to kill Player Two");
+                    DebugPrint.DebugLog(DebugCategory.ServerReceive, "Attempting to kill Player Two");
 
                     playerTwo.healthHaver.lastIncurredDamageSource = causeOfDeath;
                     playerTwo.healthHaver.Die(Vector2.zero);
@@ -86,7 +85,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 }
                 else if(playerTwo.healthHaver.IsAlive)
                 {
-                    ArchipelagoGUI.ConsoleLog("Soft killing Player Two");
+                    DebugPrint.DebugLog(DebugCategory.ServerReceive, "Soft killing Player Two");
 
                     //playerTwo.healthHaver.ManualDeathHandling = true;
                     playerTwo.healthHaver.currentHealth = 0f;
@@ -98,7 +97,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             }
 
-            ArchipelagoGUI.ConsoleLog("Killing Player One");
+            DebugPrint.DebugLog(DebugCategory.ServerReceive, "Killing Player One");
             playerOne.healthHaver.lastIncurredDamageSource = causeOfDeath;
             playerOne.Die(Vector2.zero);
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -185,7 +185,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (int goal in GoalList[statToModify])
             {
-                ArchipelagoGUI.ConsoleLog($"[{statToModify}] New count: {statCount} against goal: {goal}");
+                DebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");
 
                 if(statCount >= goal)
                 {
@@ -225,7 +225,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 SaveDataTrackedStats[statToModify] = -9999;
                 outOfGoals = true;
-                ArchipelagoGUI.ConsoleLog(statToModify + " goals complete");
+                DebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
             }
            
             return outOfGoals;

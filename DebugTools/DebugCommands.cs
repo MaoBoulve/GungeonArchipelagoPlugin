@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.GungeonEventHandlers;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.DebugTools
 {
@@ -21,11 +22,14 @@ namespace ArchiGungeon.DebugTools
         Add100CashSpent,
         Add1000CashSpent,
         Speedrun,
-
+        FullDebug,
+        NoDebug
     }
 
     public class DebugCommands
     {
+
+        //commands MUST have no spacing
         public static Dictionary<AvailableDebugCMD, string> CommandToInputString { get; } = new Dictionary<AvailableDebugCMD, string>()
         {
             { AvailableDebugCMD.SpawnAPItem, "item" },
@@ -40,6 +44,8 @@ namespace ArchiGungeon.DebugTools
             { AvailableDebugCMD.Add100CashSpent, "cash" },
             { AvailableDebugCMD.Add1000CashSpent, "cashcash" },
             { AvailableDebugCMD.Speedrun, "speedrun" },
+            { AvailableDebugCMD.FullDebug, "fullDebug" },
+            { AvailableDebugCMD.NoDebug, "noDebug" }
         };
 
         private static Dictionary<string, AvailableDebugCMD> InputToCommand { get; } = new Dictionary<string, AvailableDebugCMD>()
@@ -56,6 +62,8 @@ namespace ArchiGungeon.DebugTools
             {  "cash", AvailableDebugCMD.Add100CashSpent},
             {  "cashcash", AvailableDebugCMD.Add1000CashSpent},
             {  "speedrun", AvailableDebugCMD.Speedrun},
+            {  "fullDebug", AvailableDebugCMD.FullDebug },
+            {  "noDebug", AvailableDebugCMD.NoDebug }
         };
 
         private static void DebugSpawnAPItem()
@@ -117,6 +125,12 @@ namespace ArchiGungeon.DebugTools
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("shotgun_coffee");
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("shotgun_coffee");
 
+            return;
+        }
+
+        private static void SetNewDebugOutputState(bool isActive)
+        {
+            DebugPrint.SetDebugState(isActive);
             return;
         }
 
@@ -185,6 +199,17 @@ namespace ArchiGungeon.DebugTools
                 case AvailableDebugCMD.Speedrun:
                     {
                         SpeedrunDebug();
+                        return;
+                    }
+                case AvailableDebugCMD.FullDebug:
+                    {
+                        SetNewDebugOutputState(true);
+                        return;
+                    }
+
+                case AvailableDebugCMD.NoDebug:
+                    {
+                        SetNewDebugOutputState(false);
                         return;
                     }
                 default:

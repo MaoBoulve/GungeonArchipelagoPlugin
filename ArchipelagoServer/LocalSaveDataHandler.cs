@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using BepInEx;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -20,10 +20,10 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void TDD_PrintAllPathsDirectory()
         {
 
-            //ArchipelagoGUI.ConsoleLog($"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
+            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
 
-            //ArchipelagoGUI.ConsoleLog($"Config: {Paths.ConfigPath}");
-            //ArchipelagoGUI.ConsoleLog($"SavePath: {SaveManager.SavePath}");
+            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"Config: {Paths.ConfigPath}");
+            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"SavePath: {SaveManager.SavePath}");
 
             return;
         }
@@ -36,7 +36,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
         {
-            ArchipelagoGUI.ConsoleLog($"============== LocalSaveDataHandler JSON WIP ==========");
+            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
             PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 
@@ -47,7 +47,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 new JProperty("Name", connectionSettings.PlayerName)
                 );
 
-            ArchipelagoGUI.ConsoleLog($"{JSONoutput}");
+            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
 
             /*
             File.WriteAllText(@"c:\videogames.json", JSONoutput.ToString());

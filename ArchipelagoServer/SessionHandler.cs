@@ -17,6 +17,7 @@ using System.Collections.ObjectModel;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.EnemyHandlers;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -183,6 +184,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 text += $"\n    {connectionRefusedError}";
             }
+
             ArchipelagoGUI.ConsoleLog(text);
 
             return;
@@ -190,7 +192,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void InitializeServerDataStorage()
         {
-            ArchipelagoGUI.ConsoleLog("Init keys");
+            DebugPrint.DebugLog(DebugCategory.InitializingGameState, "Init keys");
             //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
 
             // basic counting
@@ -210,10 +212,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (string key in PlayerSlotSettings.Keys)
             {
-                ArchipelagoGUI.ConsoleLog($"KEY: {key} -- VALUE: {PlayerSlotSettings[key]}");
+                DebugPrint.DebugLog(DebugCategory.InitializingGameState, $"KEY: {key} -- VALUE: {PlayerSlotSettings[key]}");
             }
 
-            //ArchipelagoGUI.ConsoleLog("Pulling keys");
 
             return;
         }
@@ -262,12 +263,12 @@ namespace ArchiGungeon.ArchipelagoServer
             if (Convert.ToInt32(PlayerSlotSettings["DeathLink"]) == 1)
             {
                 InitializeDeathlink(true);
-                ArchipelagoGUI.ConsoleLog("Deathlink ON");
+                DebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink ON");
             }
             else
             {
                 InitializeDeathlink(false);
-                ArchipelagoGUI.ConsoleLog("Deathlink off");
+                DebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink off");
             }
         }
 
@@ -318,7 +319,7 @@ namespace ArchiGungeon.ArchipelagoServer
             if (Convert.ToInt32(PlayerSlotSettings["RandomEnemies"]) == 1)
             {
                 InitializeEnemySwapper();
-                ArchipelagoGUI.ConsoleLog("Random enemies");
+                DebugPrint.DebugLog(DebugCategory.InitializingGameState, "Random enemies");
             }
         }
 
@@ -414,21 +415,6 @@ namespace ArchiGungeon.ArchipelagoServer
                     ArchipelagoGUI.ConsoleLog($"Game completion goal -- {PlayerSlotSettings[CompletionKeys[goalEnum]]} -- Kills: {statData}");
                 }
             }
-
-            /*
-            //ArchipelagoGUI.ConsoleLog("Main game goal");
-            if (Session.DataStorage[Scope.Slot, "Goal"] == 0)
-            {
-                SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[CompletionGoals.Dragun];
-                ArchipelagoGUI.ConsoleLog($"Dragun killed: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey]}");
-            }
-
-            if (Session.DataStorage[Scope.Slot, "Goal"] == 1)
-            {
-                SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[CompletionGoals.Lich];
-                ArchipelagoGUI.ConsoleLog($"Lich killed: {Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[correspondingStat].CountKey]}");
-            }
-            */
 
             DataSender.CheckForGameCompletion();
 
@@ -534,6 +520,8 @@ namespace ArchiGungeon.ArchipelagoServer
                     PullCountFromServer(countStat);
                 }
 
+                ArchipelagoGUI.ConsoleLog($"===================== Server Data Pull Complete!");
+
                 return;
             }
 
@@ -542,7 +530,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 int count = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey];
 
-                ArchipelagoGUI.ConsoleLog($"Received {statToPull} -- Count: {count}");
+                DebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received {statToPull} -- Count: {count}");
                 CountSaveData.SetCountStat(statToPull, count);
             }
 
@@ -633,7 +621,7 @@ namespace ArchiGungeon.ArchipelagoServer
                     {
                         Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStat].CountKey] = statData;
 
-                        ArchipelagoGUI.ConsoleLog($"Sending count for {countStat}: {statData}");
+                        DebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending count for {countStat}: {statData}");
                     }
 
                 }
@@ -649,7 +637,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 {
                     foreach (long key in locationInfoPacket.Keys)
                     {
-                        ArchipelagoGUI.ConsoleLog($"ID: {key} Item: {locationInfoPacket[key].Player}'s + {locationInfoPacket[key].ItemName} from {locationInfoPacket[key].ItemGame}");
+                        DebugPrint.DebugLog(DebugCategory.ServerReceive, $"ID: {key} Item: {locationInfoPacket[key].Player}'s + {locationInfoPacket[key].ItemName} from {locationInfoPacket[key].ItemGame}");
                     }
                 },
 
@@ -726,7 +714,7 @@ namespace ArchiGungeon.ArchipelagoServer
         public IEnumerator PullServerDataOnDelay(float waitTime = 1.0f)
         {
 
-            ArchipelagoGUI.ConsoleLog($"Pulling server data, please standby");
+            ArchipelagoGUI.ConsoleLog($"Pulling server data, please standby ============== ");
 
             yield return new WaitForSeconds(waitTime);
 

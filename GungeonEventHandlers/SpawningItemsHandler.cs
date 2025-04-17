@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -44,6 +45,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
 
             string itemToSpawn = EnumToItemString[item];
+
+            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning consumable: {numberToSpawn} {itemToSpawn}");
+
             ETGModConsole.SpawnItem(new string[] { itemToSpawn, numberToSpawn.ToString() });
 
             return;
@@ -115,6 +119,8 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             Gun gunToSpawn = GetRandomGunByQualities(itemquals);
 
+            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random gun: {gunToSpawn.name}");
+
             LootEngine.SpawnItem(gunToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
             return;
@@ -127,6 +133,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             float spawnForce = 0f;
 
             PassiveItem passiveToSpawn = GetRandomPassiveByQualities(itemquals);
+
+            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random passive: {passiveToSpawn.name}");
 
             LootEngine.SpawnItem(passiveToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
@@ -170,12 +178,15 @@ namespace ArchiGungeon.GungeonEventHandlers
                     SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 10:
+                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
                     ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
                     break;
                 case 11:
+                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
                     ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
                     break;
                 case 12:
+                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
                     ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
                     break;
 

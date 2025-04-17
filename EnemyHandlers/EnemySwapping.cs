@@ -6,9 +6,9 @@ using UnityEngine;
 using BepInEx;
 using HarmonyLib;
 using MonoMod.RuntimeDetour;
-using ArchiGungeon.ModConsoleVisuals;
 using Dungeonator;
 using System.Collections.Generic;
+using ArchiGungeon.DebugTools;
 
 
 namespace ArchiGungeon.EnemyHandlers
@@ -28,23 +28,28 @@ namespace ArchiGungeon.EnemyHandlers
 
         public static void MakeNormalShuffleEnemies(int seed)
         {
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, $"Normal Enemy Shuffling with key: {seed}");
             ShuffledEnemyGUIDs = EnemyGuidDatabase.GetShuffledGUIDList(EnemyShuffleCategories.NormalDifficultyShuffle, seed);
             return;
         }
 
         public static void MakeDifficultShuffleEnemies(int seed)
         {
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, $"Difficult Enemy Shuffling with key: {seed}");
             ShuffledEnemyGUIDs = EnemyGuidDatabase.GetShuffledGUIDList(EnemyShuffleCategories.HardDifficultyShuffle, seed);
             return;
         }
 
         public static void MakeBossShuffle(int seed)
         {
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, $"Boss Shuffling with key: {seed}");
             return;
         }
 
         public static void ClearAllShuffleLists()
         {
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, "Resetting enemy randomization");
+
             ShuffledEnemyGUIDs.Clear();
             return;
         }
@@ -52,7 +57,7 @@ namespace ArchiGungeon.EnemyHandlers
         private static void OnActorPreStart(AIActor actor)
         {
 
-            ArchipelagoGUI.ConsoleLog(actor.name);
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, actor.name);
             string currentID = actor.EnemyGuid;
 
             if(ShuffledEnemyGUIDs.ContainsKey(currentID))
@@ -62,8 +67,8 @@ namespace ArchiGungeon.EnemyHandlers
                 Vector2 spawnPos = actor.CenterPosition;
                 RoomHandler roomHandler = actor.parentRoom;
 
-                ArchipelagoGUI.ConsoleLog("Current: " + currentID);
-                ArchipelagoGUI.ConsoleLog("Current: " + newID);
+                DebugPrint.DebugLog(DebugCategory.EnemyRandomization, "Current: " + EnemyDatabase.GetOrLoadByGuid(currentID));
+                DebugPrint.DebugLog(DebugCategory.EnemyRandomization, "Swapped to: " + EnemyDatabase.GetOrLoadByGuid(newID));
 
                 actor.invisibleUntilAwaken = true;
 
@@ -102,6 +107,8 @@ namespace ArchiGungeon.EnemyHandlers
         public static void ResetEnemyDamageMult()
         {
             enemyDamageMult = 4.0f;
+
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, $"Enemy damage mult is: {enemyDamageMult}");
             return;
         }
         
@@ -114,6 +121,7 @@ namespace ArchiGungeon.EnemyHandlers
                 enemyDamageMult = 1.0f;
             }
 
+            DebugPrint.DebugLog(DebugCategory.EnemyRandomization, $"Enemy damage mult is: {enemyDamageMult}");
             return;
         }
 
