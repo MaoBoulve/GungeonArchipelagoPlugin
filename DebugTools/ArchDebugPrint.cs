@@ -23,15 +23,15 @@ namespace ArchiGungeon.DebugTools
     {
         private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
-            {DebugCategory.PlayerEventListener, true },
+            {DebugCategory.PlayerEventListener, false },
             {DebugCategory.LocalFileSaveData, false },
             {DebugCategory.ServerReceive, true },
             {DebugCategory.ServerSend, true },
-            {DebugCategory.CountingGoal, true },
+            {DebugCategory.CountingGoal, false },
             {DebugCategory.EnemyRandomization, false },
             {DebugCategory.InitializingGameState, false },
             {DebugCategory.ItemHandling, true },
-            {DebugCategory.TrapHandling, true },
+            {DebugCategory.TrapHandling, false },
         };
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)

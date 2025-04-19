@@ -118,6 +118,8 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 int itemCase = itemIDToPickUpItem[categoryAdjustedID];
                 RandomizedByQualityItems.SpawnRandomizedItemByCase(itemCase);
+
+                return;
             }
 
             categoryAdjustedID = receivedItemID - (long)consumableCategoryItemID;
@@ -125,6 +127,8 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 int itemCase = itemIDToConsumable[categoryAdjustedID];
                 ConsumableSpawnHandler.SpawnConsumableByCase(itemCase);
+
+                return;
             }
 
             categoryAdjustedID = receivedItemID - (long)trapCategoryItemID;
@@ -132,9 +136,23 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 int trapCase = itemIDToTrap[categoryAdjustedID];
                 TrapSpawnHandler.SpawnTrapByCase(trapCase);
+
+                return;
             }
 
+            HandleLeftoverID( receivedItemID );
+
             return;
+        }
+
+        private static void HandleLeftoverID(long receivedItemID)
+        {
+            if(receivedItemID % 2 == 0)
+            {
+                RandomizedByQualityItems.SpawnRandomEquip();
+            }
+
+            ConsumableSpawnHandler.SpawnRandomConsumable();
         }
 
         public static void SpawnAPItem(int numberToSpawn)

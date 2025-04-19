@@ -21,6 +21,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
     public class ConsumableSpawnHandler
     {
+        private static System.Random random = new();
         public static bool IsSpawnValid { get; protected set; } = true;
 
         public static void SetCanSpawn(bool newState)
@@ -95,6 +96,20 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             }
         }
+
+        public static void SpawnRandomConsumable()
+        {
+            if (IsSpawnValid == false)
+            {
+                return;
+            }
+
+            EffectsController.PlaySynergyVFX();
+
+            SpawnConsumableByCase(random.Next(0, 6));
+
+            return;
+        }
     }
 
     public class RandomizedByQualityItems
@@ -164,22 +179,22 @@ namespace ArchiGungeon.GungeonEventHandlers
                     SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 4:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
+                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 5:
                     SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 6:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                     break;
                 case 7:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                     break;
                 case 8:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 9:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 10:
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
@@ -197,6 +212,16 @@ namespace ArchiGungeon.GungeonEventHandlers
                 default:
                     break;
             }
+
+            return;
+        }
+
+        public static void SpawnRandomEquip()
+        {
+            
+            EffectsController.PlaySynergyVFX();
+
+            SpawnRandomizedItemByCase(random.Next(0, 9));
 
             return;
         }

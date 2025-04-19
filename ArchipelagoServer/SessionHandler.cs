@@ -672,7 +672,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 {
                     foreach (long key in locationInfoPacket.Keys)
                     {
-                        ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"ID: {key} Item: {locationInfoPacket[key].Player}'s + {locationInfoPacket[key].ItemName} from {locationInfoPacket[key].ItemGame}");
+                        ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Item ID: {locationInfoPacket[key].ItemId} Item: {locationInfoPacket[key].Player}'s + {locationInfoPacket[key].ItemName} from {locationInfoPacket[key].ItemGame}");
                     }
                 },
 
@@ -695,7 +695,7 @@ namespace ArchiGungeon.ArchipelagoServer
             public static void OnPacketReceived(ArchipelagoPacketBase packet)
             {
 
-                // ArchipelagoGUI.ConsoleLog(packet);
+                ArchipelagoGUI.ConsoleLog(packet);
 
                 /*
                 if (packet is ItemPrintJsonPacket)

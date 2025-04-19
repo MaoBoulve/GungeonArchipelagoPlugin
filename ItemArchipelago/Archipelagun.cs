@@ -84,6 +84,7 @@ namespace ArchiGungeon
 
         public override void OnPlayerPickup(PlayerController playerOwner)
         {
+            canBeWielded = true;
             playerWithArchipelagun = playerOwner;
             equippedslot = playerWithArchipelagun.inventory.AllGuns.IndexOf(playerWithArchipelagun.inventory.CurrentGun);
 
