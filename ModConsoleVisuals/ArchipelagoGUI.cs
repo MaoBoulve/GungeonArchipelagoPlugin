@@ -132,16 +132,13 @@ namespace ArchiGungeon.ModConsoleVisuals
         private void PrintDebugTextToConsole()
         {
 
-            SLabel title = new SLabel("FOLLOWING ARE DEBUG COMMANDS") { Foreground = UnityEngine.Color.red };
-            base.GUI[0].Children.Add(title);
+            ConsoleLog("==================  FOLLOWING ARE DEBUG COMMANDS");
 
             foreach(string commadText in DebugCommands.CommandToInputString.Values)
             {
-                SLabel newEntry = new SLabel(commadText) { Foreground = UnityEngine.Color.magenta };
-                base.GUI[0].Children.Add(newEntry);
+                ConsoleLog(commadText);
             }
 
-            ((SGroup)base.GUI[0]).ScrollPosition.y = float.MaxValue;
             return;
         }
 
@@ -324,13 +321,14 @@ namespace ArchiGungeon.ModConsoleVisuals
 
                 case ArchipelConsoleCommandParser.debugCmd:
                 {
-                        if(commandInputs == null)
+                        if(commandInputs.Length > 0)
                         {
-                            PrintDebugTextToConsole();
+                            DebugCommands.HandleCommand(commandInputs[0]);
+                            
                             return;
                         }
 
-                        DebugCommands.HandleCommand(commandInputs[0]);
+                        PrintDebugTextToConsole();
 
                         return;
                 }
@@ -494,7 +492,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
         public const string deathlinkCmd = "deathlink";
 
-        public const string debugCmd = "debug";
+        public const string debugCmd = "debugtool";
         
         
         // Instance archipelago commands inside ETGModConsole

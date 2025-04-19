@@ -11,9 +11,16 @@ namespace ArchiGungeon.ArchipelagoServer
 {
     public class ArchipelagoGungeonBridge
     {
-        private static int baseItemID = 8754000;
-        private static int consumableCategoryItemID = 8754100;
-        private static int trapCategoryItemID = 8754200;
+        private static long baseItemID = 8754000;
+        private static long consumableCategoryItemID = 8754100;
+        private static long trapCategoryItemID = 8754200;
+
+        public static void InitializeItemID (long itemID)
+        {
+            baseItemID = itemID;
+            consumableCategoryItemID = baseItemID + 100;
+            trapCategoryItemID = baseItemID + 200;
+        }
 
         private static Dictionary<long, int> itemIDToPickUpItem = new Dictionary<long, int>
         {
@@ -77,7 +84,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 if(playerTwo.healthHaver.IsAlive && playerOne.healthHaver.IsDead)
                 {
-                    DebugPrint.DebugLog(DebugCategory.ServerReceive, "Attempting to kill Player Two");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Attempting to kill Player Two");
 
                     playerTwo.healthHaver.lastIncurredDamageSource = causeOfDeath;
                     playerTwo.healthHaver.Die(Vector2.zero);
@@ -85,7 +92,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 }
                 else if(playerTwo.healthHaver.IsAlive)
                 {
-                    DebugPrint.DebugLog(DebugCategory.ServerReceive, "Soft killing Player Two");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Soft killing Player Two");
 
                     //playerTwo.healthHaver.ManualDeathHandling = true;
                     playerTwo.healthHaver.currentHealth = 0f;
@@ -97,7 +104,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             }
 
-            DebugPrint.DebugLog(DebugCategory.ServerReceive, "Killing Player One");
+            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Killing Player One");
             playerOne.healthHaver.lastIncurredDamageSource = causeOfDeath;
             playerOne.Die(Vector2.zero);
 
@@ -106,21 +113,21 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
-            long categoryAdjustedID = receivedItemID - baseItemID;
+            long categoryAdjustedID = receivedItemID - (long)baseItemID;
             if (itemIDToPickUpItem.ContainsKey(categoryAdjustedID))
             {
                 int itemCase = itemIDToPickUpItem[categoryAdjustedID];
                 RandomizedByQualityItems.SpawnRandomizedItemByCase(itemCase);
             }
 
-            categoryAdjustedID = receivedItemID - consumableCategoryItemID;
+            categoryAdjustedID = receivedItemID - (long)consumableCategoryItemID;
             if(itemIDToConsumable.ContainsKey(categoryAdjustedID))
             {
                 int itemCase = itemIDToConsumable[categoryAdjustedID];
                 ConsumableSpawnHandler.SpawnConsumableByCase(itemCase);
             }
 
-            categoryAdjustedID = receivedItemID - trapCategoryItemID;
+            categoryAdjustedID = receivedItemID - (long)trapCategoryItemID;
             if (itemIDToTrap.ContainsKey(categoryAdjustedID))
             {
                 int trapCase = itemIDToTrap[categoryAdjustedID];

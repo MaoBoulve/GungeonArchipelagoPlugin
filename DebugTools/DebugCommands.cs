@@ -5,6 +5,7 @@ using System.Text;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.ModConsoleVisuals;
 
 namespace ArchiGungeon.DebugTools
 {
@@ -23,7 +24,25 @@ namespace ArchiGungeon.DebugTools
         Add1000CashSpent,
         Speedrun,
         FullDebug,
-        NoDebug
+        NoDebug,
+        LoadFloor1,
+        LoadFloor2,
+        LoadFloor3,
+        LoadFloor4,
+        LoadFloor5,
+        LoadHell,
+        LoadSewers,
+        LoadAbbey,
+        LoadRat,
+        LoadDept,
+        PastMarine,
+        PastConvict,
+        PastHunter,
+        PastPilot,
+        PastRobot,
+        PastBullet,
+        PastGunslinger,
+        PastCoop
     }
 
     public class DebugCommands
@@ -45,7 +64,27 @@ namespace ArchiGungeon.DebugTools
             { AvailableDebugCMD.Add1000CashSpent, "cashcash" },
             { AvailableDebugCMD.Speedrun, "speedrun" },
             { AvailableDebugCMD.FullDebug, "fullDebug" },
-            { AvailableDebugCMD.NoDebug, "noDebug" }
+            { AvailableDebugCMD.NoDebug, "noDebug" },
+
+            { AvailableDebugCMD.LoadFloor1, "floor1" },
+            { AvailableDebugCMD.LoadFloor2, "floor2" },
+            { AvailableDebugCMD.LoadFloor3, "floor3" },
+            { AvailableDebugCMD.LoadFloor4, "floor4" },
+            { AvailableDebugCMD.LoadFloor5, "floor5" },
+            { AvailableDebugCMD.LoadHell, "hell" },
+            { AvailableDebugCMD.LoadSewers, "sewers" },
+            { AvailableDebugCMD.LoadAbbey, "abbey" },
+            { AvailableDebugCMD.LoadRat, "rat" },
+            { AvailableDebugCMD.LoadDept, "dept" },
+
+            { AvailableDebugCMD.PastMarine, "pastmarine" },
+            { AvailableDebugCMD.PastConvict, "pastconvict" },
+            { AvailableDebugCMD.PastHunter, "pasthunter" },
+            { AvailableDebugCMD.PastPilot, "pastpilot" },
+            { AvailableDebugCMD.PastRobot, "pastrobot" },
+            { AvailableDebugCMD.PastBullet, "pastbullet" },
+            { AvailableDebugCMD.PastGunslinger, "pastgunslinger" },
+            { AvailableDebugCMD.PastCoop, "pastcoop" },
         };
 
         private static Dictionary<string, AvailableDebugCMD> InputToCommand { get; } = new Dictionary<string, AvailableDebugCMD>()
@@ -63,7 +102,50 @@ namespace ArchiGungeon.DebugTools
             {  "cashcash", AvailableDebugCMD.Add1000CashSpent},
             {  "speedrun", AvailableDebugCMD.Speedrun},
             {  "fullDebug", AvailableDebugCMD.FullDebug },
-            {  "noDebug", AvailableDebugCMD.NoDebug }
+            {  "noDebug", AvailableDebugCMD.NoDebug },
+
+            {  "floor1", AvailableDebugCMD.LoadFloor1 },
+            {  "floor2", AvailableDebugCMD.LoadFloor2 },
+            { "floor3" , AvailableDebugCMD.LoadFloor3 },
+            { "floor4" , AvailableDebugCMD.LoadFloor4 },
+            { "floor5" , AvailableDebugCMD.LoadFloor5 },
+            { "hell" , AvailableDebugCMD.LoadHell },
+            { "sewers" , AvailableDebugCMD.LoadSewers },
+            { "abbey" , AvailableDebugCMD.LoadAbbey },
+            { "rat" , AvailableDebugCMD.LoadRat },
+            { "dept" , AvailableDebugCMD.LoadDept },
+
+            {  "pastmarine", AvailableDebugCMD.PastMarine },
+            { "pastconvict" , AvailableDebugCMD.PastConvict },
+            { "pasthunter" , AvailableDebugCMD.PastHunter },
+            { "pastpilot" , AvailableDebugCMD.PastPilot },
+            { "pastrobot" , AvailableDebugCMD.PastRobot },
+            { "pastbullet" , AvailableDebugCMD.PastBullet },
+            { "pastgunslinger" , AvailableDebugCMD.PastGunslinger },
+            { "pastcoop" , AvailableDebugCMD.PastCoop },
+        };
+
+        private static Dictionary<AvailableDebugCMD, string> CommandToLevel { get; } = new Dictionary<AvailableDebugCMD, string>()
+        {
+            { AvailableDebugCMD.LoadFloor1, "keep" },
+            { AvailableDebugCMD.LoadFloor2, "proper" },
+            { AvailableDebugCMD.LoadFloor3, "mines" },
+            { AvailableDebugCMD.LoadFloor4, "hollow" },
+            { AvailableDebugCMD.LoadFloor5, "forge" },
+            { AvailableDebugCMD.LoadHell, "hell" },
+            { AvailableDebugCMD.LoadSewers, "sewers" },
+            { AvailableDebugCMD.LoadAbbey, "abbey" },
+            { AvailableDebugCMD.LoadRat, "ratlair" },
+            { AvailableDebugCMD.LoadDept, "rng_dept" },
+
+            { AvailableDebugCMD.PastMarine, "marinepast" },
+            { AvailableDebugCMD.PastConvict, "convictpast" },
+            { AvailableDebugCMD.PastHunter, "hunterpast" },
+            { AvailableDebugCMD.PastPilot, "pilotpast" },
+            { AvailableDebugCMD.PastRobot, "robotpast" },
+            { AvailableDebugCMD.PastBullet, "bulletpast" },
+            { AvailableDebugCMD.PastGunslinger, "gunslingerpast" },
+            { AvailableDebugCMD.PastCoop, "cultistpast" },
         };
 
         private static void DebugSpawnAPItem()
@@ -110,6 +192,7 @@ namespace ArchiGungeon.DebugTools
         private static void SpeedrunDebug()
         {
             ETGModConsole.Instance?.ParseCommand("quick_kill");
+            ETGModConsole.Instance?.ParseCommand("flight");
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("shotgun_coffee");
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("shotgun_coffee");
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("shotgun_coffee");
@@ -130,12 +213,30 @@ namespace ArchiGungeon.DebugTools
 
         private static void SetNewDebugOutputState(bool isActive)
         {
-            DebugPrint.SetDebugState(isActive);
+            ArchDebugPrint.SetDebugState(isActive);
+            return;
+        }
+
+        private static void DebugLoadLevel(AvailableDebugCMD levelToLoad)
+        {
+            if(CommandToLevel.ContainsKey(levelToLoad))
+            {
+                string consoleCMD = "load_level " + CommandToLevel[levelToLoad];
+
+                ETGModConsole.Instance?.ParseCommand(consoleCMD);
+
+            }
+
             return;
         }
 
         public static void HandleCommand(string inputString)
         {
+            if(!InputToCommand.ContainsKey(inputString))
+            {
+                ArchipelagoGUI.ConsoleLog(inputString + " is not a debug command");
+                return;
+            }
 
             AvailableDebugCMD command = InputToCommand[inputString];
 
@@ -214,6 +315,7 @@ namespace ArchiGungeon.DebugTools
                     }
                 default:
                     {
+                        DebugLoadLevel(command);
                         return;
                     }
             }

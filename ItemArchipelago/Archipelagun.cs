@@ -2,6 +2,9 @@
 using ArchiGungeon.ArchipelagoServer;
 using Alexandria.SoundAPI;
 using ArchiGungeon.ModConsoleVisuals;
+using System;
+using ArchiGungeon.DebugTools;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace ArchiGungeon
 {
@@ -10,6 +13,9 @@ namespace ArchiGungeon
     public class Archipelagun : GunBehaviour
     {
         public static int SpawnItemID = -1;
+        private static bool canBeWielded = true;
+        private static PlayerController playerWithArchipelagun;
+        private static int equippedslot = -1;
 
         private static string itemName = "Archipelagun";
 
@@ -78,6 +84,14 @@ namespace ArchiGungeon
 
         public override void OnPlayerPickup(PlayerController playerOwner)
         {
+            playerWithArchipelagun = playerOwner;
+            equippedslot = playerWithArchipelagun.inventory.AllGuns.IndexOf(playerWithArchipelagun.inventory.CurrentGun);
+
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Archipelagun is in slot {equippedslot}");
+
+            playerWithArchipelagun.OnReloadPressed += OnReloadPressed;
+            playerWithArchipelagun.OnEnteredCombat += OnEnterCombat;
+            playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
             // ArchipelagoGUI.ConsoleLog("Player pickup");
 
@@ -86,22 +100,42 @@ namespace ArchiGungeon
 
         }
 
+        private void OnRoomClear(PlayerController controller)
+        {
+            canBeWielded = true;
+        }
+
+        private void OnEnterCombat()
+        {
+            canBeWielded = false;
+
+            if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Forcing swap to starter gun");
+                playerWithArchipelagun.ChangeToGunSlot(0);
+            }
+
+            return;
+        }
+
+        private void OnReloadPressed(PlayerController controller, Gun gun)
+        {
+            return;
+        }
+
         public override void OnSwitchedToPlayer(PlayerController owner, GunInventory inventory, Gun oldGun, bool isNewGun)
         {
             //ArchipelagoGUI.ConsoleLog("Switched to");
+
+            if(canBeWielded == false)
+            {
+                owner.ChangeToGunSlot(inventory.AllGuns.IndexOf(oldGun));
+            }
 
             return;
         }
 
         // open archipelago menu on firing gun
-        public override Projectile OnPreFireProjectileModifier(Gun gun, Projectile projectile, ProjectileModule module)
-        {
-
-            //ArchipelagoGUI.ConsoleLog("Gun pre fire");
-
-            return projectile;
-        }
-
 
         public override void OnPostFired(PlayerController player, Gun gun)
         {

@@ -19,11 +19,11 @@ namespace ArchiGungeon.DebugTools
         TrapHandling
     }
 
-    public class DebugPrint
+    public class ArchDebugPrint
     {
-        private static Dictionary<DebugCategory, bool> DebugActiveStates { get; } = new Dictionary<DebugCategory, bool>()
+        private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
-            {DebugCategory.PlayerEventListener, false },
+            {DebugCategory.PlayerEventListener, true },
             {DebugCategory.LocalFileSaveData, false },
             {DebugCategory.ServerReceive, true },
             {DebugCategory.ServerSend, true },
@@ -54,10 +54,14 @@ namespace ArchiGungeon.DebugTools
 
         public static void SetDebugState(bool newState)
         {
+            Dictionary<DebugCategory, bool> newDict = new Dictionary<DebugCategory, bool>();
+
             foreach(DebugCategory debugCategory in DebugActiveStates.Keys)
             {
-                DebugActiveStates[debugCategory] = newState;
+                newDict.Add(debugCategory, newState);
             }
+
+            DebugActiveStates = newDict;
 
             return;
         }

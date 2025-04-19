@@ -137,8 +137,12 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
-            chest.contents.Clear();
-            chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
+            if(APPickUpItem.HasAPItemChecksRemaining())
+            {
+                chest.contents.Clear();
+                chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
+            }
+            
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
 
@@ -149,7 +153,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private void OnRunStarted(PlayerController controller1, PlayerController controller2, GameManager.GameMode mode)
         {
-            DebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Run started!");
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Run started!");
 
             EnemySwapping.ResetEnemyDamageMult();
             roomsClearedThisRun = 0;
@@ -174,11 +178,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             if (BossNameToCompletionGoal.ContainsKey(bossName))
             {
                 SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
-                DebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {bossName}");
+                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {bossName}");
                 SessionHandler.DataSender.CheckForGameCompletion();
             }
 
-            DebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver}");
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver}");
 
             return;
         }
@@ -228,7 +232,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             playerToListen.OnKilledEnemyContext += OnKilledEnemy;
             playerToListen.OnTableFlipped += OnTableFlip;
 
-            DebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Listening to {playerToListen}");
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Listening to {playerToListen}");
 
             return;
         }
@@ -281,7 +285,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             roomsClearedThisRun += 1;
 
-            DebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
 
@@ -291,7 +295,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
             int spentMoney = shopItem.CurrentPrice;
-            DebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
             

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
+using Alexandria.ChestAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -14,7 +15,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         Blank,
         Armor,
         Heart,
-        Ammo
+        Ammo,
+        GlassGuon
     }
 
     public class ConsumableSpawnHandler
@@ -34,7 +36,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             {SpawnableConsumables.Blank, "blank" },
             {SpawnableConsumables.Armor, "armor" },
             {SpawnableConsumables.Heart, "heart" },
-            {SpawnableConsumables.Ammo, "ammo" }
+            {SpawnableConsumables.Ammo, "ammo" },
+            {SpawnableConsumables.GlassGuon, "glass_guon_stone" }
         };
 
         public static void SpawnConsumable(SpawnableConsumables item, int numberToSpawn)
@@ -46,7 +49,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             string itemToSpawn = EnumToItemString[item];
 
-            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning consumable: {numberToSpawn} {itemToSpawn}");
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning consumable: {numberToSpawn} {itemToSpawn}");
 
             ETGModConsole.SpawnItem(new string[] { itemToSpawn, numberToSpawn.ToString() });
 
@@ -65,10 +68,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             switch (itemCase)
             {
                 case 0:
-                    ETGModConsole.Spawn(new string[] { "chance_kin", "10" });
+                    SpawnConsumable(SpawnableConsumables.GlassGuon, 5);
+                    //ChestUtility.SpawnChestEasy(IntVector2.Up, ChestUtility.ChestTier.SYNERGY, false);
                     break;
                 case 1:
-                    SpawnConsumable(SpawnableConsumables.Casing50, 1);
+                    SpawnConsumable(SpawnableConsumables.Casing50, 2);
                     break;
                 case 2:
                     SpawnConsumable(SpawnableConsumables.Key, 1);
@@ -119,7 +123,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             Gun gunToSpawn = GetRandomGunByQualities(itemquals);
 
-            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random gun: {gunToSpawn.name}");
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random gun: {gunToSpawn.name}");
 
             LootEngine.SpawnItem(gunToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
@@ -134,7 +138,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             PassiveItem passiveToSpawn = GetRandomPassiveByQualities(itemquals);
 
-            DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random passive: {passiveToSpawn.name}");
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random passive: {passiveToSpawn.name}");
 
             LootEngine.SpawnItem(passiveToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
@@ -178,15 +182,15 @@ namespace ArchiGungeon.GungeonEventHandlers
                     SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 10:
-                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
                     ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
                     break;
                 case 11:
-                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
                     ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
                     break;
                 case 12:
-                    DebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
                     ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
                     break;
 

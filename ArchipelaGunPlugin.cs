@@ -10,6 +10,10 @@ namespace ArchiGungeon
     [BepInDependency(Alexandria.Alexandria.GUID)] // this mod depends on the Alexandria API: https://enter-the-gungeon.thunderstore.io/package/Alexandria/Alexandria/
     [BepInDependency(ETGModMainBehaviour.GUID)]
     [BepInPlugin(GUID, NAME, VERSION)]
+    
+    ///<summary>
+    /// Class <c>ArchipelaGunPlugin</c> Main plugin class called by BepInEx to initialize all behavior
+    ///</summary>
     public class ArchipelaGunPlugin : BaseUnityPlugin
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";

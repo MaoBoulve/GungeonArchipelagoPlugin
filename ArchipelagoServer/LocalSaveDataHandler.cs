@@ -20,10 +20,10 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void TDD_PrintAllPathsDirectory()
         {
 
-            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
 
-            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"Config: {Paths.ConfigPath}");
-            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"SavePath: {SaveManager.SavePath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"Config: {Paths.ConfigPath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"SavePath: {SaveManager.SavePath}");
 
             return;
         }
@@ -36,7 +36,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
         {
-            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
             PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 
@@ -47,7 +47,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 new JProperty("Name", connectionSettings.PlayerName)
                 );
 
-            DebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
 
             /*
             File.WriteAllText(@"c:\videogames.json", JSONoutput.ToString());

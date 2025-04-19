@@ -185,7 +185,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (int goal in GoalList[statToModify])
             {
-                DebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");
 
                 if(statCount >= goal)
                 {
@@ -223,9 +223,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             if (goalList.Count == 0)
             {
-                SaveDataTrackedStats[statToModify] = -9999;
+                SaveDataTrackedStats[statToModify] = 99999;
                 outOfGoals = true;
-                DebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
             }
            
             return outOfGoals;
@@ -235,7 +235,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             int statCount = SaveDataTrackedStats[statToCheck];
 
-            if(statCount == -9999) { return true; }
+            if(statCount == 99999) { return true; }
 
             else {  return false; }
         }

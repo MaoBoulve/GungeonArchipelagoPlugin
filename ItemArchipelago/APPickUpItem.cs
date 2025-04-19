@@ -53,7 +53,7 @@ namespace ArchiGungeon.ItemArchipelago
 
             if(locationIDs.Count > 0)
             {
-                DebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending location ID {locationIDs[0]}");
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending location ID {locationIDs[0]}");
                 SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
 
                 locationIDs.RemoveAt(0);
@@ -61,6 +61,11 @@ namespace ArchiGungeon.ItemArchipelago
 
             
             return;
+        }
+
+        public static bool HasAPItemChecksRemaining()
+        {
+            return (locationIDs.Count > 0);
         }
 
         public static void TDD_CallNextLocationCheck()

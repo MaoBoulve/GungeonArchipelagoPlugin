@@ -13,7 +13,7 @@ namespace ArchiGungeon.ItemArchipelago
 
         public static void SetStatLocationIDs(SaveCountStats statToSet, List<long> idList)
         {
-            DebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Setting {statToSet} with location IDs count {idList.Count}");
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Setting {statToSet} with location IDs count {idList.Count}");
 
             StatToLocationIDs[statToSet] = idList;
             return;
@@ -31,7 +31,7 @@ namespace ArchiGungeon.ItemArchipelago
 
             foreach (long locationID in sendList)
             {
-                DebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending {statCategory} location check: {locationID}");
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending {statCategory} location check: {locationID}");
 
                 SessionHandler.DataSender.SendFoundLocationCheck(locationID);
             }
