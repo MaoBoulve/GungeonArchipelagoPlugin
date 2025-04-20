@@ -42,7 +42,8 @@
     <Compile Include="ArchipelaGunPlugin.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
-    <Compile Include="DebugTools\DebugPrint.cs" />
+    <Compile Include="DebugTools\DebugCommands.cs" />
+    <Compile Include="DebugTools\ArchDebugPrint.cs" />
     <Compile Include="EnemyHandlers\EnemyGuidDatabase.cs" />
     <Compile Include="EnemyHandlers\EnemySwapping.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />

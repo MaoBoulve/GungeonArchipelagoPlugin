@@ -1,19 +1,26 @@
-﻿using ArchiGungeon.ModConsoleVisuals;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
     public class ArchipelagoGungeonBridge
     {
-        private static int baseItemID = 8754000;
-        private static int consumableCategoryItemID = 8754100;
-        private static int trapCategoryItemID = 8754200;
+        private static long baseItemID = 8754000;
+        private static long consumableCategoryItemID = 8754100;
+        private static long trapCategoryItemID = 8754200;
+
+        public static void InitializeItemID (long itemID)
+        {
+            baseItemID = itemID;
+            consumableCategoryItemID = baseItemID + 100;
+            trapCategoryItemID = baseItemID + 200;
+        }
 
         private static Dictionary<long, int> itemIDToPickUpItem = new Dictionary<long, int>
         {
@@ -25,11 +32,11 @@ namespace ArchiGungeon.ArchipelagoServer
             { 5L, 5 },
             { 6L, 6 },
             { 7L, 7 },
-            { 8L, 7 },
-            { 9L, 7 },
-            { 10L, 7 },
-            { 11L, 7 },
-            { 12L, 7 },
+            { 8L, 8 },
+            { 9L, 9 },
+            { 10L, 10 },
+            { 11L, 11 },
+            { 12L, 12 },
         };
 
         private static Dictionary<long, int> itemIDToConsumable = new Dictionary<long, int>
@@ -72,13 +79,12 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void DeathlinkKillPlayer(string causeOfDeath = "Deathlink")
         {
-            //ArchipelagoGUI.ConsoleLog("Die");
             
             if(playerTwo != null)
             {
                 if(playerTwo.healthHaver.IsAlive && playerOne.healthHaver.IsDead)
                 {
-                    ArchipelagoGUI.ConsoleLog("Attempting to kill Player Two");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Attempting to kill Player Two");
 
                     playerTwo.healthHaver.lastIncurredDamageSource = causeOfDeath;
                     playerTwo.healthHaver.Die(Vector2.zero);
@@ -86,7 +92,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 }
                 else if(playerTwo.healthHaver.IsAlive)
                 {
-                    ArchipelagoGUI.ConsoleLog("Soft killing Player Two");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Soft killing Player Two");
 
                     //playerTwo.healthHaver.ManualDeathHandling = true;
                     playerTwo.healthHaver.currentHealth = 0f;
@@ -98,7 +104,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             }
 
-            ArchipelagoGUI.ConsoleLog("Killing Player One");
+            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, "Killing Player One");
             playerOne.healthHaver.lastIncurredDamageSource = causeOfDeath;
             playerOne.Die(Vector2.zero);
 
@@ -107,28 +113,46 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
-            long categoryAdjustedID = receivedItemID - baseItemID;
+            long categoryAdjustedID = receivedItemID - (long)baseItemID;
             if (itemIDToPickUpItem.ContainsKey(categoryAdjustedID))
             {
                 int itemCase = itemIDToPickUpItem[categoryAdjustedID];
                 RandomizedByQualityItems.SpawnRandomizedItemByCase(itemCase);
+
+                return;
             }
 
-            categoryAdjustedID = receivedItemID - consumableCategoryItemID;
+            categoryAdjustedID = receivedItemID - (long)consumableCategoryItemID;
             if(itemIDToConsumable.ContainsKey(categoryAdjustedID))
             {
                 int itemCase = itemIDToConsumable[categoryAdjustedID];
                 ConsumableSpawnHandler.SpawnConsumableByCase(itemCase);
+
+                return;
             }
 
-            categoryAdjustedID = receivedItemID - trapCategoryItemID;
+            categoryAdjustedID = receivedItemID - (long)trapCategoryItemID;
             if (itemIDToTrap.ContainsKey(categoryAdjustedID))
             {
                 int trapCase = itemIDToTrap[categoryAdjustedID];
                 TrapSpawnHandler.SpawnTrapByCase(trapCase);
+
+                return;
             }
 
+            HandleLeftoverID( receivedItemID );
+
             return;
+        }
+
+        private static void HandleLeftoverID(long receivedItemID)
+        {
+            if(receivedItemID % 2 == 0)
+            {
+                RandomizedByQualityItems.SpawnRandomEquip();
+            }
+
+            ConsumableSpawnHandler.SpawnRandomConsumable();
         }
 
         public static void SpawnAPItem(int numberToSpawn)

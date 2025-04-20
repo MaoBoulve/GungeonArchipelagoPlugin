@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using ArchiGungeon.DebugTools;
+using Alexandria.ChestAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -13,11 +15,13 @@ namespace ArchiGungeon.GungeonEventHandlers
         Blank,
         Armor,
         Heart,
-        Ammo
+        Ammo,
+        GlassGuon
     }
 
     public class ConsumableSpawnHandler
     {
+        private static System.Random random = new();
         public static bool IsSpawnValid { get; protected set; } = true;
 
         public static void SetCanSpawn(bool newState)
@@ -33,7 +37,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             {SpawnableConsumables.Blank, "blank" },
             {SpawnableConsumables.Armor, "armor" },
             {SpawnableConsumables.Heart, "heart" },
-            {SpawnableConsumables.Ammo, "ammo" }
+            {SpawnableConsumables.Ammo, "ammo" },
+            {SpawnableConsumables.GlassGuon, "glass_guon_stone" }
         };
 
         public static void SpawnConsumable(SpawnableConsumables item, int numberToSpawn)
@@ -44,6 +49,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
 
             string itemToSpawn = EnumToItemString[item];
+
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning consumable: {numberToSpawn} {itemToSpawn}");
+
             ETGModConsole.SpawnItem(new string[] { itemToSpawn, numberToSpawn.ToString() });
 
             return;
@@ -61,10 +69,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             switch (itemCase)
             {
                 case 0:
-                    ETGModConsole.Spawn(new string[] { "chance_kin", "10" });
+                    SpawnConsumable(SpawnableConsumables.GlassGuon, 5);
+                    //ChestUtility.SpawnChestEasy(IntVector2.Up, ChestUtility.ChestTier.SYNERGY, false);
                     break;
                 case 1:
-                    SpawnConsumable(SpawnableConsumables.Casing50, 1);
+                    SpawnConsumable(SpawnableConsumables.Casing50, 2);
                     break;
                 case 2:
                     SpawnConsumable(SpawnableConsumables.Key, 1);
@@ -86,6 +95,20 @@ namespace ArchiGungeon.GungeonEventHandlers
                     break;
 
             }
+        }
+
+        public static void SpawnRandomConsumable()
+        {
+            if (IsSpawnValid == false)
+            {
+                return;
+            }
+
+            EffectsController.PlaySynergyVFX();
+
+            SpawnConsumableByCase(random.Next(0, 6));
+
+            return;
         }
     }
 
@@ -115,6 +138,8 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             Gun gunToSpawn = GetRandomGunByQualities(itemquals);
 
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random gun: {gunToSpawn.name}");
+
             LootEngine.SpawnItem(gunToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
             return;
@@ -127,6 +152,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             float spawnForce = 0f;
 
             PassiveItem passiveToSpawn = GetRandomPassiveByQualities(itemquals);
+
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random passive: {passiveToSpawn.name}");
 
             LootEngine.SpawnItem(passiveToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
 
@@ -152,36 +179,49 @@ namespace ArchiGungeon.GungeonEventHandlers
                     SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 4:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
+                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 5:
                     SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 6:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                     break;
                 case 7:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                     break;
                 case 8:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 9:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 10:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
                     ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
                     break;
                 case 11:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
                     ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
                     break;
                 case 12:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
                     ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
                     break;
 
                 default:
                     break;
             }
+
+            return;
+        }
+
+        public static void SpawnRandomEquip()
+        {
+            
+            EffectsController.PlaySynergyVFX();
+
+            SpawnRandomizedItemByCase(random.Next(0, 9));
 
             return;
         }
