@@ -285,15 +285,22 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             roomsClearedThisRun += 1;
 
+
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
+            SessionHandler.CheckForUnhandledServerItems();
 
             return;
         }
 
         private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
+            if(shopItem == null)
+            {
+                return;
+            }
+
             int spentMoney = shopItem.CurrentPrice;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 

@@ -36,12 +36,14 @@ namespace ArchiGungeon.GungeonEventHandlers
                     ETGModConsole.Spawn(new string[] { "rat", "100" });
                     break;
                 case 1:
-                    ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Mimic chest");
+                    ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Mimic gun");
 
                     EffectsController.PlayCurseVFX();
                     // mimic gun
-                    playerToSpawnOn.AcquirePuzzleItem(PickupObjectDatabase.GetByName("mimic_gun"));
-                    
+                    //playerToSpawnOn.AcquirePuzzleItem(PickupObjectDatabase.GetByName("mimic_gun"));
+
+                    GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("mimic_gun");
+
                     break;
                 case 2:
                     ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: +1 Curse");

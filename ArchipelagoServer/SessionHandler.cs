@@ -82,6 +82,7 @@ namespace ArchiGungeon.ArchipelagoServer
         
        
         private static bool pulledItemsThisRun = false;
+        private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
 
         // CONNECTION HANDLING ===============================
@@ -331,6 +332,7 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void ResetItemRetrieveState()
         {
             pulledItemsThisRun = false;
+            itemsHandledThisRun.Clear();
             return;
         }
 
@@ -368,12 +370,14 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        
         public static void AddItemToLocalGungeon(ItemInfo itemInfo)
         {
             if(TrapSpawnHandler.IsSpawnValid == false)
             {
                 if(itemInfo.ItemId >= 8754200)
                 {
+
                     return;
                 }
             }
@@ -383,7 +387,23 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Receiving item: {itemInfo.ItemName}");
 
             item_add_queue.Add(itemInfo.ItemId);
-            
+            itemsHandledThisRun.Add(itemInfo.ItemId);
+
+            return;
+        }
+
+        public static void CheckForUnhandledServerItems()
+        {
+            var itemList = Session.Items.AllItemsReceived;
+
+            foreach (var item in itemList)
+            {
+                if(!itemsHandledThisRun.Contains(item.ItemId))
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Unhandled item on server: {item.ItemName} -- {item.ItemId}");
+                    AddItemToLocalGungeon(item);
+                }
+            }
 
             return;
         }
@@ -395,6 +415,9 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Handling item ID: {item_add_queue[0]}");
 
                 ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
+
+                
+
                 item_add_queue.RemoveAt(0);
             }
 
@@ -533,34 +556,28 @@ namespace ArchiGungeon.ArchipelagoServer
                     SaveCountStats.CashSpent,
                     SaveCountStats.RoomPoints,
                     SaveCountStats.ChestsOpened,
+                    SaveCountStats.BlobulordKills,
+                    SaveCountStats.OldKingKills,
+                    SaveCountStats.RatKills,
+                    SaveCountStats.DragunKills,
+                    SaveCountStats.LichKills,
+                    SaveCountStats.AdvancedDragunKills,
                 };
 
                 foreach (SaveCountStats countStat in basicCountStats)
                 {
-                    PullCountFromServer(countStat);
+                    AsyncPullCountFromServer(countStat);
                 }
 
-                ArchipelagoGUI.ConsoleLog($"===================== Server Data Pull Complete!");
+                
 
                 return;
             }
 
-
-            protected static void PullCountFromServer(SaveCountStats statToPull)
+            protected static void AsyncPullCountFromServer(SaveCountStats statToPull)
             {
-                int count = Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey];
-
-                if (count < 0)
-                {
-                    ArchipelagoGUI.ConsoleLog($"Something went very wrong with {statToPull} data, saved as negative on server");
-                    ArchipelagoGUI.ConsoleLog($"RESETTING {statToPull} TO ZERO");
-
-                    Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey] = 0;
-                    count = 0;
-                }
-
-                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received from server {statToPull} -- Count: {count}");
-                CountSaveData.SetCountStat(statToPull, count);
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
+                    statValue => DataReceiver.OnStatPulledFromServer(statToPull,statValue));
                 return;
             }
 
@@ -577,7 +594,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
                         if (statData < 0)
                         {
-                            PullCountFromServer(correspondingStat);
+                            AsyncPullCountFromServer(correspondingStat);
+                            return;
                         }
 
                         if (statData < 1)
@@ -619,7 +637,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 if (CountSaveData.GetCountStat(statToAdd) < 0)
                 {
-                    PullCountFromServer(statToAdd);
+                    AsyncPullCountFromServer(statToAdd);
                 }
 
                 int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
@@ -695,7 +713,7 @@ namespace ArchiGungeon.ArchipelagoServer
             public static void OnPacketReceived(ArchipelagoPacketBase packet)
             {
 
-                ArchipelagoGUI.ConsoleLog(packet);
+                //ArchipelagoGUI.ConsoleLog(packet);
 
                 /*
                 if (packet is ItemPrintJsonPacket)
@@ -726,11 +744,12 @@ namespace ArchiGungeon.ArchipelagoServer
             public static void OnItemReceived(ReceivedItemsHelper helper)
             {
                 ItemInfo itemInfo = helper.PeekItem();
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"OnItemReceived - {itemInfo.ItemId} -- {itemInfo.ItemName}");
+
+
                 AddItemToLocalGungeon(itemInfo);
 
                 helper.DequeueItem();
-                
-
                 return;
             }
 
@@ -740,6 +759,23 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchipelagoGUI.ConsoleLog(message.ToString());
             }
 
+            public static void OnStatPulledFromServer(SaveCountStats statToPull, JToken statValue)
+            {
+                int count = statValue.ToObject<int>();
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received from server {statToPull} -- Count: {count}");
+
+
+                if ((int)statValue < 0)
+                {
+                    ArchipelagoGUI.ConsoleLog($"Something went very wrong with {statToPull} data, saved as negative on server");
+                    ArchipelagoGUI.ConsoleLog($"RESETTING {statToPull} TO ZERO");
+
+                    Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey] = 0;
+                    count = 0;
+                }
+
+                CountSaveData.SetCountStat(statToPull, count);
+            }
         }
 
     }
