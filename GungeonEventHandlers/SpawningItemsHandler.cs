@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
-using Alexandria.ChestAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {

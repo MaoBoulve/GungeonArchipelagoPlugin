@@ -1,10 +1,8 @@
 ﻿using Alexandria.ItemAPI;
-using ArchiGungeon.ArchipelagoServer;
 using Alexandria.SoundAPI;
 using ArchiGungeon.ModConsoleVisuals;
 using System;
 using ArchiGungeon.DebugTools;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace ArchiGungeon
 {
