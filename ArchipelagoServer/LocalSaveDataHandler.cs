@@ -46,7 +46,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 );
             */
 
-            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
+            //ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
 
             /*
             File.WriteAllText(@"c:\videogames.json", JSONoutput.ToString());
@@ -63,16 +63,16 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static PlayerConnectionInfo LoadLocalConnectionSettings()
+        public static void LoadLocalConnectionSettings()
         {
             // TKTK READ JSON
 
-            string JSONoutput = "TEST TKTKTK";
+            //string JSONoutput = "TEST TKTKTK";
 
             //PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
 
 
-            return connectionSettings;
+            return;
         }
 
     }

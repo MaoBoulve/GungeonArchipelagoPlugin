@@ -267,6 +267,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ILRepack.targets" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

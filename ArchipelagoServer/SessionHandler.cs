@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.Collections;
-//using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Linq;
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
