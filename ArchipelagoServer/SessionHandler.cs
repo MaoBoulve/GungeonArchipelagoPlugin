@@ -13,7 +13,6 @@ using UnityEngine;
 using System.Collections;
 using Newtonsoft.Json.Linq;
 using ArchiGungeon.ItemArchipelago;
-using System.Collections.ObjectModel;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.EnemyHandlers;
