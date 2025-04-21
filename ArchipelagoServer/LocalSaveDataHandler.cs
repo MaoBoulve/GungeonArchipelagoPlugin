@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using BepInEx;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using ArchiGungeon.DebugTools;
 
@@ -40,12 +38,13 @@ namespace ArchiGungeon.ArchipelagoServer
 
             PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 
-
+            /*
             JObject JSONoutput = new(
                 new JProperty("IP", connectionSettings.IP),
                 new JProperty("Port", connectionSettings.Port),
                 new JProperty("Name", connectionSettings.PlayerName)
                 );
+            */
 
             ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
 
@@ -70,7 +69,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             string JSONoutput = "TEST TKTKTK";
 
-            PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
+            //PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
 
 
             return connectionSettings;
