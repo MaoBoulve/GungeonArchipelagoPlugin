@@ -1,6 +1,10 @@
 # Archipelago Mod -- Enter the Gungeon
 Archipelago Multiworld Randomizer mod for **Enter the Gungeon**. 
-Paired with the APWorld by KinTheInfinite: https://github.com/KinTheInfinite/Archipelago/releases
+Paired with APWorld releases (https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases)
+
+## APWorld Dependency
+**v0.0.4 - current**: Enter the Gungeon APWorld v0.0.1
+**v0.0.1 - 0.0.3**: KinTheInfinite Gungeon APWorld (https://github.com/KinTheInfinite/Archipelago/releases)
 
 ## Dependencies
 Easiest to handle through a mod loader like R2ModMan or Thunderstore.
