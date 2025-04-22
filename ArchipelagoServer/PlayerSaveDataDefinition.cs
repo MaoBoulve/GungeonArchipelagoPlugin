@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -96,29 +95,29 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
         {
-            { SaveCountStats.ChestsOpened, 0 },
-            { SaveCountStats.RoomPoints, 0},
-            { SaveCountStats.CashSpent, 0},
+            { SaveCountStats.ChestsOpened, -1 },
+            { SaveCountStats.RoomPoints, -1},
+            { SaveCountStats.CashSpent, -1},
 
-            { SaveCountStats.BlobulordKills, 0},
-            { SaveCountStats.OldKingKills, 0},
-            { SaveCountStats.RatKills, 0},
-            { SaveCountStats.DeptAgunimKills, 0},
-            { SaveCountStats.AdvancedDragunKills, 0},
-            { SaveCountStats.DragunKills, 0},
-            { SaveCountStats.LichKills, 0},
+            { SaveCountStats.BlobulordKills, -1},
+            { SaveCountStats.OldKingKills, -1},
+            { SaveCountStats.RatKills, -1},
+            { SaveCountStats.DeptAgunimKills, -1},
+            { SaveCountStats.AdvancedDragunKills, -1},
+            { SaveCountStats.DragunKills, -1},
+            { SaveCountStats.LichKills, -1},
 
-            { SaveCountStats.Floor1Clears, 0},
-            { SaveCountStats.Floor2Clears, 0},
-            { SaveCountStats.Floor3Clears, 0},
-            { SaveCountStats.Floor4Clears, 0},
-            { SaveCountStats.Floor5Clears, 0},
+            { SaveCountStats.Floor1Clears, -1},
+            { SaveCountStats.Floor2Clears, -1},
+            { SaveCountStats.Floor3Clears, -1},
+            { SaveCountStats.Floor4Clears, -1},
+            { SaveCountStats.Floor5Clears, -1},
 
-            { SaveCountStats.FloorHellClears, 0},
-            { SaveCountStats.FloorGoopClears, 0},
-            { SaveCountStats.FloorAbbeyClears, 0},
-            { SaveCountStats.FloorRatClears, 0},
-            { SaveCountStats.FloorDeptClears, 0},
+            { SaveCountStats.FloorHellClears, -1},
+            { SaveCountStats.FloorGoopClears, -1},
+            { SaveCountStats.FloorAbbeyClears, -1},
+            { SaveCountStats.FloorRatClears, -1},
+            { SaveCountStats.FloorDeptClears, -1},
         };
 
         //TO DO: set from server settings
@@ -185,7 +184,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (int goal in GoalList[statToModify])
             {
-                ArchipelagoGUI.ConsoleLog($"[{statToModify}] New count: {statCount} against goal: {goal}");
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");
 
                 if(statCount >= goal)
                 {
@@ -223,9 +222,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             if (goalList.Count == 0)
             {
-                SaveDataTrackedStats[statToModify] = -9999;
+                SaveDataTrackedStats[statToModify] = 99999;
                 outOfGoals = true;
-                ArchipelagoGUI.ConsoleLog(statToModify + " goals complete");
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
             }
            
             return outOfGoals;
@@ -235,7 +234,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             int statCount = SaveDataTrackedStats[statToCheck];
 
-            if(statCount == -9999) { return true; }
+            if(statCount == 99999) { return true; }
 
             else {  return false; }
         }

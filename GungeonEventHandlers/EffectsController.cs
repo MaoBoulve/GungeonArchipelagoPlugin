@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using Alexandria.VisualAPI;
+﻿using UnityEngine;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -11,13 +6,27 @@ namespace ArchiGungeon.GungeonEventHandlers
     {
         public static void PlayCurseVFX()
         {
-            GungeonPlayerEventListener.Player.PlayEffectOnActor(ResourceCache.Acquire("Global VFX/VFX_Curse") as GameObject, Vector3.zero);
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
+
+            if (playerToSpawnOn != null)
+            {
+                playerToSpawnOn.PlayEffectOnActor(ResourceCache.Acquire("Global VFX/VFX_Curse") as GameObject, Vector3.zero);
+                return;
+            }
+
             return;
         }
 
         public static void PlaySynergyVFX()
         {
-            GungeonPlayerEventListener.Player.PlayEffectOnActor(ResourceCache.Acquire("Global VFX/VFX_Synergy") as GameObject, new Vector3(0f, 0.5f, 0f));
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
+
+            if (playerToSpawnOn != null)
+            {
+                playerToSpawnOn.PlayEffectOnActor(ResourceCache.Acquire("Global VFX/VFX_Synergy") as GameObject, Vector3.zero);
+                return;
+            }
+                
             return;
         }
 

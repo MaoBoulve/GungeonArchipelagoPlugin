@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using BepInEx;
-using Newtonsoft.Json.Linq;
 using System.IO;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -20,10 +18,10 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void TDD_PrintAllPathsDirectory()
         {
 
-            //ArchipelagoGUI.ConsoleLog($"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
 
-            //ArchipelagoGUI.ConsoleLog($"Config: {Paths.ConfigPath}");
-            //ArchipelagoGUI.ConsoleLog($"SavePath: {SaveManager.SavePath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"Config: {Paths.ConfigPath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"SavePath: {SaveManager.SavePath}");
 
             return;
         }
@@ -36,18 +34,19 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
         {
-            ArchipelagoGUI.ConsoleLog($"============== LocalSaveDataHandler JSON WIP ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
             PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 
-
+            /*
             JObject JSONoutput = new(
                 new JProperty("IP", connectionSettings.IP),
                 new JProperty("Port", connectionSettings.Port),
                 new JProperty("Name", connectionSettings.PlayerName)
                 );
+            */
 
-            ArchipelagoGUI.ConsoleLog($"{JSONoutput}");
+            //ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
 
             /*
             File.WriteAllText(@"c:\videogames.json", JSONoutput.ToString());
@@ -64,16 +63,16 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static PlayerConnectionInfo LoadLocalConnectionSettings()
+        public static void LoadLocalConnectionSettings()
         {
             // TKTK READ JSON
 
-            string JSONoutput = "TEST TKTKTK";
+            //string JSONoutput = "TEST TKTKTK";
 
-            PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
+            //PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
 
 
-            return connectionSettings;
+            return;
         }
 
     }

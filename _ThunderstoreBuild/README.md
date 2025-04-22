@@ -3,10 +3,14 @@ A revised mod for connecting Enter The Gungeon to Archipelago https://archipelag
 
 
 # APWorld Download
+APWorld releases found here (https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases)
 
-https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases
+* **v0.0.4 - current**: Enter the Gungeon APWorld v0.0.1
+* **v0.0.1 - 0.0.3**: KinTheInfinite Gungeon APWorld (https://github.com/KinTheInfinite/Archipelago/releases)
 
 # Connecting To A Server
+![archipelagun sprite](archipelagun.png)
+
  * On run start, the Archipelagun will spawn. Fire to open the mod menu
  
  * Following commands are available:
@@ -24,5 +28,5 @@ https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases
  * KinTheInfinite - developer for previous Archipelago mod
  
 # Contact:
- Discord - Geers
- Email - NelBoulve@gmail.com
+ * Discord - Geers
+ * Email - NelBoulve@gmail.com
