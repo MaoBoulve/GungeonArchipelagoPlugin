@@ -1,3 +1,6 @@
+# 0.0.7
+Multiclient Newtonsoft.Json exception fix. Now mod should only have ArchipelaGun.dll and c-wspp.dll
+
 # 0.0.6
 Major fixes around Multiclient & websocket issues
 
