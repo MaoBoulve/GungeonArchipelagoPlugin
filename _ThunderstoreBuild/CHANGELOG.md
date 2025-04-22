@@ -1,5 +1,9 @@
 # 0.0.7
-Multiclient Newtonsoft.Json exception fix. Now mod should only have ArchipelaGun.dll and c-wspp.dll
+Versioning hotfixes
+
+- Multiclient Newtonsoft.Json exception fix 
+- Now mod should only have ArchipelaGun.dll and c-wspp.dll
+- Updating Alexandria to 0.4.18
 
 # 0.0.6
 Major fixes around Multiclient & websocket issues
