@@ -3,6 +3,7 @@ using Alexandria.SoundAPI;
 using ArchiGungeon.ModConsoleVisuals;
 using System;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Character;
 
 namespace ArchiGungeon
 {
@@ -10,6 +11,7 @@ namespace ArchiGungeon
 
     public class Archipelagun : GunBehaviour
     {
+        private static bool isStartOfRun = true;
         public static int SpawnItemID = -1;
         private static bool canBeWielded = true;
         private static PlayerController playerWithArchipelagun;
@@ -17,12 +19,14 @@ namespace ArchiGungeon
 
         private static string itemName = "Archipelagun";
 
-        private static string shortDesc = "Fire to open menu";
+        private static string shortDesc = "Fire for menu, Reload to swap";
         private static string longDesc = "Does no damage. A hop away to other worlds. Fire to open the main mod menu.";
 
         public static void Register()
         {
             // Instance base gun
+
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Registering ArchipelaGun");
 
             Gun gun = ETGMod.Databases.Items.NewGun(itemName, "archipelagun"); // based off pea gun
             gun.gameObject.AddComponent<Archipelagun>();
@@ -49,6 +53,7 @@ namespace ArchiGungeon
             gun.ShouldBeExcludedFromShops = true;
             gun.RespawnsIfPitfall = true;
             gun.IgnoredByRat = true;
+            gun.CanReloadNoMatterAmmo = true;
 
 
             // AUDIO
@@ -82,6 +87,7 @@ namespace ArchiGungeon
 
         public override void OnPlayerPickup(PlayerController playerOwner)
         {
+            isStartOfRun = true;
             canBeWielded = true;
             playerWithArchipelagun = playerOwner;
             equippedslot = playerWithArchipelagun.inventory.AllGuns.IndexOf(playerWithArchipelagun.inventory.CurrentGun);
@@ -92,11 +98,9 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnEnteredCombat += OnEnterCombat;
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
-            // ArchipelagoGUI.ConsoleLog("Player pickup");
-
             // TODO, auto connect to archipelago
 
-
+            return;
         }
 
         private void OnRoomClear(PlayerController controller)
@@ -106,6 +110,13 @@ namespace ArchiGungeon
 
         private void OnEnterCombat()
         {
+            if(isStartOfRun)
+            {
+                isStartOfRun = false;
+                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Handling last checks for character swapper");
+                CharSwap.CheckToGiveActiveItem(playerWithArchipelagun);
+            }
+
             canBeWielded = false;
 
             if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
@@ -119,6 +130,12 @@ namespace ArchiGungeon
 
         private void OnReloadPressed(PlayerController controller, Gun gun)
         {
+            if(isStartOfRun && playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
+                CharSwap.SetPlayerToNextAvailableChar(controller);
+            }
+
             return;
         }
 

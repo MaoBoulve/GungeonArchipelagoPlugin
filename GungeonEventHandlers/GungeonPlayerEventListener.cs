@@ -69,8 +69,10 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static int roomsClearedThisRun;
 
-        public void StartSystemEventListens()
+        public static void StartSystemEventListens()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting Gungeon Event Listener");
+
             ArchipelagoGUI.OnMenuOpen += OnArchipelagoMenuOpen;
             ArchipelagoGUI.OnMenuClose += OnArchipelagoMenuClose;
 
@@ -82,16 +84,17 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             //OnEnemyKilled
 
-            ETGMod.Chest.OnPostOpen = (Action<Chest, PlayerController>)Delegate.Combine(ETGMod.Chest.OnPostOpen, new Action<Chest, PlayerController>(OnChestOpen));
+            ETGMod.Chest.OnPostOpen += OnChestOpen;
             ETGMod.Chest.OnPreOpen += OnChestPreOpen;
 
             return;
         }
 
-        private void OnPlayerControllerSpawned(PlayerController controller)
+        private static void OnPlayerControllerSpawned(PlayerController controller)
         {
             if(controller.characterIdentity == PlayableCharacters.CoopCultist)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player Two Controller Listener Started");
                 PlayerTwo = controller;
                 PlayerTwo.OnRealPlayerDeath += OnPlayerTwoDeath;
                 ArchipelagoGungeonBridge.SetPlayerTwo(PlayerTwo);
@@ -99,6 +102,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             else
             {
+                ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player One Controller Listener Started");
                 PlayerOne = controller;
                 PlayerOne.OnRealPlayerDeath += OnPlayerOneDeath;
                 ArchipelagoGungeonBridge.SetPlayerOne(PlayerOne);
@@ -110,19 +114,21 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnArchipelagoMenuOpen()
+        private static void OnArchipelagoMenuOpen()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu opened, blocking character input");
             KeyboardInputConsuming.BlockPlayerInputToCharacter(true);
             return;
         }
 
-        private void OnArchipelagoMenuClose()
+        private static void OnArchipelagoMenuClose()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu closed, resuming input");
             KeyboardInputConsuming.BlockPlayerInputToCharacter(false);
             return;
         }
 
-        private bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
+        private static bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
         {
 
             //ArchipelagoGUI.ConsoleLog($"Pre open: {chest}, Should Open: {shouldOpen}");
@@ -130,16 +136,21 @@ namespace ArchiGungeon.GungeonEventHandlers
             return shouldOpen;
         }
 
-        private void OnChestOpen(Chest chest, PlayerController controller)
+        private static void OnChestOpen(Chest chest, PlayerController controller)
         {
             if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
             {
                 return;
             }
 
-            if(APPickUpItem.HasAPItemChecksRemaining())
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Chest Opened");
+
+            if (APPickUpItem.HasAPItemChecksRemaining())
             {
+                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Clearing chest contents");
                 chest.contents.Clear();
+
+                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Spawning AP Item");
                 chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
             }
             
@@ -151,7 +162,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         
 
-        private void OnRunStarted(PlayerController controller1, PlayerController controller2, GameManager.GameMode mode)
+        private static void OnRunStarted(PlayerController controller1, PlayerController controller2, GameManager.GameMode mode)
         {
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Run started!");
 
@@ -166,7 +177,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
         
-        private void OnBossKilled(HealthHaver haver, bool arg2)
+        private static void OnBossKilled(HealthHaver haver, bool arg2)
         {
             string bossName = haver.name;
             
@@ -177,7 +188,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             if (BossNameToCompletionGoal.ContainsKey(bossName))
             {
-                SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+                SessionHandler.DataSender.SendLocalCountValuesToServer();
                 ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {bossName}");
                 SessionHandler.DataSender.CheckForGameCompletion();
             }
@@ -188,12 +199,12 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
         
-        private void OnRewardPedestalSpawn(RewardPedestal pedestal)
+        private static void OnRewardPedestalSpawn(RewardPedestal pedestal)
         {
             //throw new NotImplementedException();
         }
 
-        private void OnRewardPedestalDetermineContent(RewardPedestal pedestal, PlayerController controller, CustomActions.ValidPedestalContents contents)
+        private static void OnRewardPedestalDetermineContent(RewardPedestal pedestal, PlayerController controller, CustomActions.ValidPedestalContents contents)
         {
             //throw new NotImplementedException();
         }
@@ -215,7 +226,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
         */
 
-        public void StartPlayerControllerEventListens(PlayerController playerToListen)
+        private static void StartPlayerControllerEventListens(PlayerController playerToListen)
         {
 
             // error referring to the game manager causes a hard error
@@ -237,22 +248,22 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnNewFloorLoad(PlayerController playerController)
+        private static void OnNewFloorLoad(PlayerController playerController)
         {
-            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+            SessionHandler.DataSender.SendLocalCountValuesToServer();
 
             EnemySwapping.ReduceEnemyDamageMult(1);
 
             return;
         }
 
-        private void OnPlayerEnterCombat()
+        private static void OnPlayerEnterCombat()
         {
             // TODO: hide archipelagun
             return;
         }
 
-        private void OnPlayerOneDeath(PlayerController controller)
+        private static void OnPlayerOneDeath(PlayerController controller)
         {
             if(PlayerTwo != null)
             {
@@ -262,18 +273,18 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
 
-            SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+            SessionHandler.DataSender.SendLocalCountValuesToServer();
 
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
             SessionHandler.DataSender.SendDeathlink(causeOfDeath:deathCause);
         }
 
-        private void OnPlayerTwoDeath(PlayerController controller)
+        private static void OnPlayerTwoDeath(PlayerController controller)
         {
 
             if(PlayerOne.healthHaver.IsDead )
             {
-                SessionHandler.DataSender.SendLocalIncrementalCountValuesToServer();
+                SessionHandler.DataSender.SendLocalCountValuesToServer();
                 string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
                 SessionHandler.DataSender.SendDeathlink(causeOfDeath: deathCause);
             }
@@ -281,7 +292,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnRoomClear(PlayerController playerController)
+        private static void OnRoomClear(PlayerController playerController)
         {
             roomsClearedThisRun += 1;
 
@@ -294,7 +305,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
+        private static void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
             if(shopItem == null)
             {
@@ -309,14 +320,14 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private void OnKilledEnemy(PlayerController playerController, HealthHaver enemy)
+        private static void OnKilledEnemy(PlayerController playerController, HealthHaver enemy)
         {
             string enemyName = enemy.name;
             // TODO: add enemy headhunter check
             return;
         }
 
-        private void OnTableFlip(FlippableCover tableFlipped)
+        private static void OnTableFlip(FlippableCover tableFlipped)
         {
 
             return;

@@ -20,6 +20,8 @@ namespace ArchiGungeon.ItemArchipelago
 
         public static void RegisterItemBase()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Registering APPickUpItem");
+
             GameObject obj = new GameObject(displayName);
             var item = obj.AddComponent<APPickUpItem>();
 

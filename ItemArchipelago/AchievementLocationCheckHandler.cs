@@ -23,6 +23,7 @@ namespace ArchiGungeon.ItemArchipelago
         {
             if (StatToLocationIDs.ContainsKey(statCategory) == false)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"{statCategory} trying to send check but not in stat:LocationID dict.");
                 return;
             }
 
