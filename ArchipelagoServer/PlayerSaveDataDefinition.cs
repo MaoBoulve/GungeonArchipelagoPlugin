@@ -212,10 +212,13 @@ namespace ArchiGungeon.ArchipelagoServer
 
             if(goalList.Count < 1)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
                 outOfGoals = true;
 
                 return outOfGoals;
             }
+
+            ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[Removing {goalsCleared} from goal list: {statToModify}");
 
             goalList.RemoveRange(0, goalsCleared);
             GoalList[statToModify] = goalList;

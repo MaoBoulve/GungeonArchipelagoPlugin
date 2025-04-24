@@ -121,6 +121,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
             // Success after this point
             //LoginSuccessful loginSuccessful = (LoginSuccessful)loginResult;
+            
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Login successful, handling initializing via Slot Data");
 
             InitializeServerDataStorage();
             PullLatestSlotData();
@@ -193,7 +195,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void InitializeServerDataStorage()
         {
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Init keys");
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Init server storage keys");
             //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
 
             // basic counting
@@ -209,6 +211,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void PullLatestSlotData()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Pulling slot data");
+
             PlayerSlotSettings = Session.DataStorage.GetSlotData();
 
             foreach (string key in PlayerSlotSettings.Keys)
@@ -246,6 +250,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void BindToArchipelagoEvents()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Binding to Session delegate events");
             // binds
             Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
             Session.Items.ItemReceived += DataReceiver.OnItemReceived;
@@ -316,12 +321,17 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void CheckToRandomizeEnemies()
         {
-            // deathlink
+  
             if (Convert.ToInt32(PlayerSlotSettings["RandomEnemies"]) == 1)
             {
                 InitializeEnemySwapper();
                 ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Random enemies");
             }
+            else
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Enemies not randomized");
+            }
+            return;
         }
 
         
@@ -482,6 +492,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void InitializeAPLocationChecks()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
+
+
             List<long> allServerLocations = Session.Locations.AllLocations.ToList();
 
             //ArchipelagoGUI.ConsoleLog($"{allServerLocations[0]} starting item ID");
@@ -491,20 +504,23 @@ namespace ArchiGungeon.ArchipelagoServer
             // TODO: determine how many raw location checks there are
 
             List<long> chestsIDs = allServerLocations.GetRange(chestsOpenedIndex.startIndex, chestsOpenedIndex.range);
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Chests has {chestsIDs.Count} location checks");
             AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.ChestsOpened, chestsIDs);
 
             List<long> roomIDs = allServerLocations.GetRange(roomPointsIndex.startIndex, roomPointsIndex.range);
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Room Points has {roomIDs.Count} location checks");
             AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.RoomPoints, roomIDs);
 
             List<long> cashIDs = allServerLocations.GetRange(cashSpentIndex.startIndex, cashSpentIndex.range);
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Cash has {cashIDs.Count} location checks");
             AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.CashSpent, cashIDs);
 
             List<long> serverRemainingLocations = Session.Locations.AllMissingLocations.ToList();
-
             serverRemainingLocations.Except(chestsIDs);
             serverRemainingLocations.Except(roomIDs);
             serverRemainingLocations.Except(cashIDs);
 
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"There are {serverRemainingLocations.Count} leftover location checks. Setting for APItem");
             APPickUpItem.RegisterLocationIDs(serverRemainingLocations.ToArray());
 
             return;
@@ -536,6 +552,8 @@ namespace ArchiGungeon.ArchipelagoServer
                     return;
                 }
 
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending deathlink");
+
                 string deathName = PlayerServerInfo.PlayerName;
 
                 DeathLinkService.SendDeathLink(new DeathLink(deathName, causeOfDeath));
@@ -549,6 +567,8 @@ namespace ArchiGungeon.ArchipelagoServer
                     ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                     return;
                 }
+
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Handling initial async data pull");
 
                 SaveCountStats[] basicCountStats = new SaveCountStats[]
                 {
@@ -575,14 +595,46 @@ namespace ArchiGungeon.ArchipelagoServer
 
             protected static void AsyncPullCountFromServer(SaveCountStats statToPull)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling {statToPull}");
+
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
                     statValue => DataReceiver.OnStatPulledFromServer(statToPull,statValue));
+                return;
+            }
+
+            private static void AsyncPullCountAndAddFromServer(SaveCountStats statToPull, int goalAddCount)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling & add {statToPull}");
+
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
+                    statValue => 
+                    {
+                        DataReceiver.OnStatPulledFromServer(statToPull, statValue);
+                        AddToGoalCount(statToPull, goalAddCount);
+                    });
+                return;
+            }
+
+            private static void AsyncPullCountAndRecheckGameCompletion(SaveCountStats statToPull)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling {statToPull}");
+
+                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
+                    statValue =>
+                    {
+                        DataReceiver.OnStatPulledFromServer(statToPull, statValue);
+
+                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Rechecking game completion");
+                        CheckForGameCompletion();
+                    });
                 return;
             }
 
 
             public static void CheckForGameCompletion()
             {
+                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, "Checking for game completion");
+
                 foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
                 {
                     SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
@@ -590,20 +642,28 @@ namespace ArchiGungeon.ArchipelagoServer
 
                     if (Convert.ToInt32(PlayerSlotSettings[CompletionKeys[goalEnum]] ) == 1)
                     {
+                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{goalEnum} marked for game completion check by Slot Data");
 
                         if (statData < 0)
                         {
-                            AsyncPullCountFromServer(correspondingStat);
+                            AsyncPullCountAndRecheckGameCompletion(correspondingStat);
+
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{goalEnum} stat not initialized, STOPPING game completion check");
+
                             return;
                         }
 
                         if (statData < 1)
                         {
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {goalEnum} not met, STOPPING game completion check");
+
                             return;
                         }
                     }
 
                 }
+
+                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal checks passed! Sending completion event");
 
                 SendGameCompletion();
                 return;
@@ -627,16 +687,21 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void AddToGoalCount(SaveCountStats statToAdd, int numberToAdd)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
 
                 if (Session == null || Session.Socket.Connected == false)
                 {
-                    ArchipelagoGUI.ConsoleLog("TODO: Add local progress writer for goal");
+                    ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, "TODO: Add local progress writer for goal");
+                    
                     return;
                 }
 
                 if (CountSaveData.GetCountStat(statToAdd) < 0)
                 {
-                    AsyncPullCountFromServer(statToAdd);
+                    ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} not initialized locally, pulling from server and returning");
+                    AsyncPullCountAndAddFromServer(statToAdd, numberToAdd);
+
+                    return;
                 }
 
                 int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
@@ -649,6 +714,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
             private static void SendCountGoalLocationCheck(SaveCountStats statCategory, int locationChecks)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statCategory}] Goal handling {locationChecks} completions");
+
                 AchievementLocationCheckHandler.SendStatLocationChecks(statCategory, locationChecks);
                 CountSaveData.RemoveClearedGoals(statCategory, locationChecks);
 
@@ -658,7 +725,7 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
 
-            public static void SendLocalIncrementalCountValuesToServer()
+            public static void SendLocalCountValuesToServer()
             {
                 if (Session == null || Session.Socket.Connected == false)
                 {
@@ -731,6 +798,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void OnDeathlink(DeathLink deathLink)
             {
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received DeathLink");
+
                 string playerCauser = deathLink.Source;
 
                 string deathlinkCause = $"Deathlink by {playerCauser}";
