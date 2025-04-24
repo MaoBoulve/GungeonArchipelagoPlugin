@@ -20,7 +20,8 @@ namespace ArchiGungeon.DebugTools
         ItemHandling,
         TrapHandling,
         UserInterface,
-        GameCompletion
+        GameCompletion,
+        CharacterSystems
     }
 
     public class ArchDebugPrint
@@ -40,7 +41,8 @@ namespace ArchiGungeon.DebugTools
             {DebugCategory.ItemHandling, true },
             {DebugCategory.TrapHandling, false },
             {DebugCategory.UserInterface, false },
-            {DebugCategory.GameCompletion, true }
+            {DebugCategory.GameCompletion, true },
+            {DebugCategory.CharacterSystems, true }
         };
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Alexandria.ItemAPI;
+using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.Character
 {
@@ -68,11 +69,14 @@ namespace ArchiGungeon.Character
 		// TODO: hook into deep player debug
 		public static void SetPlayerToNextAvailableChar(PlayerController user)
         {
+			ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Removing all actives");
 			user.RemoveAllActiveItems();
 
 			foreach(int gunID in GunIDs)
             {
-				if(user.HasGun(gunID))
+				ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Removing all guns");
+
+				if (user.HasGun(gunID))
                 {
 					user.inventory.RemoveGunFromInventory((Gun)PickupObjectDatabase.GetById(gunID));
                 }
@@ -80,13 +84,16 @@ namespace ArchiGungeon.Character
 
 			foreach(int passiveID in PassiveIDs)
             {
-				if(user.HasPickupID(passiveID))
+				ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Removing all passives");
+
+				if (user.HasPickupID(passiveID))
                 {
 					user.RemovePassiveItem(passiveID);
                 }
             }
 
 			currentCharacterIndex = GetNextAvailableCharacterIndex(currentCharacterIndex);
+			ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Swapping to {CharacterOrder[currentCharacterIndex]}");
 			HandleCharacterSwapCase(CharacterOrder[currentCharacterIndex], user);
 
 			return;
@@ -264,6 +271,7 @@ namespace ArchiGungeon.Character
                 case PlayableCharacters.Pilot:
 					if (!user.HasPickupID(356))
 					{
+						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Pilot Active");
 						PickupObject byId4 = PickupObjectDatabase.GetById(356);
 						user.GiveItem(byId4.itemName);
 					}
@@ -271,6 +279,7 @@ namespace ArchiGungeon.Character
                 case PlayableCharacters.Convict:
 					if (!user.HasPickupID(366))
 					{
+						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Convict Active");
 						PickupObject byId4 = PickupObjectDatabase.GetById(366);
 						user.GiveItem(byId4.itemName);
 					}
@@ -279,6 +288,7 @@ namespace ArchiGungeon.Character
                 case PlayableCharacters.Robot:
 					if (!user.HasPickupID(411))
 					{
+						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Robot Active");
 						PickupObject byId3 = PickupObjectDatabase.GetById(411);
 						user.GiveItem(byId3.itemName);
 					}
@@ -287,6 +297,7 @@ namespace ArchiGungeon.Character
 
 					if (!user.HasPickupID(77))
 					{
+						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Soldier Active");
 						PickupObject byId3 = PickupObjectDatabase.GetById(77);
 						user.GiveItem(byId3.itemName);
 					}
