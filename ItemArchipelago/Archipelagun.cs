@@ -24,6 +24,8 @@ namespace ArchiGungeon
         {
             // Instance base gun
 
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Registering ArchipelaGun");
+
             Gun gun = ETGMod.Databases.Items.NewGun(itemName, "archipelagun"); // based off pea gun
             gun.gameObject.AddComponent<Archipelagun>();
 

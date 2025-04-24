@@ -14,10 +14,9 @@ namespace ArchiGungeon.EnemyHandlers
 
         public static void InitializeEnemySwapper()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting Enemy Swapper");
             ETGMod.AIActor.OnPreStart += OnActorPreStart;
             ETGMod.AIActor.OnPostStart += OnActorPostStart;
-
-
         }
 
         public static void MakeNormalShuffleEnemies(int seed)

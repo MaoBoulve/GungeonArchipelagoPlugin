@@ -18,10 +18,10 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void TDD_PrintAllPathsDirectory()
         {
 
-            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"============== ProgressDataHandler TDD_PrintAllPathsDirectory ==========");
 
-            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"Config: {Paths.ConfigPath}");
-            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"SavePath: {SaveManager.SavePath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Config: {Paths.ConfigPath}");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"SavePath: {SaveManager.SavePath}");
 
             return;
         }
@@ -34,7 +34,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
         {
-            ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
             PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
 

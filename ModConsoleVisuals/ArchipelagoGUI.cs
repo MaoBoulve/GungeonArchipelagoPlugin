@@ -41,6 +41,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
         public ArchipelagoGUI()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Creating ArchiGungeon GUI");
             Instance = this;
             Logger = BepInEx.Logging.Logger.CreateLogSource("Archipelago Mod Menu");
             return;
@@ -53,6 +54,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
         private void InitGUI()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Initializing text for GUI");
             base.GUI = new SGroup
             {
                 Visible = false,
@@ -157,6 +159,8 @@ namespace ArchiGungeon.ModConsoleVisuals
         // Log internally in Archipelago & ETGModConsole menus
         public static SLabel ConsoleLog(object text, bool debuglog = false)
         {
+            LocalDebugLogWriter.AppendToLocalDebugLog(text.ToString());
+
             if (Instance == null)
             {
                 new ArchipelagoGUI();
