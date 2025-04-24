@@ -403,6 +403,16 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void CheckForUnhandledServerItems()
         {
+            if (Session == null)
+            {
+                
+                return;
+            }
+
+            if(Session.Socket.Connected == false)
+            {
+                return;
+            }
             var itemList = Session.Items.AllItemsReceived;
 
             foreach (var item in itemList)

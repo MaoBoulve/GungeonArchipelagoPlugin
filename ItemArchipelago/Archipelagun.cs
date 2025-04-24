@@ -98,10 +98,6 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnEnteredCombat += OnEnterCombat;
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
-            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Starting character swap system on pickup");
-            CharSwap.SetPlayerToNextAvailableChar(playerOwner);
-
-
             // TODO, auto connect to archipelago
 
             return;
@@ -134,7 +130,7 @@ namespace ArchiGungeon
 
         private void OnReloadPressed(PlayerController controller, Gun gun)
         {
-            if(isStartOfRun)
+            if(isStartOfRun && playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
             {
                 ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
                 CharSwap.SetPlayerToNextAvailableChar(controller);
