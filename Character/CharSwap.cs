@@ -7,10 +7,134 @@ using Alexandria.ItemAPI;
 
 namespace ArchiGungeon.Character
 {
-    class CharSwap
+    public class CharSwap
     {
+		private static int currentCharacterIndex = 0;
+		private static Dictionary<PlayableCharacters, bool> AvailableChars { get; } = new Dictionary<PlayableCharacters, bool>()
+		{
+			{PlayableCharacters.Eevee, false },
+			{PlayableCharacters.Soldier, true },
+			{PlayableCharacters.Convict, true },
+			{PlayableCharacters.Pilot, true },
+			{PlayableCharacters.Guide, true },
+			{PlayableCharacters.Robot, true },
+			{PlayableCharacters.Bullet, true },
+			{PlayableCharacters.Gunslinger, false },
+		};
 
-		private void GiveHunterLoadout(PlayerController user)
+		private static List<PlayableCharacters> CharacterOrder = new()
+		{
+			PlayableCharacters.Eevee,
+			PlayableCharacters.Soldier,
+			PlayableCharacters.Convict,
+			PlayableCharacters.Pilot,
+			PlayableCharacters.Guide,
+			PlayableCharacters.Robot,
+			PlayableCharacters.Bullet,
+			PlayableCharacters.Gunslinger,
+		};
+
+		private static List<int> GunIDs { get; } = new()
+		{
+			12,
+			99,
+			810,
+			202,
+			80,
+			652,
+			473,
+			89,
+			651,
+			86,
+			809,
+			88,
+			812,
+			417,
+			813
+		};
+
+		private static List<int> PassiveIDs { get; } = new()
+		{
+			300,
+			353,
+			187,
+			473,
+			354,
+			410,
+			414
+		};
+
+		
+		// TODO: hook into deep player debug
+		public static void SetPlayerToNextAvailableChar(PlayerController user)
+        {
+			user.RemoveAllActiveItems();
+
+			foreach(int gunID in GunIDs)
+            {
+				if(user.HasGun(gunID))
+                {
+					user.inventory.RemoveGunFromInventory((Gun)PickupObjectDatabase.GetById(gunID));
+                }
+            }
+
+			foreach(int passiveID in PassiveIDs)
+            {
+				if(user.HasPickupID(passiveID))
+                {
+					user.RemovePassiveItem(passiveID);
+                }
+            }
+
+			currentCharacterIndex = GetNextAvailableCharacterIndex(currentCharacterIndex);
+			HandleCharacterSwapCase(CharacterOrder[currentCharacterIndex], user);
+
+			return;
+        }
+
+		private static int GetNextAvailableCharacterIndex(int currentIndex)
+        {
+			//recursively call until a valid character is found
+			currentIndex += 1;
+
+			if(AvailableChars[CharacterOrder[currentIndex]] == false)
+            {
+				currentIndex = GetNextAvailableCharacterIndex(currentIndex);
+            }
+
+			return currentIndex;
+        }
+
+		private static void HandleCharacterSwapCase(PlayableCharacters characterToSwap, PlayerController user)
+        {
+            switch (characterToSwap)
+            {
+                case PlayableCharacters.Pilot:
+					GivePilotLoadout(user);
+					break;
+                case PlayableCharacters.Convict:
+					GiveConvictLoadout(user);
+					break;
+                case PlayableCharacters.Robot:
+					GiveRobotLoadout(user);
+					break;
+                case PlayableCharacters.Soldier:
+					GiveMarineLoadout(user);
+					break;
+                case PlayableCharacters.Guide:
+					GiveHunterLoadout(user);
+					break;
+                case PlayableCharacters.Bullet:
+					GiveBulletLoadout(user);
+					break;
+                default:
+                    break;
+            }
+
+			return;
+        }
+
+        private static void GiveHunterLoadout(PlayerController user)
 		{
 			if (!user.HasPickupID(300))
 			{
@@ -33,7 +157,7 @@ namespace ArchiGungeon.Character
 			return;
 		}
 
-		private void GiveConvictLoadout(PlayerController user)
+		private static void GiveConvictLoadout(PlayerController user)
 		{
 			
 			if (!user.HasPickupID(353))
@@ -53,15 +177,10 @@ namespace ArchiGungeon.Character
 				Gun val2 = (Gun)(object)((byId3 is Gun) ? byId3 : null);
 				user.inventory.AddGunToInventory(val2, true);
 			}
-			if (!user.HasPickupID(366))
-			{
-				PickupObject byId4 = PickupObjectDatabase.GetById(366);
-				LootEngine.SpawnItem(byId4.gameObject, user.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
-			}
-
+			
 		}
 
-		private void GivePilotLoadout(PlayerController user)
+		private static void GivePilotLoadout(PlayerController user)
 		{
 			
 			if (!user.HasPickupID(187))
@@ -80,16 +199,12 @@ namespace ArchiGungeon.Character
 				Gun val = (Gun)(object)((byId3 is Gun) ? byId3 : null);
 				user.inventory.AddGunToInventory(val, true);
 			}
-			if (!user.HasPickupID(356))
-			{
-				PickupObject byId4 = PickupObjectDatabase.GetById(356);
-				LootEngine.SpawnItem(byId4.gameObject, user.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
-			}
+			
 
 		}
 
 
-		private void GiveMarineLoadout(PlayerController user)
+		private static void GiveMarineLoadout(PlayerController user)
 		{
 			
 			if (!user.HasPickupID(354))
@@ -103,17 +218,10 @@ namespace ArchiGungeon.Character
 				Gun val = (Gun)(object)((byId2 is Gun) ? byId2 : null);
 				user.inventory.AddGunToInventory(val, true);
 			}
-			if (!user.HasPickupID(77))
-			{
-				PickupObject byId3 = PickupObjectDatabase.GetById(77);
-				LootEngine.SpawnItem(((Component)byId3).gameObject, (((BraveBehaviour)user).specRigidbody.UnitCenter), Vector2.left, 1f, false, true, false);
-			}
-
-			LootEngine.GivePrefabToPlayer(((Component)PickupObjectDatabase.GetById(120)).gameObject, user);
-
+			
 		}
 
-		private void GiveRobotLoadout(PlayerController user)
+		private static void GiveRobotLoadout(PlayerController user)
 		{
 			
 			if (!user.HasPickupID(410))
@@ -127,15 +235,11 @@ namespace ArchiGungeon.Character
 				Gun val = (Gun)(object)((byId2 is Gun) ? byId2 : null);
 				user.inventory.AddGunToInventory(val, true);
 			}
-			if (!user.HasPickupID(411))
-			{
-				PickupObject byId3 = PickupObjectDatabase.GetById(411);
-				LootEngine.SpawnItem(((Component)byId3).gameObject, (((BraveBehaviour)user).specRigidbody.UnitCenter), Vector2.left, 1f, false, true, false);
-			}
+			
 
 		}
 
-		private void GiveBulletLoadout(PlayerController user)
+		private static void GiveBulletLoadout(PlayerController user)
 		{
 			if (!user.HasPickupID(414))
 			{
@@ -151,5 +255,52 @@ namespace ArchiGungeon.Character
 
 		}
 
-	}
+		public static void CheckToGiveActiveItem(PlayerController user)
+        {
+			PlayableCharacters currentChar = CharacterOrder[currentCharacterIndex];
+
+            switch (currentChar)
+            {
+                case PlayableCharacters.Pilot:
+					if (!user.HasPickupID(356))
+					{
+						PickupObject byId4 = PickupObjectDatabase.GetById(356);
+						user.GiveItem(byId4.itemName);
+					}
+					break;
+                case PlayableCharacters.Convict:
+					if (!user.HasPickupID(366))
+					{
+						PickupObject byId4 = PickupObjectDatabase.GetById(366);
+						user.GiveItem(byId4.itemName);
+					}
+
+					break;
+                case PlayableCharacters.Robot:
+					if (!user.HasPickupID(411))
+					{
+						PickupObject byId3 = PickupObjectDatabase.GetById(411);
+						user.GiveItem(byId3.itemName);
+					}
+					break;
+                case PlayableCharacters.Soldier:
+
+					if (!user.HasPickupID(77))
+					{
+						PickupObject byId3 = PickupObjectDatabase.GetById(77);
+						user.GiveItem(byId3.itemName);
+					}
+					if(user.healthHaver.Armor < 1)
+                    {
+						LootEngine.GivePrefabToPlayer(((Component)PickupObjectDatabase.GetById(120)).gameObject, user);
+					}
+					break;
+
+                default:
+                    break;
+            }
+
+            return;
+        }
+    }
 }

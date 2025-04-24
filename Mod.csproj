@@ -41,6 +41,7 @@
     <Compile Include="ArchipelagoServer\PlayerSaveDataDefinition.cs" />
     <Compile Include="ArchipelagoServer\SessionHandler.cs" />
     <Compile Include="ArchipelaGunPlugin.cs" />
+    <Compile Include="Character\CharSwap.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
     <Compile Include="DebugTools\DebugCommands.cs" />
