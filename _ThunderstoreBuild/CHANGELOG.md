@@ -1,3 +1,11 @@
+# 0.0.8
+Debugging!
+
+- When an exception occurs a crash log is placed in the BepInEx root folder
+- Entering 'debugtool fullDebug' will also write the crash log
+- Reload with the ArchipelaGun swaps between the first 6 characters
+	- Setting up for future Archipelago item check
+
 # 0.0.7
 Versioning hotfixes
 
