@@ -46,7 +46,15 @@ namespace ArchiGungeon.ArchipelagoServer
         FloorGoopClears,
         FloorAbbeyClears,
         FloorRatClears,
-        FloorDeptClears
+        FloorDeptClears,
+
+        PastMarine,
+        PastConvict,
+        PastPilot,
+        PastHunter,
+        PastRobot,
+        PastBullet,
+        PastKills
     }
 
 
@@ -91,6 +99,13 @@ namespace ArchiGungeon.ArchipelagoServer
             { SaveCountStats.FloorRatClears, new CountGoalServerKeys("FloorRat")},
             { SaveCountStats.FloorDeptClears, new CountGoalServerKeys("FloorDept")},
 
+            { SaveCountStats.PastBullet, new CountGoalServerKeys("PastBullet")},
+            { SaveCountStats.PastConvict, new CountGoalServerKeys("PastConvict")},
+            { SaveCountStats.PastHunter, new CountGoalServerKeys("PastHunter")},
+            { SaveCountStats.PastMarine, new CountGoalServerKeys("PastMarine")},
+            { SaveCountStats.PastPilot, new CountGoalServerKeys("PastPilot")},
+            { SaveCountStats.PastRobot, new CountGoalServerKeys("PastRobot")},
+            { SaveCountStats.PastKills, new CountGoalServerKeys("PastKills")},
         };
 
         private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
@@ -118,39 +133,101 @@ namespace ArchiGungeon.ArchipelagoServer
             { SaveCountStats.FloorAbbeyClears, -1},
             { SaveCountStats.FloorRatClears, -1},
             { SaveCountStats.FloorDeptClears, -1},
+
+            { SaveCountStats.PastBullet, -1},
+            { SaveCountStats.PastConvict, -1},
+            { SaveCountStats.PastHunter, -1},
+            { SaveCountStats.PastMarine, -1},
+            { SaveCountStats.PastPilot, -1},
+            { SaveCountStats.PastRobot, -1},
+            { SaveCountStats.PastKills, -1},
         };
 
         //TO DO: set from server settings
-        private static Dictionary<SaveCountStats, List<int>> GoalList { get; } = new Dictionary<SaveCountStats, List<int>>()
+        private static Dictionary<SaveCountStats, List<int>> LocationCheckGoals { get; set; } = new Dictionary<SaveCountStats, List<int>>();
+
+        private static Dictionary<SaveCountStats, List<int>> ShortGoals { get; } = new Dictionary<SaveCountStats, List<int>>()
         {
-            { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18, 24, 30, 37, 44 }   },
-            { SaveCountStats.RoomPoints, new List<int>{ 6, 24, 120, 720, 5040, 10000, 15000, 20000 }  },
-            { SaveCountStats.CashSpent, new List<int>{ 50, 100, 150, 200, 250 }  },
+            { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18 }   },
+            { SaveCountStats.RoomPoints, new List<int>{ 6, 24, 120, 720, 5040 }  },
+            { SaveCountStats.CashSpent, new List<int>{ 50, 100, 150 }  },
 
-            { SaveCountStats.BlobulordKills, new List<int>{1}  },
-            { SaveCountStats.OldKingKills, new List<int>{1}  },
-            { SaveCountStats.RatKills, new List<int>{1}  },
-            { SaveCountStats.DeptAgunimKills, new List<int>{1}  },
-            { SaveCountStats.AdvancedDragunKills, new List<int>{1}  },
-            { SaveCountStats.DragunKills, new List<int>{1}  },
-            { SaveCountStats.LichKills, new List<int>{1}  },
-
-            { SaveCountStats.Floor1Clears, new List<int>{ 1, 2, 3, 4, 5 } },
+            { SaveCountStats.Floor1Clears, new List<int>{ 1, 2, 3, 4 } },
             { SaveCountStats.Floor2Clears, new List<int>{ 1, 2, 3, 4 }  },
             { SaveCountStats.Floor3Clears, new List<int>{ 1, 2, 3 }  },
             { SaveCountStats.Floor4Clears, new List<int>{ 1, 2, 3 }  },
-            { SaveCountStats.Floor5Clears, new List<int>{1, 2}  },
+            { SaveCountStats.Floor5Clears, new List<int>{ 1, 2}  },
 
             { SaveCountStats.FloorHellClears, new List<int>{1}  },
-            { SaveCountStats.FloorGoopClears, new List<int>{1, 2 ,3}  },
+            { SaveCountStats.FloorGoopClears, new List<int>{1, 2 }  },
             { SaveCountStats.FloorAbbeyClears,   new List<int>{1}  },
+
+            { SaveCountStats.PastKills, new List<int>{1}  },
+        };
+
+        private static Dictionary<SaveCountStats, List<int>> StandardGoals { get; } = new Dictionary<SaveCountStats, List<int>>()
+        {
+            { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18, 24, 30 }   },
+            { SaveCountStats.RoomPoints, new List<int>{ 6, 24, 120, 720, 5040, 10000, 15000, 20000 }  },
+            { SaveCountStats.CashSpent, new List<int>{ 50, 100, 150, 200, 250 }  },
+
+            { SaveCountStats.Floor1Clears, new List<int>{ 1, 2, 3, 4, 5, 6 } },
+            { SaveCountStats.Floor2Clears, new List<int>{ 1, 2, 3, 4, 5, 6 }  },
+            { SaveCountStats.Floor3Clears, new List<int>{ 1, 2, 3, 4 }  },
+            { SaveCountStats.Floor4Clears, new List<int>{ 1, 2, 3, 4 }  },
+            { SaveCountStats.Floor5Clears, new List<int>{1, 2, 3, 4}  },
+
+            { SaveCountStats.FloorHellClears, new List<int>{1, 2}  },
+            { SaveCountStats.FloorGoopClears, new List<int>{1, 2 ,3}  },
+            { SaveCountStats.FloorAbbeyClears,   new List<int>{1, 2}  },
             { SaveCountStats.FloorRatClears, new List<int>{1}  },
             { SaveCountStats.FloorDeptClears, new List<int>{1}  },
+
+            { SaveCountStats.PastKills, new List<int>{1, 2, 3, 4}  },
+        };
+
+        private static Dictionary<SaveCountStats, List<int>> MarathonGoals { get; } = new Dictionary<SaveCountStats, List<int>>()
+        {
+            { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18, 25, 30, 35, 40 }   },
+            { SaveCountStats.RoomPoints, new List<int>{ 6, 24, 120, 720, 5040, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000 }  },
+            { SaveCountStats.CashSpent, new List<int>{ 50, 100, 150, 200, 250, 300, 350 }  },
+
+            { SaveCountStats.Floor1Clears, new List<int>{ 1, 2, 3, 4, 5, 6, 7, 8 } },
+            { SaveCountStats.Floor2Clears, new List<int>{ 1, 2, 3, 4, 5, 6, 7, 8 }  },
+            { SaveCountStats.Floor3Clears, new List<int>{ 1, 2, 3, 4, 5, 6 }  },
+            { SaveCountStats.Floor4Clears, new List<int>{ 1, 2, 3, 4, 5, 6 }  },
+            { SaveCountStats.Floor5Clears, new List<int>{1, 2, 3, 4, 5, 6}  },
+
+            { SaveCountStats.FloorHellClears, new List<int>{1, 2, 3}  },
+            { SaveCountStats.FloorGoopClears, new List<int>{1, 2 ,3, 4, 5, 6}  },
+            { SaveCountStats.FloorAbbeyClears,   new List<int>{1, 2, 3}  },
+            { SaveCountStats.FloorRatClears, new List<int>{1, 2}  },
+            { SaveCountStats.FloorDeptClears, new List<int>{1, 2}  },
+
+            { SaveCountStats.PastKills, new List<int>{1, 2, 3, 4, 5, 6}  },
         };
 
         private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
 
+        public static void SetGoalList(int goalCase)
+        {
+            switch (goalCase)
+            {
+                case 0:
+                    LocationCheckGoals = ShortGoals;
+                    return;
+                case 1:
+                    LocationCheckGoals = StandardGoals;
+                    return;
+                case 2:
+                    LocationCheckGoals = MarathonGoals;
+                    return;
+                default:
+                    break;
+            }
 
+            return;
+        }
 
         public static int GetCountStat(SaveCountStats statToGet)
         {
@@ -182,7 +259,12 @@ namespace ArchiGungeon.ArchipelagoServer
             statCount += addAmount;
             SetCountStat(statToModify, statCount);
 
-            foreach (int goal in GoalList[statToModify])
+            if(!LocationCheckGoals.ContainsKey(statToModify))
+            {
+                return 0;
+            }
+
+            foreach (int goal in LocationCheckGoals[statToModify])
             {
                 ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");
 
@@ -208,7 +290,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             bool outOfGoals = false;
 
-            List<int> goalList = GoalList[statToModify];
+            List<int> goalList = LocationCheckGoals[statToModify];
 
             if(goalList.Count < 1)
             {
@@ -221,7 +303,7 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[Removing {goalsCleared} from goal list: {statToModify}");
 
             goalList.RemoveRange(0, goalsCleared);
-            GoalList[statToModify] = goalList;
+            LocationCheckGoals[statToModify] = goalList;
 
             if (goalList.Count == 0)
             {

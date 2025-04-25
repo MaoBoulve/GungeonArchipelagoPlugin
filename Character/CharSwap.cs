@@ -11,10 +11,11 @@ namespace ArchiGungeon.Character
 {
     public class CharSwap
     {
+		public static bool ParadoxMode { get; protected set; } = false
 		private static int currentCharacterIndex = 0;
 		private static Dictionary<PlayableCharacters, bool> AvailableChars { get; } = new Dictionary<PlayableCharacters, bool>()
 		{
-			{PlayableCharacters.Eevee, false },
+			{PlayableCharacters.Eevee, true },
 			{PlayableCharacters.Soldier, true },
 			{PlayableCharacters.Convict, true },
 			{PlayableCharacters.Pilot, true },
@@ -23,6 +24,7 @@ namespace ArchiGungeon.Character
 			{PlayableCharacters.Bullet, true },
 			{PlayableCharacters.Gunslinger, false },
 		};
+
 
 		private static List<PlayableCharacters> CharacterOrder = new()
 		{
@@ -36,9 +38,33 @@ namespace ArchiGungeon.Character
 			PlayableCharacters.Gunslinger,
 		};
 
+		public static void StartParadoxMode(PlayerController player)
+        {
+			AvailableChars[PlayableCharacters.Eevee] = true;
+			AvailableChars[PlayableCharacters.Soldier] = false;
+			AvailableChars[PlayableCharacters.Convict] = false;
+			AvailableChars[PlayableCharacters.Pilot] = false;
+			AvailableChars[PlayableCharacters.Guide] = false;
+			AvailableChars[PlayableCharacters.Robot] = false;
+			AvailableChars[PlayableCharacters.Bullet] = false;
+			AvailableChars[PlayableCharacters.Gunslinger] = false;
+
+			HandleCharacterSwapCase(PlayableCharacters.Eevee, player);
+			currentCharacterIndex = 0;
+
+			ParadoxMode = true;
+
+			return;
+		}
+
+		public static void AddNewParadoxCharacter(PlayableCharacters addedCharacter)
+        {
+			AvailableChars[addedCharacter] = true;
+			return;
+        }
+
 		public static void SetPlayerToNextAvailableChar(PlayerController user)
         {
-
 			currentCharacterIndex = GetNextAvailableCharacterIndex(currentCharacterIndex);
 			ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Swapping to {CharacterOrder[currentCharacterIndex]}");
 			HandleCharacterSwapCase(CharacterOrder[currentCharacterIndex], user);
@@ -86,62 +112,15 @@ namespace ArchiGungeon.Character
                 case PlayableCharacters.Bullet:
                     ETGModConsole.Instance?.ParseCommand("character bullet");
                     break;
+				case PlayableCharacters.Eevee:
+					ETGModConsole.Instance?.ParseCommand("character paradox");
+					break;
                 default:
                     break;
             }
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, user.CenterPosition, Vector2.zero, 0);
-
-            return;
-        }
-
-		public static void CheckToGiveActiveItem(PlayerController user)
-        {
-			PlayableCharacters currentChar = CharacterOrder[currentCharacterIndex];
-
-            switch (currentChar)
-            {
-                case PlayableCharacters.Pilot:
-					if (!user.HasPickupID(356))
-					{
-						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Pilot Active");
-						user.GiveItem("trusty_lockpicks");
-
-                    }
-					break;
-                case PlayableCharacters.Convict:
-					if (!user.HasPickupID(366))
-					{
-						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Convict Active");
-						user.GiveItem("molotov");
-					}
-
-					break;
-                case PlayableCharacters.Robot:
-					if (!user.HasPickupID(411))
-					{
-						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Robot Active");
-						user.GiveItem("coolant_leak");
-
-                    }
-					break;
-                case PlayableCharacters.Soldier:
-
-					if (!user.HasPickupID(77))
-					{
-						ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Soldier Active");
-						user.GiveItem("supply_drop");
-					}
-					if(user.healthHaver.Armor < 1)
-                    {
-						LootEngine.GivePrefabToPlayer(((Component)PickupObjectDatabase.GetById(120)).gameObject, user);
-					}
-					break;
-
-                default:
-                    break;
-            }
 
             return;
         }

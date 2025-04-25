@@ -32,15 +32,25 @@ namespace ArchiGungeon.ArchipelagoServer
         Lich
     }
 
+    public enum PlayerCompletionGoals
+    {
+        Dragun,
+        Lich,
+        Pasts,
+        SecretChamber,
+        AdvancedGungeon,
+        FarewellArms,
+    }
+
+
+
     public struct CountGoalServerKeys
     {
         public string CountKey;
-        public string GoalSettings;
 
         public CountGoalServerKeys(string countKey)
         {
             CountKey = countKey;
-            GoalSettings = "SETTINGS_" + countKey;
             return;
         }
     }
@@ -68,18 +78,18 @@ namespace ArchiGungeon.ArchipelagoServer
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
         private static PlayerConnectionInfo PlayerServerInfo { get; set; }
 
-        private static Dictionary<CompletionGoals, string> CompletionKeys { get; } = new Dictionary<CompletionGoals, string>()
+
+        private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoals { get; } = new Dictionary<PlayerCompletionGoals, string>()
         {
-            { CompletionGoals.Blobulord, "Blobulord Goal" },
-            { CompletionGoals.OldKing, "Old King Goal" },
-            { CompletionGoals.Rat, "Resourceful Rat Goal" },
-            { CompletionGoals.Agunim, "Agunim Goal" },
-            { CompletionGoals.AdvancedDragun, "Advanced Dragun Goal" },
-            { CompletionGoals.Dragun, "Dragun Goal" },
-            { CompletionGoals.Lich, "Lich Goal" }
+            { PlayerCompletionGoals.Dragun, "Dragun" },
+            { PlayerCompletionGoals.Lich, "Lich" },
+            { PlayerCompletionGoals.Pasts, "Pasts" },
+            { PlayerCompletionGoals.SecretChamber, "BaseSecret" },
+            { PlayerCompletionGoals.AdvancedGungeon, "AdvancedGungeon" },
+            { PlayerCompletionGoals.FarewellArms, "FarewellArms" },
         };
-        
-       
+
+
         private static bool pulledItemsThisRun = false;
         private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
@@ -334,7 +344,18 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        
+        // PARADOX MODE =========================================================
+
+        private static void CheckToInitializeParadoxMode()
+        {
+            if(Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
+            {
+                ETGModConsole.Instance?.ParseCommand("character paradox");
+                GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
+                LootEngine.SpawnItem(archipelItem, user.CenterPosition, Vector2.zero, 0);
+            }
+        }
+
 
         // ITEM RETRIEVAL ===============================
 
@@ -458,7 +479,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
             {
-                // Wait why am i pulling from this when I pulled slot_data start of connection
                 if (Convert.ToInt32(PlayerSlotSettings[CompletionKeys[goalEnum]] ) == 1)
                 {
 

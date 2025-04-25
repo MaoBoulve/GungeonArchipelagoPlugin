@@ -98,6 +98,8 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnEnteredCombat += OnEnterCombat;
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
+
+
             // TODO, auto connect to archipelago
 
             return;
@@ -114,7 +116,6 @@ namespace ArchiGungeon
             {
                 isStartOfRun = false;
                 ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Handling last checks for character swapper");
-                CharSwap.CheckToGiveActiveItem(playerWithArchipelagun);
             }
 
             canBeWielded = false;
@@ -169,11 +170,13 @@ namespace ArchiGungeon
         }
 
 
-        public override void OnReloadedPlayer(PlayerController owner, Gun gun)
+        private void CheckForParadoxMode()
         {
-            //base.OnReloadedPlayer(owner, gun);
-            //ArchipelagoGUI.ConsoleLog("Reload");
-            //ArchipelagoGungeonBridge.DeathlinkKillPlayer();
+            if(CharSwap.ParadoxMode)
+            {
+
+            }
         }
+
     }
 }
