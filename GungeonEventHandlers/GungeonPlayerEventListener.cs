@@ -32,41 +32,94 @@ namespace ArchiGungeon.GungeonEventHandlers
             return null;
         }
 
-        /*
-        private static Dictionary<string, string> bossGameNameMap { get; } = new Dictionary<string, string>
-        {
-            { "Blobulord(Clone)", "Blobulord Killed" },
-            { "OldBulletKing(Clone)", "Old King Killed" },
-            { "MetalGearRat(Clone)", "Resourceful Rat Killed" },
-            { "Helicopter(Clone)", "Agunim Killed" },
-            { "AdvancedDraGun(Clone)", "Advanced Dragun Killed" },
-            { "DraGun(Clone)", "Dragun Killed" },
-            { "Infinilich(Clone)", "Lich Killed" }
-        };
-        */
 
-        private static Dictionary<string, CompletionGoals> BossNameToCompletionGoal { get; } = new Dictionary<string, CompletionGoals>
+        private static List<string> CompletionBossNames { get; } = new List<string>()
         {
-            { "Blobulord(Clone)", CompletionGoals.Blobulord },
-            { "OldBulletKing(Clone)", CompletionGoals.OldKing },
-            { "MetalGearRat(Clone)", CompletionGoals.Rat },
-            { "Helicopter(Clone)", CompletionGoals.Agunim },
-            { "AdvancedDraGun(Clone)", CompletionGoals.AdvancedDragun },
-            { "DraGun(Clone)", CompletionGoals.Dragun },
-            { "Infinilich(Clone)", CompletionGoals.Lich }
+            "1b5810fafbec445d89921a4efb4e42b7",
+             "5729c8b5ffa7415bb3d01205663a33ef",
+             "4d164ba3f62648809a4a82c90fc22cae",
+             "41ee1c8538e8474a82a74c4aff99c712", 
+             "05b8afe0b6cc4fffa9dc6036fa24c8ec", 
+             "465da2bb086a4a88a803f79fe3a27677",
+             "7c5d5f09911e49b78ae644d2b50ff3bf",
         };
 
-        private static Dictionary<string, SaveCountStats> BossNameToSaveCountStat { get; } = new Dictionary<string, SaveCountStats>
+        private static List<string> PastKillsGuids { get; } = new List<string>()
         {
-            { "Blobulord(Clone)", SaveCountStats.BlobulordKills},
-            { "OldBulletKing(Clone)", SaveCountStats.OldKingKills },
-            { "MetalGearRat(Clone)", SaveCountStats.RatKills },
-            { "Helicopter(Clone)", SaveCountStats.DeptAgunimKills },
-            { "AdvancedDraGun(Clone)", SaveCountStats.AdvancedDragunKills },
-            { "DraGun(Clone)", SaveCountStats.DragunKills },
-            { "Infinilich(Clone)", SaveCountStats.LichKills }
+             "8d441ad4e9924d91b6070d5b3438d066",
+             "dc3cd41623d447aeba77c77c99598426",
+             "8b913eea3d174184be1af362d441910d",
+             "b98b10fca77d469e80fb45f3c5badec5",
+             "880bbe4ce1014740ba6b4e2ea521e49d",
+             "39dca963ae2b4688b016089d926308ab",
         };
 
+        private static Dictionary<string, SaveCountStats> BossGUIDToStat { get; } = new Dictionary<string, SaveCountStats>
+        {
+            { "1b5810fafbec445d89921a4efb4e42b7", SaveCountStats.BlobulordKills},
+            { "5729c8b5ffa7415bb3d01205663a33ef", SaveCountStats.OldKingKills },
+            { "4d164ba3f62648809a4a82c90fc22cae", SaveCountStats.RatKills },
+            { "41ee1c8538e8474a82a74c4aff99c712", SaveCountStats.DeptAgunimKills },
+            { "05b8afe0b6cc4fffa9dc6036fa24c8ec", SaveCountStats.AdvancedDragunKills },
+            { "465da2bb086a4a88a803f79fe3a27677", SaveCountStats.DragunKills },
+            { "7c5d5f09911e49b78ae644d2b50ff3bf", SaveCountStats.LichKills },
+
+            { "8d441ad4e9924d91b6070d5b3438d066", SaveCountStats.PastHunter },
+            { "dc3cd41623d447aeba77c77c99598426", SaveCountStats.PastMarine },
+            { "8b913eea3d174184be1af362d441910d", SaveCountStats.PastConvict },
+            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.PastPilot },
+            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.PastRobot },
+            { "39dca963ae2b4688b016089d926308ab", SaveCountStats.PastBullet },
+
+            //floor 1
+            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.Floor1Clears },
+            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.Floor1Clears },
+
+            //floor 2
+            { "da797878d215453abba824ff902e21b4", SaveCountStats.Floor2Clears },
+            { "4b992de5b4274168a8878ef9bf7ea36b", SaveCountStats.Floor2Clears },
+            { "c367f00240a64d5d9f3c26484dc35833", SaveCountStats.Floor2Clears },
+
+            //floor 3
+            { "5e0af7f7d9de4755a68d2fd3bbc15df4", SaveCountStats.Floor3Clears },
+            { "fa76c8cfdf1c4a88b55173666b4bc7fb", SaveCountStats.Floor3Clears },
+            { "8b0dd96e2fe74ec7bebc1bc689c0008a", SaveCountStats.Floor3Clears },
+            { "9189f46c47564ed588b9108965f975c9", SaveCountStats.Floor3Clears },
+
+            //floor 4
+            { "f3b04a067a65492f8b279130323b41f0", SaveCountStats.Floor4Clears },
+            { "6c43fddfd401456c916089fdd1c99b1c", SaveCountStats.Floor4Clears },
+
+            //floor 5
+            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.Floor5Clears },
+            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.Floor5Clears },
+
+            //hell
+            { "7c5d5f09911e49b78ae644d2b50ff3bf", SaveCountStats.FloorHellClears},
+
+            //oublie
+            { "1b5810fafbec445d89921a4efb4e42b7", SaveCountStats.FloorGoopClears },
+
+            //abbey
+            { "5729c8b5ffa7415bb3d01205663a33ef", SaveCountStats.FloorAbbeyClears },
+
+            //rat
+            { "4d164ba3f62648809a4a82c90fc22cae", SaveCountStats.FloorRatClears },
+
+            //dept
+            { "41ee1c8538e8474a82a74c4aff99c712", SaveCountStats.FloorDeptClears },
+        };
+
+        private static List<string> TriggerTwinGuids { get; } = new List<string>
+        {
+            "ea40fcc863d34b0088f490f4e57f8913",
+            "c00390483f394a849c36143eb878998f"
+        };
+
+        private static string KillPillarGuid { get; } = "3f11bbbc439c4086a180eb0fb9990cb4";
+
+        private static int triggerTwinKills;
+        private static int killPillarKills;
         private static int roomsClearedThisRun;
 
         public static void StartSystemEventListens()
@@ -168,6 +221,8 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             EnemySwapping.ResetEnemyDamageMult();
             roomsClearedThisRun = 0;
+            killPillarKills = 0;
+            triggerTwinKills = 0;
             SessionHandler.ResetItemRetrieveState();
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
@@ -179,21 +234,46 @@ namespace ArchiGungeon.GungeonEventHandlers
         
         private static void OnBossKilled(HealthHaver haver, bool arg2)
         {
-            string bossName = haver.name;
-            
-            if(BossNameToSaveCountStat.ContainsKey(bossName))
+            string enemyGuid = haver.aiActor.EnemyGuid;
+
+            if(PastKillsGuids.Contains(enemyGuid))
             {
-                SessionHandler.DataSender.AddToGoalCount(BossNameToSaveCountStat[bossName], 1);
+                SessionHandler.DataSender.AddToGoalCount(SaveCountStats.PastKills, 1);
+            }
+            
+            if(BossGUIDToStat.ContainsKey(enemyGuid))
+            {
+                SessionHandler.DataSender.AddToGoalCount(BossGUIDToStat[enemyGuid], 1);
             }
 
-            if (BossNameToCompletionGoal.ContainsKey(bossName))
+            else if(TriggerTwinGuids.Contains(enemyGuid))
+            {
+                triggerTwinKills++;
+
+                if(triggerTwinKills == 2)
+                {
+                    SessionHandler.DataSender.AddToGoalCount(SaveCountStats.Floor1Clears, 1);
+                }
+            }
+
+            else if (enemyGuid == KillPillarGuid)
+            {
+                killPillarKills++;
+
+                if (killPillarKills == 4)
+                {
+                    SessionHandler.DataSender.AddToGoalCount(SaveCountStats.Floor4Clears, 1);
+                }
+            }
+
+            if (CompletionBossNames.Contains(enemyGuid))
             {
                 SessionHandler.DataSender.SendLocalCountValuesToServer();
-                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {bossName}");
+                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {haver.name}");
                 SessionHandler.DataSender.CheckForGameCompletion();
             }
 
-            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver}");
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver.name}");
 
             return;
         }

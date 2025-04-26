@@ -20,23 +20,13 @@ using ArchiGungeon.DebugTools;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
-    
-    public enum CompletionGoals
-    {
-        Blobulord,
-        OldKing,
-        Rat,
-        Agunim,
-        AdvancedDragun,
-        Dragun,
-        Lich
-    }
 
     public enum PlayerCompletionGoals
     {
         Dragun,
         Lich,
-        Pasts,
+        PastsBase,
+        PastsFull,
         SecretChamber,
         AdvancedGungeon,
         FarewellArms,
@@ -79,11 +69,12 @@ namespace ArchiGungeon.ArchipelagoServer
         private static PlayerConnectionInfo PlayerServerInfo { get; set; }
 
 
-        private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoals { get; } = new Dictionary<PlayerCompletionGoals, string>()
+        private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoalKeys { get; } = new Dictionary<PlayerCompletionGoals, string>()
         {
             { PlayerCompletionGoals.Dragun, "Dragun" },
             { PlayerCompletionGoals.Lich, "Lich" },
-            { PlayerCompletionGoals.Pasts, "Pasts" },
+            { PlayerCompletionGoals.PastsBase, "Pasts" },
+            { PlayerCompletionGoals.PastsFull, "Pasts" },
             { PlayerCompletionGoals.SecretChamber, "BaseSecret" },
             { PlayerCompletionGoals.AdvancedGungeon, "AdvancedGungeon" },
             { PlayerCompletionGoals.FarewellArms, "FarewellArms" },
@@ -140,13 +131,14 @@ namespace ArchiGungeon.ArchipelagoServer
             BindToArchipelagoEvents();
             CheckToCreateDeathlink();
             CheckToRandomizeEnemies();
-
-            // todo > write stuff to JSON
-
-            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
-            LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+            CheckToInitializeParadoxMode();
 
             
+
+            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
+            // todo > write stuff to JSON
+            //LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+
             InitializeAPLocationChecks();
 
             TrapSpawnHandler.SetCanSpawn(true);
@@ -350,9 +342,10 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             if(Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
             {
+                PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
                 ETGModConsole.Instance?.ParseCommand("character paradox");
                 GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
-                LootEngine.SpawnItem(archipelItem, user.CenterPosition, Vector2.zero, 0);
+                LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
             }
         }
 
@@ -476,22 +469,41 @@ namespace ArchiGungeon.ArchipelagoServer
 
             DataSender.CheckForGameCompletion();
 
-
-            foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
+            foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
             {
-                if (Convert.ToInt32(PlayerSlotSettings[CompletionKeys[goalEnum]] ) == 1)
+                List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
+
+                if(playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
                 {
+                    int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
 
-                    SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
-                    int statData = CountSaveData.GetCountStat(correspondingStat);
-                    string killConfirm = "**** YES ****";
+                    if (pastsCase == 1)
+                    {
+                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                    }
+                    else if (pastsCase == 2)
+                    {
+                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                    }
+                }
 
-                    if (statData < 1)
+                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
+                {
+                   statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
+
+                }
+
+                foreach (SaveCountStats statCheck in statsForGoal)
+                {
+                    int statCount = CountSaveData.GetCountStat(statCheck);
+                    string killConfirm = "*** YES ****";
+
+                    if (statCount < 1)
                     {
                         killConfirm = "NO";
                     }
 
-                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {goalEnum} -- Killed: {killConfirm}");
+                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {playerGoal}: {statCheck} -- Killed: {killConfirm}");
                 }
             }
 
@@ -501,7 +513,7 @@ namespace ArchiGungeon.ArchipelagoServer
         }
 
         // ENEMY SWAPPER ==========================================
-        
+
 
         private static void InitializeEnemySwapper()
         {
@@ -515,43 +527,31 @@ namespace ArchiGungeon.ArchipelagoServer
             //TODO CHECK FOR enemy randomizer KEY
         }
 
-        // ONLY 53 checks oops
-        private static LocationCheckCategoryRange chestsOpenedIndex = new LocationCheckCategoryRange(1, 8);
-        private static LocationCheckCategoryRange roomPointsIndex = new LocationCheckCategoryRange(10, 17);
-        private static LocationCheckCategoryRange cashSpentIndex = new LocationCheckCategoryRange(20, 24);
-
         private static void InitializeAPLocationChecks()
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
 
+            int userAchievementCase = Convert.ToInt32(PlayerSlotSettings["AchievementChecks"]); 
+            CountSaveData.SetGoalList(userAchievementCase);
+
+            List<SaveCountStats> countStatLocationChecks = CountSaveData.GetListOfStatsWithGoals();
+            foreach( SaveCountStats stats in countStatLocationChecks )
+            {
+                AchievementLocationCheckHandler.SetStatLocationIDsFromGoalList(stats);
+            }
+
+            int itemLocationCheckCase = Convert.ToInt32(PlayerSlotSettings["APItemChecks"]);
+
+            int shopChecks = APPickUpItem.GetAPShopLocationChecks(itemLocationCheckCase);
+
+            int chestChecks = APPickUpItem.GetBaseAPChestLocationChecks(itemLocationCheckCase);
+            int extraLocations = Convert.ToInt32(PlayerSlotSettings["ExtraLocations"]);
+            int totalChest = chestChecks + extraLocations;
+
+            APPickUpItem.RegisterAPItemLocationIDs(totalChest, shopChecks);
 
             List<long> allServerLocations = Session.Locations.AllLocations.ToList();
-
-            //ArchipelagoGUI.ConsoleLog($"{allServerLocations[0]} starting item ID");
-            ArchipelagoGungeonBridge.InitializeItemID(8754000);
-
             ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
-            // TODO: determine how many raw location checks there are
-
-            List<long> chestsIDs = allServerLocations.GetRange(chestsOpenedIndex.startIndex, chestsOpenedIndex.range);
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Chests has {chestsIDs.Count} location checks");
-            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.ChestsOpened, chestsIDs);
-
-            List<long> roomIDs = allServerLocations.GetRange(roomPointsIndex.startIndex, roomPointsIndex.range);
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Room Points has {roomIDs.Count} location checks");
-            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.RoomPoints, roomIDs);
-
-            List<long> cashIDs = allServerLocations.GetRange(cashSpentIndex.startIndex, cashSpentIndex.range);
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Cash has {cashIDs.Count} location checks");
-            AchievementLocationCheckHandler.SetStatLocationIDs(SaveCountStats.CashSpent, cashIDs);
-
-            List<long> serverRemainingLocations = Session.Locations.AllMissingLocations.ToList();
-            serverRemainingLocations.Except(chestsIDs);
-            serverRemainingLocations.Except(roomIDs);
-            serverRemainingLocations.Except(cashIDs);
-
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"There are {serverRemainingLocations.Count} leftover location checks. Setting for APItem");
-            APPickUpItem.RegisterLocationIDs(serverRemainingLocations.ToArray());
 
             return;
         }
@@ -665,32 +665,50 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, "Checking for game completion");
 
-                foreach (CompletionGoals goalEnum in (CompletionGoals[])Enum.GetValues(typeof(CompletionGoals)))
+                foreach(PlayerCompletionGoals playerGoalEnum in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
                 {
-                    SaveCountStats correspondingStat = CountSaveData.GoalToSaveStat[goalEnum];
-                    int statData = CountSaveData.GetCountStat(correspondingStat);
+                    List<SaveCountStats> statsToCheck = new List<SaveCountStats>();
 
-                    if (Convert.ToInt32(PlayerSlotSettings[CompletionKeys[goalEnum]] ) == 1)
+                    //Setup stats to check for goal completion
+                    if (playerGoalEnum == PlayerCompletionGoals.PastsFull || playerGoalEnum == PlayerCompletionGoals.PastsBase)
                     {
-                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{goalEnum} marked for game completion check by Slot Data");
+                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
 
-                        if (statData < 0)
+                        if (pastsCase == 1)
                         {
-                            AsyncPullCountAndRecheckGameCompletion(correspondingStat);
-
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{goalEnum} stat not initialized, STOPPING game completion check");
-
-                            return;
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking Base 4 Pasts");
+                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
                         }
-
-                        if (statData < 1)
+                        else if (pastsCase == 2)
                         {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {goalEnum} not met, STOPPING game completion check");
-
-                            return;
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking 6 Pasts");
+                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
                         }
                     }
 
+                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoalEnum]]) == 1)
+                    {
+                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{playerGoalEnum} marked for game completion check by Slot Data");
+                        statsToCheck = CountSaveData.GoalToStatChecks[playerGoalEnum].ToList();
+                    }
+
+                    // Iterate through savecountstats enum
+                    foreach (SaveCountStats statCheck in statsToCheck)
+                    {
+                        int statCount = CountSaveData.GetCountStat(statCheck);
+                        if (statCount < 0)
+                        {
+                            AsyncPullCountAndRecheckGameCompletion(statCheck);
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{statCheck} stat not initialized, STOPPING game completion check");
+                            return;
+                        }
+
+                        if (statCount < 1)
+                        {
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {statCheck} not met, STOPPING game completion check");
+                            return;
+                        }
+                    }
                 }
 
                 ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal checks passed! Sending completion event");

@@ -88,6 +88,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                     break;
 
                 default:
+                    ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Trap Handling received invalid ID: {trapCase}");
                     break;
 
             }

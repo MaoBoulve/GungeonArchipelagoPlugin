@@ -6,6 +6,7 @@ using UnityEngine;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Character;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -14,53 +15,8 @@ namespace ArchiGungeon.ArchipelagoServer
         private static long baseItemID = 8754000;
         private static long consumableCategoryItemID = 8754100;
         private static long trapCategoryItemID = 8754200;
-
-        public static void InitializeItemID (long itemID)
-        {
-            baseItemID = itemID;
-            consumableCategoryItemID = baseItemID + 100;
-            trapCategoryItemID = baseItemID + 200;
-        }
-
-        private static Dictionary<long, int> itemIDToPickUpItem = new Dictionary<long, int>
-        {
-            { 0L, 0 },
-            { 1L, 1 },
-            { 2L, 2 },
-            { 3L, 3 },
-            { 4L, 4 },
-            { 5L, 5 },
-            { 6L, 6 },
-            { 7L, 7 },
-            { 8L, 8 },
-            { 9L, 9 },
-            { 10L, 10 },
-            { 11L, 11 },
-            { 12L, 12 },
-        };
-
-        private static Dictionary<long, int> itemIDToConsumable = new Dictionary<long, int>
-        {
-            { 0L, 0 },
-            { 1L, 1 },
-            { 2L, 2 },
-            { 3L, 3 },
-            { 4L, 4 },
-            { 5L, 5 },
-            { 6L, 6 }
-        };
-
-        private static Dictionary<long, int> itemIDToTrap = new Dictionary<long, int>
-        {
-            { 0L, 0 },
-            { 1L, 1 },
-            { 2L, 2 },
-            { 3L, 3 },
-            { 4L, 4 },
-            { 5L, 5 },
-            { 6L, 6 },
-            { 7L, 7 }
-        };
+        private static long progressionItemID = 8754301;
+        private static long paradoxCharacterItemID = 8754400;
 
         private static PlayerController playerOne;
         private static PlayerController playerTwo;
@@ -113,47 +69,49 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
+            // gun & passives
             long categoryAdjustedID = receivedItemID - (long)baseItemID;
-            if (itemIDToPickUpItem.ContainsKey(categoryAdjustedID))
+            if (categoryAdjustedID < 100)
             {
-                int itemCase = itemIDToPickUpItem[categoryAdjustedID];
-                RandomizedByQualityItems.SpawnRandomizedItemByCase(itemCase);
-
+                RandomizedByQualityItems.SpawnRandomizedItemByCase((int)categoryAdjustedID);
                 return;
             }
 
+            // consumables
             categoryAdjustedID = receivedItemID - (long)consumableCategoryItemID;
-            if(itemIDToConsumable.ContainsKey(categoryAdjustedID))
+            if(categoryAdjustedID < 100)
             {
-                int itemCase = itemIDToConsumable[categoryAdjustedID];
-                ConsumableSpawnHandler.SpawnConsumableByCase(itemCase);
-
+                ConsumableSpawnHandler.SpawnConsumableByCase((int)categoryAdjustedID);
                 return;
             }
 
+            // traps
             categoryAdjustedID = receivedItemID - (long)trapCategoryItemID;
-            if (itemIDToTrap.ContainsKey(categoryAdjustedID))
+            if (categoryAdjustedID < 100)
             {
-                int trapCase = itemIDToTrap[categoryAdjustedID];
-                TrapSpawnHandler.SpawnTrapByCase(trapCase);
-
+                TrapSpawnHandler.SpawnTrapByCase((int)categoryAdjustedID);
                 return;
             }
 
-            HandleLeftoverID( receivedItemID );
+            // progression
+            categoryAdjustedID = receivedItemID - (long)progressionItemID;
+            if (categoryAdjustedID < 100)
+            {
+                ProgressionItemSpawnHandler.SpawnProgressionItem((int)categoryAdjustedID);
+                return;
+            }
+
+            // paradox mode
+            categoryAdjustedID = receivedItemID - (long)paradoxCharacterItemID;
+            if (categoryAdjustedID < 100)
+            {
+                CharSwap.ReceiveParadoxModeItem((int)categoryAdjustedID);
+                return;
+            }
 
             return;
         }
 
-        private static void HandleLeftoverID(long receivedItemID)
-        {
-            if(receivedItemID % 2 == 0)
-            {
-                RandomizedByQualityItems.SpawnRandomEquip();
-            }
-
-            ConsumableSpawnHandler.SpawnRandomConsumable();
-        }
 
         public static void SpawnAPItem(int numberToSpawn)
         {

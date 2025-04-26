@@ -91,6 +91,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                     break;
 
                 default:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Consumable received invalid ID: {itemCase}");
                     break;
 
             }
@@ -195,20 +196,9 @@ namespace ArchiGungeon.GungeonEventHandlers
                 case 9:
                     SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
-                case 10:
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
-                    ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
-                    break;
-                case 11:
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
-                    ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
-                    break;
-                case 12:
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
-                    ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
-                    break;
 
                 default:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Random Gun/Passive received invalid ID: {itemCase}");
                     break;
             }
 
@@ -226,4 +216,34 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
     }
 
+    public class ProgressionItemSpawnHandler
+    {
+        public static void SpawnProgressionItem(int itemCase)
+        {
+            EffectsController.PlaySynergyVFX();
+
+            switch (itemCase)
+            {
+                case 1:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
+                    ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
+                    break;
+                case 2:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
+                    ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
+                    break;
+
+                case 3:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
+                    ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
+                    break;
+
+                default:
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"PROGRESSION received invalid ID: {itemCase}");
+                    break;
+            }
+
+            return;
+        }
+    }
 }

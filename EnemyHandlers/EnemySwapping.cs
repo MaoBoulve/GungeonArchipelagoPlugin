@@ -107,7 +107,7 @@ namespace ArchiGungeon.EnemyHandlers
         
         public static void ReduceEnemyDamageMult(int stepsToReduce)
         {
-            enemyDamageMult = enemyDamageMult - ((float)stepsToReduce * 0.5f);
+            enemyDamageMult = enemyDamageMult - ((float)stepsToReduce * 0.25f);
 
             if(enemyDamageMult < 1)
             {

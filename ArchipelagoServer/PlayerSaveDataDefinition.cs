@@ -61,17 +61,17 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class CountSaveData
     {
-        public static Dictionary<CompletionGoals, SaveCountStats> GoalToSaveStat = new Dictionary<CompletionGoals, SaveCountStats>()
+       
+        public static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
         {
-            { CompletionGoals.Blobulord, SaveCountStats.BlobulordKills },
-            { CompletionGoals.OldKing, SaveCountStats.OldKingKills},
-            { CompletionGoals.Rat, SaveCountStats.RatKills},
-            { CompletionGoals.Agunim, SaveCountStats.DeptAgunimKills},
-            { CompletionGoals.AdvancedDragun, SaveCountStats.AdvancedDragunKills},
-            { CompletionGoals.Dragun, SaveCountStats.DragunKills},
-            { CompletionGoals.Lich, SaveCountStats.LichKills },
-        };
-
+            { PlayerCompletionGoals.Lich, new SaveCountStats[] { SaveCountStats.LichKills } },
+            { PlayerCompletionGoals.Dragun, new SaveCountStats[] { SaveCountStats.DragunKills} },
+            { PlayerCompletionGoals.SecretChamber, new SaveCountStats[] { SaveCountStats.OldKingKills, SaveCountStats.BlobulordKills} },
+            { PlayerCompletionGoals.AdvancedGungeon, new SaveCountStats[] { SaveCountStats.AdvancedDragunKills, SaveCountStats.RatKills} },
+            { PlayerCompletionGoals.FarewellArms, new SaveCountStats[] { SaveCountStats.DeptAgunimKills} },
+            { PlayerCompletionGoals.PastsBase, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot} },
+            { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
+        };  
 
         public static Dictionary<SaveCountStats, CountGoalServerKeys> CountStatToKeys { get; } = new Dictionary<SaveCountStats, CountGoalServerKeys>()
         {
@@ -207,8 +207,6 @@ namespace ArchiGungeon.ArchipelagoServer
             { SaveCountStats.PastKills, new List<int>{1, 2, 3, 4, 5, 6}  },
         };
 
-        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
-
         public static void SetGoalList(int goalCase)
         {
             switch (goalCase)
@@ -223,12 +221,36 @@ namespace ArchiGungeon.ArchipelagoServer
                     LocationCheckGoals = MarathonGoals;
                     return;
                 default:
+                    LocationCheckGoals = StandardGoals;
                     break;
             }
 
             return;
         }
 
+        public static List<SaveCountStats> GetListOfStatsWithGoals()
+        {
+            List<SaveCountStats> statsWithGoals = LocationCheckGoals.Keys.ToList();
+            return statsWithGoals;
+        }
+        
+        public static int GetCountOfStatGoals(SaveCountStats statToCount)
+        {
+            if(LocationCheckGoals.ContainsKey(statToCount))
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Counted goals for {statToCount} -- {LocationCheckGoals[statToCount].Count}");
+                return LocationCheckGoals[statToCount].Count;
+            }
+
+            else
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Tried counting stat with no goals: {statToCount}");
+                return 0;
+            }
+            
+        }
+
+        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
         public static int GetCountStat(SaveCountStats statToGet)
         {
             int statData = SaveDataTrackedStats[statToGet];
@@ -252,10 +274,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 return 0;
             }
 
-            int goalsMet = 0;
-
             int statCount = SaveDataTrackedStats[statToModify];
-
             statCount += addAmount;
             SetCountStat(statToModify, statCount);
 
@@ -264,6 +283,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 return 0;
             }
 
+            int goalsMet = 0;
             foreach (int goal in LocationCheckGoals[statToModify])
             {
                 ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToModify}] New count: {statCount} against goal: {goal}");

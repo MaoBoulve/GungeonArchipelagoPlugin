@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,15 +10,27 @@ namespace ArchiGungeon.ItemArchipelago
 {
     class AchievementLocationCheckHandler
     {
-        private static Dictionary<SaveCountStats, List<long>> StatToLocationIDs = new Dictionary<SaveCountStats, List<long>>();
-
-        public static void SetStatLocationIDs(SaveCountStats statToSet, List<long> idList)
+        private static Dictionary<SaveCountStats, long> StatToStartLocationID { get; } = new Dictionary<SaveCountStats, long>()
         {
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Setting {statToSet} with location IDs count {idList.Count}");
+            {SaveCountStats.RoomPoints, 8755200},
+            {SaveCountStats.ChestsOpened, 8755300},
+            {SaveCountStats.CashSpent, 8755400},
+            {SaveCountStats.PastKills, 8755600},
 
-            StatToLocationIDs[statToSet] = idList;
-            return;
-        }
+            {SaveCountStats.Floor1Clears, 8755700},
+            {SaveCountStats.Floor2Clears, 8755720},
+            {SaveCountStats.Floor3Clears, 8755740},
+            {SaveCountStats.Floor4Clears, 8755760},
+            {SaveCountStats.Floor5Clears, 8755780},
+
+            {SaveCountStats.FloorHellClears, 8755800},
+            {SaveCountStats.FloorGoopClears, 8755820},
+            {SaveCountStats.FloorAbbeyClears, 8755840},
+            {SaveCountStats.FloorRatClears, 8755860},
+            {SaveCountStats.FloorDeptClears, 8755880},
+        };
+
+        private static Dictionary<SaveCountStats, List<long>> StatToLocationIDs = new Dictionary<SaveCountStats, List<long>>();
 
         public static void SendStatLocationChecks(SaveCountStats statCategory, int numberOfChecks)
         {
@@ -40,6 +53,28 @@ namespace ArchiGungeon.ItemArchipelago
             fullList.RemoveRange(0, numberOfChecks);
             StatToLocationIDs[statCategory] = fullList;
 
+            return;
+        }
+
+        public static void SetStatLocationIDsFromGoalList(SaveCountStats statToSet)
+        {
+
+            int numberOfLocationChecks = CountSaveData.GetCountOfStatGoals(statToSet);
+
+            if(numberOfLocationChecks < 1)
+            { return; }
+
+            List<long> locationIDs = new List<long>();
+
+            for (int i = 0; i < numberOfLocationChecks; i++ )
+            {
+                long newLocID = StatToStartLocationID[statToSet] + i;
+                locationIDs.Add(newLocID);
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Setting {statToSet} with location IDs count {locationIDs.Count}");
+
+            StatToLocationIDs[statToSet] = locationIDs;
             return;
         }
 

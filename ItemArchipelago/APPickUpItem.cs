@@ -12,6 +12,12 @@ namespace ArchiGungeon.ItemArchipelago
 
     public class APPickUpItem: PassiveItem
     {
+        private static long ChestAPItemStartID { get; } = 8755000;
+        private static long ShopAPItemStartID { get; } = 8755100;
+
+        private static List<long> chestLocationIDs;
+        private static List<long> shopLocationIDs;
+
         public static int SpawnItemID = -1;
         private static List<long> locationIDs;
 
@@ -41,6 +47,50 @@ namespace ArchiGungeon.ItemArchipelago
         }
 
         
+        public static void RegisterAPItemLocationIDs(int chestLocationCount, int shopLocationCount)
+        {
+            for (int i = 0; i < shopLocationCount; i++) 
+            {
+                shopLocationIDs.Add(ShopAPItemStartID + i);
+            }
+
+            for (int i = 0; i< chestLocationCount; i++)
+            {
+                chestLocationIDs.Add(ChestAPItemStartID + i);
+            }
+
+            return;
+        }
+
+        public static int GetBaseAPChestLocationChecks(int userOptionCase)
+        {
+            switch (userOptionCase)
+            {
+                case 0:
+                    return 11;
+                case 1:
+                    return 16;
+                case 2:
+                    return 25;
+                default:
+                    return 16;
+            }
+        }
+
+        public static int GetAPShopLocationChecks(int userOptionCase)
+        {
+            switch (userOptionCase)
+            {
+                case 0:
+                    return 5;
+                case 1:
+                    return 9;
+                case 2:
+                    return 15;
+                default:
+                    return 15;
+            }
+        }
 
         public static void RegisterLocationIDs(long[] serverLocationIDs)
         {
@@ -68,19 +118,6 @@ namespace ArchiGungeon.ItemArchipelago
         public static bool HasAPItemChecksRemaining()
         {
             return (locationIDs.Count > 0);
-        }
-
-        public static void TDD_CallNextLocationCheck()
-        {
-            if (locationIDs.Count > 0)
-            {
-                SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
-
-                locationIDs.RemoveAt(0);
-            }
-
-
-            return;
         }
 
 

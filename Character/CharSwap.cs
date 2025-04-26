@@ -6,12 +6,13 @@ using UnityEngine;
 using Alexandria.ItemAPI;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.GungeonEventHandlers;
 
 namespace ArchiGungeon.Character
 {
     public class CharSwap
     {
-		public static bool ParadoxMode { get; protected set; } = false
+		public static bool ParadoxMode { get; protected set; } = false;
 		private static int currentCharacterIndex = 0;
 		private static Dictionary<PlayableCharacters, bool> AvailableChars { get; } = new Dictionary<PlayableCharacters, bool>()
 		{
@@ -57,7 +58,7 @@ namespace ArchiGungeon.Character
 			return;
 		}
 
-		public static void AddNewParadoxCharacter(PlayableCharacters addedCharacter)
+		private static void AddNewParadoxCharacter(PlayableCharacters addedCharacter)
         {
 			AvailableChars[addedCharacter] = true;
 			return;
@@ -92,6 +93,7 @@ namespace ArchiGungeon.Character
 
 		private static void HandleCharacterSwapCase(PlayableCharacters characterToSwap, PlayerController user)
         {
+            PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
             switch (characterToSwap)
             {
                 case PlayableCharacters.Pilot:
@@ -120,7 +122,46 @@ namespace ArchiGungeon.Character
             }
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
-            LootEngine.SpawnItem(archipelItem, user.CenterPosition, Vector2.zero, 0);
+            LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+
+            return;
+        }
+
+        public static void ReceiveParadoxModeItem(int itemCase)
+        {
+            EffectsController.PlaySynergyVFX();
+
+            switch (itemCase)
+            {
+                case 0:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Marine unlocked for Paradox Mode");
+					AddNewParadoxCharacter(PlayableCharacters.Soldier);
+                    break;
+                case 1:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Convict unlocked for Paradox Mode");
+                    AddNewParadoxCharacter(PlayableCharacters.Convict);
+                    break;
+                case 2:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Pilot unlocked for Paradox Mode");
+                    AddNewParadoxCharacter(PlayableCharacters.Pilot);
+                    break;
+                case 3:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Hunter unlocked for Paradox Mode");
+                    AddNewParadoxCharacter(PlayableCharacters.Guide);
+                    break;
+                case 4:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Robot unlocked for Paradox Mode");
+                    AddNewParadoxCharacter(PlayableCharacters.Robot);
+                    break;
+                case 5:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Bullet unlocked for Paradox Mode");
+                    AddNewParadoxCharacter(PlayableCharacters.Bullet);
+                    break;
+
+                default:
+                    ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Paradox Mode items received invalid ID: {itemCase}");
+                    break;
+            }
 
             return;
         }
