@@ -12,14 +12,11 @@ namespace ArchiGungeon.ItemArchipelago
 
     public class APPickUpItem: PassiveItem
     {
-        private static long ChestAPItemStartID { get; } = 8755000;
-        private static long ShopAPItemStartID { get; } = 8755100;
+        private static long APItemStartID { get; } = 8755000;
 
-        private static List<long> chestLocationIDs;
-        private static List<long> shopLocationIDs;
+        private static List<long> remainingLocationIDs;
 
         public static int SpawnItemID = -1;
-        private static List<long> locationIDs;
 
         private static string displayName = "AP Item";
         private static string spriteDirectory = "ArchiGungeon/Resources/archipelago.png";
@@ -35,9 +32,13 @@ namespace ArchiGungeon.ItemArchipelago
 
             ItemBuilder.SetupItem(item, "A crossover!", "A cool item from another world", ArchipelaGunPlugin.MOD_ITEM_PREFIX);
 
+            item.CustomCost = 30;
+            item.ShouldBeExcludedFromShops = false;
             item.CanBeDropped = false;
             item.CanBeSold = false;
             item.IgnoredByRat = true;
+            item.ItemSpansBaseQualityTiers = true;
+            item.quality = ItemQuality.D;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
 
@@ -46,78 +47,53 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
-        
-        public static void RegisterAPItemLocationIDs(int chestLocationCount, int shopLocationCount)
-        {
-            for (int i = 0; i < shopLocationCount; i++) 
-            {
-                shopLocationIDs.Add(ShopAPItemStartID + i);
-            }
 
-            for (int i = 0; i< chestLocationCount; i++)
+        public static void RegisterAPItemLocations(int APItemCount)
+        {
+            for (int i = 0; i < APItemCount; i++)
             {
-                chestLocationIDs.Add(ChestAPItemStartID + i);
+                remainingLocationIDs.Add(APItemStartID + i);
             }
 
             return;
         }
 
-        public static int GetBaseAPChestLocationChecks(int userOptionCase)
+
+        public static int GetBaseAPItemAmount(int userOptionCase)
         {
             switch (userOptionCase)
             {
                 case 0:
-                    return 11;
-                case 1:
                     return 16;
-                case 2:
+                case 1:
                     return 25;
-                default:
-                    return 16;
-            }
-        }
-
-        public static int GetAPShopLocationChecks(int userOptionCase)
-        {
-            switch (userOptionCase)
-            {
-                case 0:
-                    return 5;
-                case 1:
-                    return 9;
                 case 2:
-                    return 15;
+                    return 40;
                 default:
-                    return 15;
+                    return 25;
             }
-        }
-
-        public static void RegisterLocationIDs(long[] serverLocationIDs)
-        {
-            locationIDs = serverLocationIDs.ToList<long>();
-
-            return;
         }
 
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);
 
-            if(locationIDs.Count > 0)
+            if(remainingLocationIDs.Count > 0)
             {
-                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending location ID {locationIDs[0]}");
-                SessionHandler.DataSender.SendFoundLocationCheck(locationIDs[0]);
+                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending location ID {remainingLocationIDs[0]}");
+                SessionHandler.DataSender.SendFoundLocationCheck(remainingLocationIDs[0]);
 
-                locationIDs.RemoveAt(0);
+                remainingLocationIDs.RemoveAt(0);
             }
 
+            //handle edge case of user finishing items
             
             return;
         }
 
         public static bool HasAPItemChecksRemaining()
         {
-            return (locationIDs.Count > 0);
+            return (remainingLocationIDs.Count > 0);
         }
 
 

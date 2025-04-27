@@ -9,6 +9,8 @@ using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
+using Alexandria.ItemAPI;
+using Alexandria.NPCAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -17,6 +19,7 @@ namespace ArchiGungeon.GungeonEventHandlers
     {
         private static PlayerController PlayerOne { get; set; }
         private static PlayerController PlayerTwo { get; set; }
+        private static bool IsOnOddCountChest { get; set; } = true;
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -33,17 +36,6 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
 
-        private static List<string> CompletionBossNames { get; } = new List<string>()
-        {
-            "1b5810fafbec445d89921a4efb4e42b7",
-             "5729c8b5ffa7415bb3d01205663a33ef",
-             "4d164ba3f62648809a4a82c90fc22cae",
-             "41ee1c8538e8474a82a74c4aff99c712", 
-             "05b8afe0b6cc4fffa9dc6036fa24c8ec", 
-             "465da2bb086a4a88a803f79fe3a27677",
-             "7c5d5f09911e49b78ae644d2b50ff3bf",
-        };
-
         private static List<string> PastKillsGuids { get; } = new List<string>()
         {
              "8d441ad4e9924d91b6070d5b3438d066",
@@ -54,7 +46,7 @@ namespace ArchiGungeon.GungeonEventHandlers
              "39dca963ae2b4688b016089d926308ab",
         };
 
-        private static Dictionary<string, SaveCountStats> BossGUIDToStat { get; } = new Dictionary<string, SaveCountStats>
+        private static Dictionary<string, SaveCountStats> GameCompletionGUIds { get; } = new Dictionary<string, SaveCountStats>()
         {
             { "1b5810fafbec445d89921a4efb4e42b7", SaveCountStats.BlobulordKills},
             { "5729c8b5ffa7415bb3d01205663a33ef", SaveCountStats.OldKingKills },
@@ -70,10 +62,14 @@ namespace ArchiGungeon.GungeonEventHandlers
             { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.PastPilot },
             { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.PastRobot },
             { "39dca963ae2b4688b016089d926308ab", SaveCountStats.PastBullet },
+        };
+
+        private static Dictionary<string, SaveCountStats> BossGUIDToStat { get; } = new Dictionary<string, SaveCountStats>
+        {
 
             //floor 1
-            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.Floor1Clears },
-            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.Floor1Clears },
+            { "ffca09398635467da3b1f4a54bcfda80  ", SaveCountStats.Floor1Clears },
+            { "ec6b674e0acd4553b47ee94493d66422 ", SaveCountStats.Floor1Clears },
 
             //floor 2
             { "da797878d215453abba824ff902e21b4", SaveCountStats.Floor2Clears },
@@ -90,6 +86,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             { "f3b04a067a65492f8b279130323b41f0", SaveCountStats.Floor4Clears },
             { "6c43fddfd401456c916089fdd1c99b1c", SaveCountStats.Floor4Clears },
 
+  
             //floor 5
             { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.Floor5Clears },
             { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.Floor5Clears },
@@ -108,6 +105,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             //dept
             { "41ee1c8538e8474a82a74c4aff99c712", SaveCountStats.FloorDeptClears },
+            
         };
 
         private static List<string> TriggerTwinGuids { get; } = new List<string>
@@ -134,14 +132,15 @@ namespace ArchiGungeon.GungeonEventHandlers
             CustomActions.OnNewPlayercontrollerSpawned += OnPlayerControllerSpawned;
             CustomActions.OnRewardPedestalSpawned += OnRewardPedestalSpawn;
             CustomActions.OnRewardPedestalDetermineContents += OnRewardPedestalDetermineContent;
+            
 
-            //OnEnemyKilled
 
-            ETGMod.Chest.OnPostOpen += OnChestOpen;
             ETGMod.Chest.OnPreOpen += OnChestPreOpen;
 
             return;
         }
+
+
 
         private static void OnPlayerControllerSpawned(PlayerController controller)
         {
@@ -200,11 +199,19 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             if (APPickUpItem.HasAPItemChecksRemaining())
             {
-                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Clearing chest contents");
-                chest.contents.Clear();
+                if(IsOnOddCountChest)
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Clearing chest contents");
+                    chest.contents.Clear();
 
-                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Spawning AP Item");
-                chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Spawning AP Item");
+                    chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
+                    IsOnOddCountChest = false;
+                }
+                else
+                {
+                    IsOnOddCountChest = true;
+                }
             }
             
 
@@ -213,7 +220,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        
 
         private static void OnRunStarted(PlayerController controller1, PlayerController controller2, GameManager.GameMode mode)
         {
@@ -234,6 +240,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         
         private static void OnBossKilled(HealthHaver haver, bool arg2)
         {
+
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver.name}");
             string enemyGuid = haver.aiActor.EnemyGuid;
 
             if(PastKillsGuids.Contains(enemyGuid))
@@ -266,14 +274,15 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
 
-            if (CompletionBossNames.Contains(enemyGuid))
+            if(GameCompletionGUIds.ContainsKey(enemyGuid))
             {
+                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible completion boss: {haver.name}");
+                SessionHandler.DataSender.AddToGoalCount(GameCompletionGUIds[enemyGuid], 1);
                 SessionHandler.DataSender.SendLocalCountValuesToServer();
-                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible goal boss killed: {haver.name}");
                 SessionHandler.DataSender.CheckForGameCompletion();
+
             }
 
-            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver.name}");
 
             return;
         }

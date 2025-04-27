@@ -45,21 +45,6 @@ namespace ArchiGungeon.ArchipelagoServer
         }
     }
 
-    public struct LocationCheckCategoryRange
-    {
-        public int startIndex;
-        public int stopIndex;
-        public int range;
-
-        public LocationCheckCategoryRange(int start, int stop)
-        {
-            startIndex = start;
-            stopIndex = stop;
-            range = (stopIndex - startIndex) + 1;
-
-            return;
-        }
-    }
 
     public class SessionHandler : MonoBehaviour
     {
@@ -384,7 +369,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (var item in itemList)
             {
-                AddItemToLocalGungeon(item);
+                if (!itemsHandledThisRun.Contains(item.ItemId))
+                {
+                    AddItemToLocalGungeon(item);
+                }       
             }
 
             TrapSpawnHandler.SetCanSpawn(true);
@@ -542,13 +530,13 @@ namespace ArchiGungeon.ArchipelagoServer
 
             int itemLocationCheckCase = Convert.ToInt32(PlayerSlotSettings["APItemChecks"]);
 
-            int shopChecks = APPickUpItem.GetAPShopLocationChecks(itemLocationCheckCase);
 
-            int chestChecks = APPickUpItem.GetBaseAPChestLocationChecks(itemLocationCheckCase);
+            int baseChecks = APPickUpItem.GetBaseAPItemAmount(itemLocationCheckCase);
             int extraLocations = Convert.ToInt32(PlayerSlotSettings["ExtraLocations"]);
-            int totalChest = chestChecks + extraLocations;
+            int totalChest = baseChecks + extraLocations;
 
-            APPickUpItem.RegisterAPItemLocationIDs(totalChest, shopChecks);
+            APPickUpItem.RegisterAPItemLocations(totalChest);
+            
 
             List<long> allServerLocations = Session.Locations.AllLocations.ToList();
             ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
@@ -622,6 +610,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 return;
             }
+
 
             protected static void AsyncPullCountFromServer(SaveCountStats statToPull)
             {
@@ -906,6 +895,7 @@ namespace ArchiGungeon.ArchipelagoServer
             yield return new WaitForSeconds(waitTime);
 
             SessionHandler.DataSender.PullBasicCountStatsData();
+            SessionHandler.RetrieveServerItems();
 
         }
     }
