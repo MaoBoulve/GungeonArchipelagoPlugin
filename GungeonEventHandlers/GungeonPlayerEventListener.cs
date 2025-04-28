@@ -11,6 +11,8 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
+using MonoMod.RuntimeDetour;
+using System.Reflection;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -120,6 +122,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static int killPillarKills;
         private static int roomsClearedThisRun;
 
+        public static Hook ShopItemCreationHook;
         public static void StartSystemEventListens()
         {
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting Gungeon Event Listener");
@@ -132,15 +135,36 @@ namespace ArchiGungeon.GungeonEventHandlers
             CustomActions.OnNewPlayercontrollerSpawned += OnPlayerControllerSpawned;
             CustomActions.OnRewardPedestalSpawned += OnRewardPedestalSpawn;
             CustomActions.OnRewardPedestalDetermineContents += OnRewardPedestalDetermineContent;
-            
 
+            CustomActions.OnShopItemStarted += OnShopItemCreated;
 
             ETGMod.Chest.OnPreOpen += OnChestPreOpen;
+            ETGMod.Chest.OnPostOpen += OnChestOpen;
+
 
             return;
         }
 
+        // SUPER stumped on this
+        private static void OnShopItemCreated(ShopItemController obj)
+        {
+            ArchipelagoGUI.ConsoleLog(obj.CurrencyType);
 
+            if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY)
+            {
+                return;
+            }
+
+            ShopController shopContext = obj.m_parentShop;
+
+            ArchipelagoGUI.ConsoleLog(shopContext.GetType());
+
+            
+
+            obj.sprite = null;
+            obj.name = "**   APItem  **";
+            obj.tag = "APItem";
+        }
 
         private static void OnPlayerControllerSpawned(PlayerController controller)
         {
@@ -182,8 +206,11 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
         {
-
-            //ArchipelagoGUI.ConsoleLog($"Pre open: {chest}, Should Open: {shouldOpen}");
+            // TODO TEST
+            if (shouldOpen)
+            {
+                chest.forceContentIds = new List<int> { APPickUpItem.SpawnItemID };
+            }
 
             return shouldOpen;
         }
@@ -325,8 +352,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             playerToListen.OnEnteredCombat += OnPlayerEnterCombat;
             playerToListen.OnRoomClearEvent += OnRoomClear;
 
-            // playerController.OnReloadPressed += OnReloadPress; ReloadPress should be listened to by gun classes instead
-            //playerToListen.OnRealPlayerDeath += OnPlayerDeath;
             playerToListen.OnItemPurchased += OnItemPurchased;
 
             playerToListen.OnKilledEnemyContext += OnKilledEnemy;
@@ -396,7 +421,10 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
-            if(shopItem == null)
+            ArchipelagoGUI.ConsoleLog(shopItem.tag);
+            ArchipelagoGUI.ConsoleLog(shopItem.name);
+
+            if (shopItem == null)
             {
                 return;
             }
