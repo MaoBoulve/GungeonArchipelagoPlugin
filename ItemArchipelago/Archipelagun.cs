@@ -20,7 +20,7 @@ namespace ArchiGungeon
         private static string itemName = "Archipelagun";
 
         private static string shortDesc = "Fire for menu, Reload to swap";
-        private static string longDesc = "Does no damage. A hop away to other worlds. Fire to open the main mod menu.";
+        private static string longDesc = "A Breach to other worlds. Fire to open the main mod menu, reload to swap Gungeoneers.";
 
         public static void Register()
         {
@@ -78,8 +78,6 @@ namespace ArchiGungeon
 
             ItemBuilder.SetupItem(gun, shortDesc, longDesc, "bas");
             SpawnItemID = PickupObjectDatabase.GetId(gun);
-
-            // ArchipelagoGUI.ConsoleLog($"{gun} + {gun.name} + {gun.PickupObjectId}");
 
             return;
         }
@@ -169,14 +167,6 @@ namespace ArchiGungeon
             return;
         }
 
-
-        private void CheckForParadoxMode()
-        {
-            if(CharSwap.ParadoxMode)
-            {
-
-            }
-        }
 
     }
 }

@@ -11,8 +11,6 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
-using MonoMod.RuntimeDetour;
-using System.Reflection;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -122,7 +120,6 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static int killPillarKills;
         private static int roomsClearedThisRun;
 
-        public static Hook ShopItemCreationHook;
         public static void StartSystemEventListens()
         {
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting Gungeon Event Listener");
@@ -145,9 +142,15 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
+        private static bool shopItemRawTesting = true;
         // SUPER stumped on this
         private static void OnShopItemCreated(ShopItemController obj)
         {
+            if (shopItemRawTesting == false)
+            {
+                return; 
+            }
+
             ArchipelagoGUI.ConsoleLog(obj.CurrencyType);
 
             if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY)
@@ -164,6 +167,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             obj.sprite = null;
             obj.name = "**   APItem  **";
             obj.tag = "APItem";
+
+            return;
         }
 
         private static void OnPlayerControllerSpawned(PlayerController controller)
@@ -323,30 +328,14 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static void OnRewardPedestalDetermineContent(RewardPedestal pedestal, PlayerController controller, CustomActions.ValidPedestalContents contents)
         {
             //throw new NotImplementedException();
+
+            // TODO: TEST
+            pedestal.contents = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
         }
 
-        /*
-        public void Update()
-        {
-            if (playerController == null)
-            {
-                PlayerController testPlayerController = ArchipelaGunPlugin.GameManagerInstance.m_player;
-
-                if (testPlayerController != null)
-                {
-                    //StartPlayerControllerEventListens();
-                }
-            }
-
-            return;
-        }
-        */
 
         private static void StartPlayerControllerEventListens(PlayerController playerToListen)
         {
-
-            // error referring to the game manager causes a hard error
-            //Player = ArchipelaGunPlugin.GameManagerInstance.m_player;
 
             playerToListen.OnNewFloorLoaded += OnNewFloorLoad;
             playerToListen.OnEnteredCombat += OnPlayerEnterCombat;
@@ -421,8 +410,6 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnItemPurchased(PlayerController playerController, ShopItemController shopItem)
         {
-            ArchipelagoGUI.ConsoleLog(shopItem.tag);
-            ArchipelagoGUI.ConsoleLog(shopItem.name);
 
             if (shopItem == null)
             {
@@ -433,7 +420,15 @@ namespace ArchiGungeon.GungeonEventHandlers
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
-            
+
+            if (shopItemRawTesting == false)
+            {
+                return;
+            }
+
+            ArchipelagoGUI.ConsoleLog(shopItem.tag);
+            ArchipelagoGUI.ConsoleLog(shopItem.name);
+
             return;
         }
 
