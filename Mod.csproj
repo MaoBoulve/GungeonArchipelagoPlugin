@@ -49,6 +49,7 @@
     <Compile Include="EnemyHandlers\EnemyGuidDatabase.cs" />
     <Compile Include="EnemyHandlers\EnemySwapping.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />
+    <Compile Include="ItemArchipelago\ReverseCurseItems.cs" />
     <Compile Include="ItemArchipelago\APPickUpItem.cs" />
     <Compile Include="ItemArchipelago\Archipelagun.cs" />
     <Compile Include="ItemArchipelago\AchievementLocationCheckHandler.cs" />
@@ -274,6 +275,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <EmbeddedResource Include="Resources\reverseCurse.png" />
+    <EmbeddedResource Include="Resources\reverseCurseReverse.png" />
     <EmbeddedResource Include="Resources\archipelago.png" />
     <EmbeddedResource Include="Resources\JackFrost.png" />
     <EmbeddedResource Include="Resources\NakedFrost.png" />
