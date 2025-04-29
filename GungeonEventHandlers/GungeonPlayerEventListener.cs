@@ -21,7 +21,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static PlayerController PlayerTwo { get; set; }
         private static bool IsOnOddCountChest { get; set; } = true;
         private static List<BaseShopController> baseShopControllers = new List<BaseShopController>();
-        private static tk2dSpriteCollectionData spriteCollection = ETGMod.Databases.Items.ItemCollection;
+        private static int ItemCountToReachToReplaceShopItem { get; } = 3;
+        private static int CurrentShopItemCount { get; set; }
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -144,35 +145,40 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private static bool shopItemRawTesting = true;
         // SUPER stumped on this
         private static void OnShopItemCreated(ShopItemController obj)
         {
-            if (shopItemRawTesting == false)
+
+            if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY|| obj.m_baseParentShop.baseShopType == BaseShopController.AdditionalShopType.FOYER_META)
             {
-                return; 
+                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Shop Item replacement ignoring meta shop items");
+                return;
             }
 
-            if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY)
+            if(obj.m_baseParentShop == null)
             {
                 return;
             }
 
-            if(obj.m_baseParentShop != null)
+            CurrentShopItemCount++;
+
+            if(CurrentShopItemCount < ItemCountToReachToReplaceShopItem)
             {
-                BaseShopController shopContext = obj.m_baseParentShop;
-                baseShopControllers.Add(shopContext);
-                
-                ArchipelagoGUI.ConsoleLog(shopContext.GetType());
-
-                ArchipelagoGUI.ConsoleLog(obj.sprite.HeightOffGround);
-
-                obj.sprite.HeightOffGround -= .5f;
-
-                obj.item = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
-                obj.sprite.FlipY = true;
-                //obj.sprite.HeightOffGround = .5f;
+                return;
             }
+
+            BaseShopController shopContext = obj.m_baseParentShop;
+            baseShopControllers.Add(shopContext);
+
+            ArchipelagoGUI.ConsoleLog(shopContext.GetType());
+
+            ArchipelagoGUI.ConsoleLog(obj.sprite.HeightOffGround);
+
+            obj.sprite.HeightOffGround -= .5f;
+
+            obj.item = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+            obj.sprite.FlipY = true;
+            //obj.sprite.HeightOffGround = .5f;
 
 
             return;
@@ -336,10 +342,22 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnRewardPedestalDetermineContent(RewardPedestal pedestal, PlayerController controller, CustomActions.ValidPedestalContents contents)
         {
-            //throw new NotImplementedException();
+            if(!APPickUpItem.HasAPItemChecksRemaining())
+            {
+                return;
+            }
 
-            // TODO: TEST
-            pedestal.contents = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+            if(!pedestal.IsBossRewardPedestal)
+            {   
+                pedestal.contents = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+            }
+            else
+            {
+                ArchipelagoGungeonBridge.SpawnAPItem(1);
+            }
+
+
+            return;
         }
 
 
@@ -430,13 +448,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
-
-            if (shopItemRawTesting == false)
-            {
-                return;
-            }
-
-            ArchipelagoGUI.ConsoleLog(shopItem.name);
 
             return;
         }

@@ -18,8 +18,7 @@ namespace ArchiGungeon.ArchipelagoServer
         private static long progressionItemID = 8754300;
         private static long paradoxCharacterItemID = 8754400;
 
-        private static long reverseCurseItemID = 8754500;
-        private static long undoCurseItemID = 8754501;
+        private static long undoCurseItemID = 8754500;
 
 
 
@@ -128,12 +127,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             bool matchedItem = false;
 
-            if(itemIdToCheck == reverseCurseItemID)
-            {
-                GiveReverseCurse(1);
-                matchedItem = true;
-            }
-            else if(itemIdToCheck == undoCurseItemID)
+            if(itemIdToCheck == undoCurseItemID)
             {
                 GiveUndoReverseCurse(1);
                 matchedItem = true;
