@@ -5,7 +5,8 @@ A revised mod for connecting Enter The Gungeon to Archipelago https://archipelag
 # APWorld Download
 APWorld releases found here (https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases)
 
-* **v0.0.4 - current**: Enter the Gungeon APWorld v0.0.1
+* **v0.1.1 - current**: Enter the Gungeon APWorld v0.1.1
+* **v0.0.4 - v0.0.7**: Enter the Gungeon APWorld v0.0.1
 * **v0.0.1 - 0.0.3**: KinTheInfinite Gungeon APWorld (https://github.com/KinTheInfinite/Archipelago/releases)
 
 # Connecting To A Server
@@ -17,7 +18,6 @@ APWorld releases found here (https://github.com/MaoBoulve/ArchipelaGunAPWorld/re
  * connect (ip) (port) (slot name) --- [Connect to room. Space separated, without the parenthesis]
  * retrieve --- [Retrieve items from server, once per run ]
  * progress --- [Print out goals and current state of game completion]
- * apspawn --- [Debug spawn command  to spawn the next APItem]
  
  * fullconnect (ip) (port) --- [Workaround connection option for handling player names with spaces & rooms with passwords. Use with 'set'.]
  * set (option) --- [Replace 'option' with Name or Password. Set parameters for 'fullconnect']
