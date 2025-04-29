@@ -41,7 +41,8 @@ namespace ArchiGungeon.DebugTools
         PastRobot,
         PastBullet,
         PastGunslinger,
-        PastCoop
+        PastCoop,
+        ReceiveItem
     }
 
     public class DebugCommands
@@ -84,6 +85,8 @@ namespace ArchiGungeon.DebugTools
             { AvailableDebugCMD.PastBullet, "pastbullet" },
             { AvailableDebugCMD.PastGunslinger, "pastgunslinger" },
             { AvailableDebugCMD.PastCoop, "pastcoop" },
+
+            {AvailableDebugCMD.ReceiveItem, "receive" }
         };
 
         private static Dictionary<string, AvailableDebugCMD> InputToCommand { get; } = new Dictionary<string, AvailableDebugCMD>()
@@ -122,6 +125,8 @@ namespace ArchiGungeon.DebugTools
             { "pastbullet" , AvailableDebugCMD.PastBullet },
             { "pastgunslinger" , AvailableDebugCMD.PastGunslinger },
             { "pastcoop" , AvailableDebugCMD.PastCoop },
+
+            {"receive", AvailableDebugCMD.ReceiveItem },
         };
 
         private static Dictionary<AvailableDebugCMD, string> CommandToLevel { get; } = new Dictionary<AvailableDebugCMD, string>()
@@ -229,7 +234,7 @@ namespace ArchiGungeon.DebugTools
             return;
         }
 
-        public static void HandleCommand(string inputString)
+        public static void HandleCommand(string inputString, string additionalInput = "")
         {
             if(!InputToCommand.ContainsKey(inputString))
             {
@@ -310,6 +315,11 @@ namespace ArchiGungeon.DebugTools
                 case AvailableDebugCMD.NoDebug:
                     {
                         SetNewDebugOutputState(false);
+                        return;
+                    }
+                case AvailableDebugCMD.ReceiveItem:
+                    {
+                        ArchipelagoGungeonBridge.GiveGungeonItem((long)Convert.ToDouble(additionalInput));
                         return;
                     }
                 default:

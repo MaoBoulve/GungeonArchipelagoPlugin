@@ -325,6 +325,13 @@ namespace ArchiGungeon.ModConsoleVisuals
 
                 case ArchipelConsoleCommandParser.debugCmd:
                 {
+                        if(commandInputs.Length > 1)
+                        {
+                            DebugCommands.HandleCommand(commandInputs[0], additionalInput: commandInputs[1]);
+
+                            return;
+                        }
+
                         if(commandInputs.Length > 0)
                         {
                             DebugCommands.HandleCommand(commandInputs[0]);
