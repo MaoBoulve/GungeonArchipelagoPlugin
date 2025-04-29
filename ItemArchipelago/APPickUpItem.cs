@@ -14,7 +14,7 @@ namespace ArchiGungeon.ItemArchipelago
     {
         private static long APItemStartID { get; } = 8755000;
 
-        private static List<long> remainingLocationIDs;
+        private static List<long> remainingLocationIDs = new List<long>();
 
         public static int SpawnItemID = -1;
 

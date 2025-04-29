@@ -20,6 +20,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static PlayerController PlayerOne { get; set; }
         private static PlayerController PlayerTwo { get; set; }
         private static bool IsOnOddCountChest { get; set; } = true;
+        private static List<BaseShopController> baseShopControllers = new List<BaseShopController>();
+        private static tk2dSpriteCollectionData spriteCollection = ETGMod.Databases.Items.ItemCollection;
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -151,22 +153,27 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return; 
             }
 
-            ArchipelagoGUI.ConsoleLog(obj.CurrencyType);
-
             if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY)
             {
                 return;
             }
 
-            ShopController shopContext = obj.m_parentShop;
+            if(obj.m_baseParentShop != null)
+            {
+                BaseShopController shopContext = obj.m_baseParentShop;
+                baseShopControllers.Add(shopContext);
+                
+                ArchipelagoGUI.ConsoleLog(shopContext.GetType());
 
-            ArchipelagoGUI.ConsoleLog(shopContext.GetType());
+                ArchipelagoGUI.ConsoleLog(obj.sprite.HeightOffGround);
 
-            
+                obj.sprite.HeightOffGround -= .5f;
 
-            obj.sprite = null;
-            obj.name = "**   APItem  **";
-            obj.tag = "APItem";
+                obj.item = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+                obj.sprite.FlipY = true;
+                //obj.sprite.HeightOffGround = .5f;
+            }
+
 
             return;
         }
@@ -342,6 +349,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             playerToListen.OnRoomClearEvent += OnRoomClear;
 
             playerToListen.OnItemPurchased += OnItemPurchased;
+ 
 
             playerToListen.OnKilledEnemyContext += OnKilledEnemy;
             playerToListen.OnTableFlipped += OnTableFlip;
@@ -426,7 +434,6 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
-            ArchipelagoGUI.ConsoleLog(shopItem.tag);
             ArchipelagoGUI.ConsoleLog(shopItem.name);
 
             return;
