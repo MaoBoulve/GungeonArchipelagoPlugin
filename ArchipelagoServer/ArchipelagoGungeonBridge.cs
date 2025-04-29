@@ -15,8 +15,13 @@ namespace ArchiGungeon.ArchipelagoServer
         private static long baseItemID = 8754000;
         private static long consumableCategoryItemID = 8754100;
         private static long trapCategoryItemID = 8754200;
-        private static long progressionItemID = 8754301;
+        private static long progressionItemID = 8754300;
         private static long paradoxCharacterItemID = 8754400;
+
+        private static long reverseCurseItemID = 8754500;
+        private static long undoCurseItemID = 8754501;
+
+
 
         private static PlayerController playerOne;
         private static PlayerController playerTwo;
@@ -69,6 +74,13 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
+            bool foundSpecificItem = CheckForSpecificItem(receivedItemID);
+
+            if(foundSpecificItem)
+            {
+                return;
+            }
+
             // gun & passives
             long categoryAdjustedID = receivedItemID - (long)baseItemID;
             if (categoryAdjustedID < 100)
@@ -112,6 +124,24 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        private static bool CheckForSpecificItem(long itemIdToCheck)
+        {
+            bool matchedItem = false;
+
+            if(itemIdToCheck == reverseCurseItemID)
+            {
+                GiveReverseCurse(1);
+                matchedItem = true;
+            }
+            else if(itemIdToCheck == undoCurseItemID)
+            {
+                GiveUndoReverseCurse(1);
+                matchedItem = true;
+            }
+
+
+            return matchedItem;
+        }
 
         public static void SpawnAPItem(int numberToSpawn)
         {
@@ -145,7 +175,68 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        
+        public static void GiveReverseCurse(int numberToSpawn)
+        {
+            PlayerController playerToSpawnOn;
+
+            if (playerOne.healthHaver.IsAlive)
+            {
+                playerToSpawnOn = playerOne;
+            }
+
+            else if (playerTwo != null)
+            {
+                if (playerTwo.healthHaver.IsDead)
+                {
+                    return;
+                }
+                playerToSpawnOn = playerTwo;
+            }
+            else
+            {
+                return;
+            }
+
+            for (int i = 0; i < numberToSpawn; i++)
+            {
+                PickupObject cursePassive = PickupObjectDatabase.GetById(ReverseCurse.SpawnItemID);
+                playerToSpawnOn.AcquirePassiveItemPrefabDirectly((PassiveItem)cursePassive);
+            }
+
+            return;
+        }
+
+        public static void GiveUndoReverseCurse(int numberToSpawn)
+        {
+            PlayerController playerToSpawnOn;
+
+            if (playerOne.healthHaver.IsAlive)
+            {
+                playerToSpawnOn = playerOne;
+            }
+
+            else if (playerTwo != null)
+            {
+                if (playerTwo.healthHaver.IsDead)
+                {
+                    return;
+                }
+                playerToSpawnOn = playerTwo;
+            }
+            else
+            {
+                return;
+            }
+
+            for (int i = 0; i < numberToSpawn; i++)
+            {
+                PickupObject undoCursePassive = PickupObjectDatabase.GetById(ReverseCurseReversal.SpawnItemID);
+                playerToSpawnOn.AcquirePassiveItemPrefabDirectly((PassiveItem)undoCursePassive);
+            }
+
+            return;
+        }
+
     }
 
 }

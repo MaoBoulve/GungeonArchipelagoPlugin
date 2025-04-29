@@ -26,7 +26,6 @@ namespace ArchiGungeon
         public const string MOD_ITEM_PREFIX = "arch";
 
         public static ArchipelagoGUI ArchipelagoModMenu { get; protected set; }
-        public static GungeonPlayerEventListener PlayerListener { get; protected set; }
         private static bool isInit = false;
 
 
@@ -72,6 +71,8 @@ namespace ArchiGungeon
         {
             Archipelagun.Register();
             APPickUpItem.RegisterItemBase();
+            ReverseCurse.RegisterItem();
+            ReverseCurseReversal.RegisterItem();
         }
 
         private void InitEnemyHooks()

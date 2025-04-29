@@ -458,7 +458,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
             // RETRIEVE
             new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.retrieveCmd}</color>") { Foreground = UnityEngine.Color.white },
-            new SLabel("    Collect items from server (once per Run)") { Foreground = UnityEngine.Color.green },
+            new SLabel("    Collect items from server (once per item per Run)") { Foreground = UnityEngine.Color.green },
 
             // DEATHLINK
             new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.deathlinkCmd}</color> [deathlink mode number]") { Foreground = UnityEngine.Color.white },

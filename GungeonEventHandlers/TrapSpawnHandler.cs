@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.ItemArchipelago;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -41,8 +42,10 @@ namespace ArchiGungeon.GungeonEventHandlers
                     EffectsController.PlayCurseVFX();
                     // mimic gun
                     //playerToSpawnOn.AcquirePuzzleItem(PickupObjectDatabase.GetByName("mimic_gun"));
+                    //playerToSpawnOn.GiveItem("mimic_gun");
 
-                    GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("mimic_gun");
+
+                    playerToSpawnOn.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetByName("mimic_gun"));
 
                     break;
                 case 2:
@@ -50,7 +53,9 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                     EffectsController.PlayCurseVFX();
                     // add curse
-                    playerToSpawnOn.CurrentCurseMeterValue += 1;
+
+                    PickupObject cursePassive = PickupObjectDatabase.GetById(ReverseCurse.SpawnItemID);
+                    playerToSpawnOn.AcquirePassiveItemPrefabDirectly((PassiveItem)cursePassive);
 
                     break;
                 case 3:

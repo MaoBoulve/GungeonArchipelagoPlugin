@@ -58,11 +58,11 @@ namespace ArchiGungeon.DebugTools
 
             if(isActive)
             {
-                ArchipelagoGUI.ConsoleLog($"Group: {debugGroup}" + textToLog);
+                ArchipelagoGUI.ConsoleLog($"Group: {debugGroup} -- " + textToLog);
             }
             else
             {
-                LocalDebugLogWriter.AppendToLocalDebugLog($"Group: {debugGroup}" + textToLog);
+                LocalDebugLogWriter.AppendToLocalDebugLog($"Group: {debugGroup} -- " + textToLog);
             }
 
             return;

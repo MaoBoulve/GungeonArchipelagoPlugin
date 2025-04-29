@@ -65,8 +65,6 @@ namespace ArchiGungeon.ArchipelagoServer
             { PlayerCompletionGoals.FarewellArms, "FarewellArms" },
         };
 
-
-        private static bool pulledItemsThisRun = false;
         private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
 
@@ -339,7 +337,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void ResetItemRetrieveState()
         {
-            pulledItemsThisRun = false;
             itemsHandledThisRun.Clear();
             return;
         }
@@ -355,17 +352,10 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                 return;
             }
-            if (pulledItemsThisRun)
-            {
-                ArchipelagoGUI.ConsoleLog("ERROR: Server items already retrieved!");
-                return;
-            }
-
-            pulledItemsThisRun = true;
 
             var itemList = Session.Items.AllItemsReceived;
 
-            ArchipelagoGUI.ConsoleLog($"Retrieving {itemList.Count} server items!");
+            ArchipelagoGUI.ConsoleLog($"Retrieving server items!");
 
             foreach (var item in itemList)
             {
@@ -515,6 +505,9 @@ namespace ArchiGungeon.ArchipelagoServer
             //TODO CHECK FOR enemy randomizer KEY
         }
 
+        // =====================================================================
+        // LOCATION CHECKS =========================================================================
+        // ===================================================
         private static void InitializeAPLocationChecks()
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
@@ -543,6 +536,38 @@ namespace ArchiGungeon.ArchipelagoServer
 
             return;
         }
+
+        // REVERSE CURSE START =================================================
+        private static void CheckReverseCurseByAsync()
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Checking for reverse curse");
+
+            Session.DataStorage[Scope.Slot, "ReverseCurse"].GetAsync(
+                    reverseCurseMode => DataReceiver.OnReverseCurseModePulled(reverseCurseMode));
+
+            return;
+        }
+
+        // RUN START ===========================================================
+
+        public static void CheckForRunStartServerSettingInstantiation()
+        {
+            if (Session == null)
+            {
+
+                return;
+            }
+
+            if (Session.Socket.Connected == false)
+            {
+                return;
+            }
+
+            RetrieveServerItems();
+            CheckReverseCurseByAsync();
+        }
+
+
 
         //
         //
@@ -593,12 +618,7 @@ namespace ArchiGungeon.ArchipelagoServer
                     SaveCountStats.CashSpent,
                     SaveCountStats.RoomPoints,
                     SaveCountStats.ChestsOpened,
-                    SaveCountStats.BlobulordKills,
-                    SaveCountStats.OldKingKills,
-                    SaveCountStats.RatKills,
-                    SaveCountStats.DragunKills,
-                    SaveCountStats.LichKills,
-                    SaveCountStats.AdvancedDragunKills,
+                    SaveCountStats.PastKills
                 };
 
                 foreach (SaveCountStats countStat in basicCountStats)
@@ -881,6 +901,25 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 CountSaveData.SetCountStat(statToPull, count);
             }
+
+            public static void OnReverseCurseModePulled(JToken reverseCurseMode)
+            {
+                int reverseCurseModeValue = Convert.ToInt32(reverseCurseMode);
+
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Received ReverseCurse mode: {reverseCurseModeValue}");
+
+                // Check for past kills
+                if(reverseCurseModeValue == 1 && CountSaveData.GetCountStat(SaveCountStats.PastKills) > 0)
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Giving curse items after past check");
+                    ArchipelagoGungeonBridge.GiveReverseCurse(8);
+                }
+                else if(reverseCurseModeValue == 2)
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Giving curse items without past check");
+                    ArchipelagoGungeonBridge.GiveReverseCurse(8);
+                }
+            }
         }
 
     }
@@ -895,7 +934,8 @@ namespace ArchiGungeon.ArchipelagoServer
             yield return new WaitForSeconds(waitTime);
 
             SessionHandler.DataSender.PullBasicCountStatsData();
-            SessionHandler.RetrieveServerItems();
+
+            SessionHandler.CheckForRunStartServerSettingInstantiation();
 
         }
     }

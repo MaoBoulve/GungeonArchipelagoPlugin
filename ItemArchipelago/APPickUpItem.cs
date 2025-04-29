@@ -32,13 +32,11 @@ namespace ArchiGungeon.ItemArchipelago
 
             ItemBuilder.SetupItem(item, "A crossover!", "A cool item from another world", ArchipelaGunPlugin.MOD_ITEM_PREFIX);
 
-            item.CustomCost = 30;
-            item.ShouldBeExcludedFromShops = false;
+            item.ShouldBeExcludedFromShops = true;
             item.CanBeDropped = false;
             item.CanBeSold = false;
             item.IgnoredByRat = true;
-            item.ItemSpansBaseQualityTiers = true;
-            item.quality = ItemQuality.D;
+            item.quality = ItemQuality.EXCLUDED;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
 

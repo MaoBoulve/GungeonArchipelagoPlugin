@@ -273,10 +273,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);
 
+            SessionHandler.CheckForRunStartServerSettingInstantiation();
+
             return;
         }
 
-        
+
         private static void OnBossKilled(HealthHaver haver, bool arg2)
         {
 
