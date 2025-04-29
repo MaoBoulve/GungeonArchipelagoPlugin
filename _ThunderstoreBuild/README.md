@@ -6,7 +6,7 @@ A revised mod for connecting Enter The Gungeon to Archipelago https://archipelag
 APWorld releases found here (https://github.com/MaoBoulve/ArchipelaGunAPWorld/releases)
 
 * **v0.1.1 - current**: Enter the Gungeon APWorld v0.1.1
-* **v0.0.4 - v0.0.7**: Enter the Gungeon APWorld v0.0.1
+* **v0.0.4 - v0.0.8**: Enter the Gungeon APWorld v0.0.1
 * **v0.0.1 - 0.0.3**: KinTheInfinite Gungeon APWorld (https://github.com/KinTheInfinite/Archipelago/releases)
 
 # Connecting To A Server
