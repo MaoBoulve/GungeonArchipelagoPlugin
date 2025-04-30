@@ -382,8 +382,10 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             if(TrapSpawnHandler.IsSpawnValid == false)
             {
-                if(itemInfo.ItemId >= 8754200)
+                if(itemInfo.ItemId >= 8754200 && itemInfo.ItemId < 8754300)
                 {
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Skipping item on Retrieve command: {itemInfo.ItemName}");
+
                     itemsHandledThisRun.Add(itemInfo.ItemId);
 
                     return;
@@ -413,8 +415,6 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
             ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking for unhandled items");
-
-            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking for server item?? {Session.Items.Any()}");
 
             ReadOnlyCollection<ItemInfo> allItemsReceived = Session.Items.AllItemsReceived;
 
