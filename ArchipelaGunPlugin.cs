@@ -91,8 +91,9 @@ namespace ArchiGungeon
         {
             StartGungeonPlayerListener();
 
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} -- ArchiGungeonDebug.txt **=== \n\n");
             // Print all directories BepInEx will allow
-            LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
+            //LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 
             return;
         }

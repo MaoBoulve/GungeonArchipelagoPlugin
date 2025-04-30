@@ -63,7 +63,7 @@ namespace ArchiGungeon.ItemArchipelago
         public static int SpawnItemID = -1;
 
         private static string displayName = "Reverse Curse Reversal";
-        private static string spriteDirectory = "ArchiGungeon/Resources/reverseCurseReversal.png";
+        private static string spriteDirectory = "ArchiGungeon/Resources/reverseCurseReverse.png";
 
         public static void RegisterItem()
         {

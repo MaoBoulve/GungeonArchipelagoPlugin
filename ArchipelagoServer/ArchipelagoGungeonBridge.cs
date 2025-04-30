@@ -27,6 +27,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SetPlayerOne(PlayerController controller)
         {
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Setting palyer One");
             playerOne = controller;
             return;
         }

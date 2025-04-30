@@ -58,6 +58,15 @@ namespace ArchiGungeon.Character
 			return;
 		}
 
+        public static void CheckForParadoxOnRunStart(PlayerController player)
+        {
+            if(ParadoxMode)
+            {
+                HandleCharacterSwapCase(PlayableCharacters.Eevee, player);
+                currentCharacterIndex = 0;
+            }
+        }
+
 		private static void AddNewParadoxCharacter(PlayableCharacters addedCharacter)
         {
 			AvailableChars[addedCharacter] = true;

@@ -11,6 +11,7 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
+using ArchiGungeon.Character;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -149,16 +150,18 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static void OnShopItemCreated(ShopItemController obj)
         {
 
+            if (obj.m_baseParentShop == null)
+            {
+                return;
+            }
+
             if (obj.CurrencyType == ShopItemController.ShopCurrencyType.META_CURRENCY|| obj.m_baseParentShop.baseShopType == BaseShopController.AdditionalShopType.FOYER_META)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Shop Item replacement ignoring meta shop items");
                 return;
             }
 
-            if(obj.m_baseParentShop == null)
-            {
-                return;
-            }
+            
 
             CurrentShopItemCount++;
 
@@ -170,9 +173,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             BaseShopController shopContext = obj.m_baseParentShop;
             baseShopControllers.Add(shopContext);
 
-            ArchipelagoGUI.ConsoleLog(shopContext.GetType());
+            //ArchipelagoGUI.ConsoleLog(shopContext.GetType());
 
-            ArchipelagoGUI.ConsoleLog(obj.sprite.HeightOffGround);
+            //ArchipelagoGUI.ConsoleLog(obj.sprite.HeightOffGround);
 
             obj.sprite.HeightOffGround -= .5f;
 
@@ -280,6 +283,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);
 
             SessionHandler.CheckForRunStartServerSettingInstantiation();
+            CharSwap.CheckForParadoxOnRunStart(controller1);
 
             return;
         }
@@ -403,7 +407,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                     return;
                 }
             }
-
+            controller.characterIdentity = PlayableCharacters.Pilot;
             SessionHandler.DataSender.SendLocalCountValuesToServer();
 
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";

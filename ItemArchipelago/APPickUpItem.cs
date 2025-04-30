@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
+using Archipelago.MultiClient.Net.Models;
 
 namespace ArchiGungeon.ItemArchipelago
 {
@@ -52,6 +53,19 @@ namespace ArchiGungeon.ItemArchipelago
             {
                 remainingLocationIDs.Add(APItemStartID + i);
             }
+
+  
+            var locationID = SessionHandler.Session.Locations.AllLocationsChecked;
+
+            foreach(long item in locationID)
+            {
+                if(remainingLocationIDs.Contains(item))
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "APItem Location Check already cleared: " + item);
+                    remainingLocationIDs.Remove(item);
+                }
+            }
+           
 
             return;
         }

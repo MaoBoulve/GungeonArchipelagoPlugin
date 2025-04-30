@@ -17,6 +17,8 @@ using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Character;
+using System.Collections.ObjectModel;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -326,9 +328,12 @@ namespace ArchiGungeon.ArchipelagoServer
             if(Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
             {
                 PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
-                ETGModConsole.Instance?.ParseCommand("character paradox");
-                GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
-                LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+                
+                //ETGModConsole.Instance?.ParseCommand("character paradox");
+                //GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
+                //LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+
+                CharSwap.StartParadoxMode(playerController);
             }
         }
 
@@ -352,6 +357,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                 return;
             }
+
 
             var itemList = Session.Items.AllItemsReceived;
 
@@ -378,6 +384,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 if(itemInfo.ItemId >= 8754200)
                 {
+                    itemsHandledThisRun.Add(itemInfo.ItemId);
 
                     return;
                 }
@@ -388,7 +395,6 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Receiving item: {itemInfo.ItemName}");
 
             item_add_queue.Add(itemInfo.ItemId);
-            itemsHandledThisRun.Add(itemInfo.ItemId);
 
             return;
         }
@@ -405,13 +411,19 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 return;
             }
-            var itemList = Session.Items.AllItemsReceived;
 
-            foreach (var item in itemList)
+            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking for unhandled items");
+
+            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking for server item?? {Session.Items.Any()}");
+
+            ReadOnlyCollection<ItemInfo> allItemsReceived = Session.Items.AllItemsReceived;
+
+            foreach (var item in allItemsReceived)
             {
-                if(!itemsHandledThisRun.Contains(item.ItemId))
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking item on server: {item.ItemName} -- {item.ItemId}");
+                if (!itemsHandledThisRun.Contains(item.ItemId))
                 {
-                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Unhandled item on server: {item.ItemName} -- {item.ItemId}");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Unhandled item: {item.ItemName} -- {item.ItemId}");
                     AddItemToLocalGungeon(item);
                 }
             }
@@ -427,7 +439,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
 
-                
+                itemsHandledThisRun.Add(item_add_queue[0]);
 
                 item_add_queue.RemoveAt(0);
             }
@@ -531,8 +543,8 @@ namespace ArchiGungeon.ArchipelagoServer
             APPickUpItem.RegisterAPItemLocations(totalChest);
             
 
-            List<long> allServerLocations = Session.Locations.AllLocations.ToList();
-            ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
+            //List<long> allServerLocations = Session.Locations.AllLocations.ToList();
+            //ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
 
             return;
         }
@@ -542,8 +554,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Checking for reverse curse");
 
-            Session.DataStorage[Scope.Slot, "ReverseCurse"].GetAsync(
-                    reverseCurseMode => DataReceiver.OnReverseCurseModePulled(reverseCurseMode));
+            DataReceiver.OnReverseCurseModePulled(Convert.ToInt32(PlayerSlotSettings["ReverseCurse"]) ); 
 
             return;
         }
@@ -565,6 +576,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             RetrieveServerItems();
             CheckReverseCurseByAsync();
+
         }
 
 
@@ -807,7 +819,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void ScoutFoundLocationCheck(long locationID)
             {
-                long[] locationList = new long[1] { locationID };
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Scouting location check: {locationID}");
 
                 Session.Locations.ScoutLocationsAsync(locationInfoPacket =>
                 {
@@ -816,9 +828,7 @@ namespace ArchiGungeon.ArchipelagoServer
                         ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Item ID: {locationInfoPacket[key].ItemId} Item: {locationInfoPacket[key].Player}'s + {locationInfoPacket[key].ItemName} from {locationInfoPacket[key].ItemGame}");
                     }
                 },
-
-                  locationList);
-
+                locationID);
                 return;
             }
 
@@ -874,7 +884,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 AddItemToLocalGungeon(itemInfo);
 
-                helper.DequeueItem();
+                ItemInfo nextQueueItem = helper.DequeueItem();
+
+                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Queue item: - {nextQueueItem.ItemId} -- {nextQueueItem.ItemName}");
+
                 return;
             }
 
