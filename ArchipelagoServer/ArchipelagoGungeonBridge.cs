@@ -85,7 +85,7 @@ namespace ArchiGungeon.ArchipelagoServer
             long categoryAdjustedID = receivedItemID - (long)baseItemID;
             if (categoryAdjustedID < 100)
             {
-                RandomizedByQualityItems.SpawnRandomizedItemByCase((int)categoryAdjustedID);
+                RandomizedByQualityItems.GiveRandomizedItemByCase((int)categoryAdjustedID);
                 return;
             }
 

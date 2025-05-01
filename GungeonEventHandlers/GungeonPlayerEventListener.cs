@@ -21,7 +21,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static PlayerController PlayerOne { get; set; }
         private static PlayerController PlayerTwo { get; set; }
         private static bool IsOnOddCountChest { get; set; } = true;
-        private static List<BaseShopController> baseShopControllers = new List<BaseShopController>();
+        private static List<BaseShopController> BaseShopControllers { get; } = new List<BaseShopController>();
         private static int ItemCountToReachToReplaceShopItem { get; } = 3;
         private static int CurrentShopItemCount { get; set; }
 
@@ -146,7 +146,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        // SUPER stumped on this
         private static void OnShopItemCreated(ShopItemController obj)
         {
 
@@ -170,8 +169,11 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
+            // reset count
+            CurrentShopItemCount = 0;
+
             BaseShopController shopContext = obj.m_baseParentShop;
-            baseShopControllers.Add(shopContext);
+            BaseShopControllers.Add(shopContext);
 
             //ArchipelagoGUI.ConsoleLog(shopContext.GetType());
 
@@ -205,7 +207,6 @@ namespace ArchiGungeon.GungeonEventHandlers
                 ArchipelagoGungeonBridge.SetPlayerOne(PlayerOne);
             }
 
-            //ArchipelagoGungeonBridge.SetPlayerController(Player);
             StartPlayerControllerEventListens(controller);
 
             return;
@@ -227,17 +228,40 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static bool OnChestPreOpen(bool shouldOpen, Chest chest, PlayerController player)
         {
-            // TODO TEST
-            if (shouldOpen)
+            if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
             {
-                chest.forceContentIds = new List<int> { APPickUpItem.SpawnItemID };
+                return shouldOpen;
             }
 
+            if(!shouldOpen)
+            {
+                return shouldOpen;
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Chest Pre-Open Call");
+
+            if (APPickUpItem.HasAPItemChecksRemaining())
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "AP Item checks still available");
+
+                if (IsOnOddCountChest)
+                {
+                    chest.forceContentIds = new List<int> { APPickUpItem.SpawnItemID };
+                    IsOnOddCountChest = false;
+                }
+                else
+                {
+                    IsOnOddCountChest = true;
+                }
+            }
+
+            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
             return shouldOpen;
         }
 
         private static void OnChestOpen(Chest chest, PlayerController controller)
         {
+            /*
             if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
             {
                 return;
@@ -266,6 +290,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
 
             return;
+
+            */
         }
 
 
@@ -385,16 +411,17 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnNewFloorLoad(PlayerController playerController)
         {
-            SessionHandler.DataSender.SendLocalCountValuesToServer();
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Floor loaded: {GameManager.Instance.CurrentFloor}");
 
             EnemySwapping.ReduceEnemyDamageMult(1);
+
+            SessionHandler.DataSender.SendLocalCountValuesToServer();
 
             return;
         }
 
         private static void OnPlayerEnterCombat()
         {
-            // TODO: hide archipelagun
             return;
         }
 
@@ -465,7 +492,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnTableFlip(FlippableCover tableFlipped)
         {
-
+            // TODO: add table flip location
             return;
         }
     }

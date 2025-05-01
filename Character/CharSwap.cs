@@ -5,13 +5,13 @@ using System.Text;
 using UnityEngine;
 using Alexandria.ItemAPI;
 using ArchiGungeon.DebugTools;
-using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.GungeonEventHandlers;
 
 namespace ArchiGungeon.Character
 {
     public class CharSwap
     {
+
 		public static bool ParadoxMode { get; protected set; } = false;
 		private static int currentCharacterIndex = 0;
 		private static Dictionary<PlayableCharacters, bool> AvailableChars { get; } = new Dictionary<PlayableCharacters, bool>()
@@ -130,8 +130,10 @@ namespace ArchiGungeon.Character
                     break;
             }
 
-            GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
-            LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+            PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+            playerController.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
+
+            SpawnedItemLog.GivePlayerMissingItemsFromLog(playerController);
 
             return;
         }

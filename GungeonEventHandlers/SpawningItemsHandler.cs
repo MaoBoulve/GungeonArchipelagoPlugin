@@ -20,7 +20,6 @@ namespace ArchiGungeon.GungeonEventHandlers
 
     public class ConsumableSpawnHandler
     {
-        private static System.Random random = new();
         public static bool IsSpawnValid { get; protected set; } = true;
 
         public static void SetCanSpawn(bool newState)
@@ -97,19 +96,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
         }
 
-        public static void SpawnRandomConsumable()
-        {
-            if (IsSpawnValid == false)
-            {
-                return;
-            }
-
-            EffectsController.PlaySynergyVFX();
-
-            SpawnConsumableByCase(random.Next(0, 6));
-
-            return;
-        }
     }
 
     public class RandomizedByQualityItems
@@ -130,71 +116,65 @@ namespace ArchiGungeon.GungeonEventHandlers
             return passiveItem;
         }
 
-        public static void SpawnRandomGun(PickupObject.ItemQuality[] itemquals)
+        public static void GivePlayerRandomGun(PickupObject.ItemQuality[] itemquals)
         {
-            Vector2 spawnPosition = GameManager.Instance.PrimaryPlayer.CenterPosition;
-            Vector2 spawnDirection = Vector2.down;
-            float spawnForce = 0f;
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
+            Gun gunToGive = GetRandomGunByQualities(itemquals);
 
-            Gun gunToSpawn = GetRandomGunByQualities(itemquals);
-
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random gun: {gunToSpawn.name}");
-
-            LootEngine.SpawnItem(gunToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving random gun: {gunToGive.name}");
+            SpawnedItemLog.GunItems.Add(gunToGive);
+            playerToSpawnOn.inventory.AddGunToInventory(gunToGive);
 
             return;
         }
 
-        public static void SpawnRandomPassive(PickupObject.ItemQuality[] itemquals)
+        public static void GivePlayerRandomPassive(PickupObject.ItemQuality[] itemquals)
         {
-            Vector2 spawnPosition = GameManager.Instance.PrimaryPlayer.CenterPosition;
-            Vector2 spawnDirection = Vector2.down;
-            float spawnForce = 0f;
-
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
             PassiveItem passiveToSpawn = GetRandomPassiveByQualities(itemquals);
 
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning random passive: {passiveToSpawn.name}");
-
-            LootEngine.SpawnItem(passiveToSpawn.gameObject, spawnPosition, spawnDirection, spawnForce);
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving random passive: {passiveToSpawn.name}");
+            SpawnedItemLog.PassiveItems.Add(passiveToSpawn);
+            playerToSpawnOn.AcquirePassiveItem(passiveToSpawn);
 
             return;
         }
 
-        public static void SpawnRandomizedItemByCase(int itemCase)
+        public static void GiveRandomizedItemByCase(int itemCase)
         {
             EffectsController.PlaySynergyVFX();
 
             switch (itemCase)
             {
                 case 0:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 1:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                     break;
                 case 2:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                     break;
                 case 3:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 4:
-                    SpawnRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 5:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
                     break;
                 case 6:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
                     break;
                 case 7:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
                     break;
                 case 8:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.A });
                     break;
                 case 9:
-                    SpawnRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
 
                 default:
@@ -205,15 +185,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        public static void SpawnRandomEquip()
-        {
-            
-            EffectsController.PlaySynergyVFX();
-
-            SpawnRandomizedItemByCase(random.Next(0, 9));
-
-            return;
-        }
     }
 
     public class ProgressionItemSpawnHandler
@@ -222,25 +193,117 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             EffectsController.PlaySynergyVFX();
 
+            PickupObject progressionItemGiven;
+
             switch (itemCase)
             {
                 case 1:
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning gnawed key");
-                    ETGModConsole.SpawnItem(new string[] { "gnawed_key", "1" });
+                    progressionItemGiven = PickupObjectDatabase.GetByName("gnawed_key");
+
+                    GungeonPlayerEventListener.GetFirstAlivePlayer().AcquirePassiveItemPrefabDirectly((PassiveItem)progressionItemGiven);
+                    SpawnedItemLog.PassiveItems.Add((PassiveItem)progressionItemGiven);
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving gnawed key");
+
                     break;
                 case 2:
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning Old Crest");
-                    ETGModConsole.SpawnItem(new string[] { "old_crest", "1" });
+                    progressionItemGiven = PickupObjectDatabase.GetByName("old_crest");
+
+                    GungeonPlayerEventListener.GetFirstAlivePlayer().AcquirePassiveItemPrefabDirectly((PassiveItem)progressionItemGiven);
+                    SpawnedItemLog.PassiveItems.Add((PassiveItem)progressionItemGiven);
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving Old Crest");
+
                     break;
 
                 case 3:
+                    progressionItemGiven = PickupObjectDatabase.GetByName("weird_egg");
+
+                    //GungeonPlayerEventListener.GetFirstAlivePlayer().AcquirePassiveItemPrefabDirectly((PassiveItem)progressionItemGiven);
+                    //SpawnedItemLog.PassiveItems.Add((PassiveItem)progressionItemGiven);
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
                     ETGModConsole.SpawnItem(new string[] { "weird_egg", "1" });
+
                     break;
 
                 default:
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"PROGRESSION received invalid ID: {itemCase}");
                     break;
+            }
+
+            return;
+        }
+
+        public static void GivePastBullet()
+        {
+            PickupObject pickupObj = PickupObjectDatabase.GetByName("bullet_that_can_kill_the_past");
+            GungeonPlayerEventListener.GetFirstAlivePlayer().AcquirePassiveItemPrefabDirectly((PassiveItem)pickupObj);
+
+            SpawnedItemLog.PassiveItems.Add((PassiveItem)pickupObj);
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving bullet");
+
+            return;
+        }
+
+        public static void GiveRatNotes()
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving Rat Notes");
+
+            List<string> ratNoteItems = new List<string>()
+            {
+                "infuriating_note_1",
+                "infuriating_note_2",
+                "infuriating_note_3",
+                "infuriating_note_4",
+                "infuriating_note_5",
+                "infuriating_note_6",
+            };
+
+            foreach(string note in ratNoteItems)
+            {
+                PickupObject pickupObj = PickupObjectDatabase.GetByName(note);
+                GungeonPlayerEventListener.GetFirstAlivePlayer().AcquirePassiveItemPrefabDirectly((PassiveItem)pickupObj);
+
+                SpawnedItemLog.PassiveItems.Add((PassiveItem)pickupObj);
+            }
+
+            return;
+        }
+
+    }
+
+    public class SpawnedItemLog
+    {
+        public static List<PassiveItem> PassiveItems { get; } = new List<PassiveItem>();
+        public static List<Gun> GunItems { get; } = new List<Gun>();
+
+        public static void ClearSpawnedItemLog()
+        {
+            PassiveItems.Clear();
+            GunItems.Clear();
+        }
+
+        public static void GivePlayerMissingItemsFromLog(PlayerController player)
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Restoring player inventory");
+
+            foreach(PassiveItem item in PassiveItems)
+            {
+                if(!player.HasPickupID(item.PickupObjectId))
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Restoring item: {item.name}");
+                    item.suppressPickupVFX = true;
+
+                    player.AcquirePassiveItemPrefabDirectly(item);
+                }
+            }
+
+            foreach(Gun gunItem in GunItems)
+            {
+                if (!player.HasPickupID(gunItem.PickupObjectId))
+                {   
+
+                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Restoring item: {gunItem.name}");
+                    player.inventory.AddGunToInventory(gunItem);
+                }
             }
 
             return;

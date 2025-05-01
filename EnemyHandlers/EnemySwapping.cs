@@ -118,6 +118,7 @@ namespace ArchiGungeon.EnemyHandlers
             return;
         }
 
+
         private static void OnActorPostStart(AIActor actor)
         {
             string currentID = actor.EnemyGuid;
