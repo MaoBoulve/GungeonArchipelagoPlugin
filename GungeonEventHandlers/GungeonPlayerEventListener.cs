@@ -12,6 +12,7 @@ using ArchiGungeon.DebugTools;
 using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
 using ArchiGungeon.Character;
+using UnityEngine.Networking;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -304,6 +305,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             killPillarKills = 0;
             triggerTwinKills = 0;
             SessionHandler.ResetItemRetrieveState();
+
+            //PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+            //controller1.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
 
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);

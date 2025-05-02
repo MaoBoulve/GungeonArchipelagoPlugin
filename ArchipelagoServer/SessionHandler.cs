@@ -587,8 +587,6 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
-            CheckToInitializeParadoxMode();
-            CheckReverseCurse();
             RetrieveServerItems();
             
 
@@ -601,6 +599,9 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 ProgressionItemSpawnHandler.GiveRatNotes();
             }
+
+            CheckReverseCurse();
+            CheckToInitializeParadoxMode();
 
             return;
 
