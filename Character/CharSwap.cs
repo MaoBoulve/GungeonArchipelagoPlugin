@@ -128,7 +128,6 @@ namespace ArchiGungeon.Character
                     break;
 				case PlayableCharacters.Eevee:
                     //ETGModConsole.Instance?.ParseCommand("character paradox");
-                    DoCharacterSwapWithoutDestroyingPlayerObject("paradox");
 
                     break;
                 default:
@@ -143,99 +142,7 @@ namespace ArchiGungeon.Character
             return;
         }
 
-        private static void DoCharacterSwapWithoutDestroyingPlayerObject(string characterToSwap)
-        {
-            GameObject gameObject = (GameObject)BraveResources.Load("Player" + characterToSwap);
-            if (gameObject == null)
-            {
-                gameObject = (GameObject)Resources.Load("Player" + characterToSwap);
-            }
-
-            GameObject gameObject2 = UnityEngine.Object.Instantiate(GameManager.PlayerPrefabForNewGame, Vector3.zero, Quaternion.identity);
-            gameObject2.SetActive(value: true);
-
-
-            GameManager.Instance.PrimaryPlayer.sprite = gameObject2.GetComponent<PlayerController>().GetAnySprite();
-        }
-        /*
-        public static void SwitchCharacter(string[] args)
-        {
-            if (args.Length < 1)
-            {
-                Log("Character not given!");
-            }
-
-            if (!Characters.TryGetValue(args[0], out var value))
-            {
-                value = args[0];
-            }
-
-            GameObject gameObject = (GameObject)BraveResources.Load("Player" + value);
-            if (gameObject == null)
-            {
-                gameObject = (GameObject)Resources.Load("Player" + value);
-            }
-
-            if (gameObject == null)
-            {
-                Log("Invalid character " + args[0] + "!");
-                return;
-            }
-
-            Pixelator.Instance.FadeToBlack(0.5f);
-            bool flag = false;
-            if ((bool)GameManager.Instance.PrimaryPlayer)
-            {
-                flag = GameManager.Instance.PrimaryPlayer.CharacterUsesRandomGuns;
-            }
-
-            GameManager.Instance.PrimaryPlayer.SetInputOverride("getting deleted");
-            PlayerController primaryPlayer = GameManager.Instance.PrimaryPlayer;
-            Vector3 position = primaryPlayer.transform.position;
-            UnityEngine.Object.Destroy(primaryPlayer.gameObject);
-            GameManager.Instance.ClearPrimaryPlayer();
-            GameManager.PlayerPrefabForNewGame = gameObject;
-            PlayerController component = GameManager.PlayerPrefabForNewGame.GetComponent<PlayerController>();
-            GameStatsManager.Instance.BeginNewSession(component);
-            GameObject gameObject2 = UnityEngine.Object.Instantiate(GameManager.PlayerPrefabForNewGame, position, Quaternion.identity);
-            GameManager.PlayerPrefabForNewGame = null;
-            gameObject2.SetActive(value: true);
-            PlayerController component2 = gameObject2.GetComponent<PlayerController>();
-            GameManager.Instance.PrimaryPlayer = component2;
-            component2.PlayerIDX = 0;
-            GameManager.Instance.MainCameraController.ClearPlayerCache();
-            GameManager.Instance.MainCameraController.SetManualControl(manualControl: false);
-            if (GameManager.Instance.IsFoyer)
-            {
-                Foyer.Instance.PlayerCharacterChanged(component2);
-            }
-
-            if (Minimap.Instance?.UIMinimap?.dockItems != null)
-            {
-                new List<Tuple<tk2dSprite, PassiveItem>>(Minimap.Instance.UIMinimap.dockItems).ForEach(delegate (Tuple<tk2dSprite, PassiveItem> x)
-                {
-                    Minimap.Instance.UIMinimap.RemovePassiveItemFromDock(x.Second);
-                });
-            }
-
-            Pixelator.Instance.FadeToBlack(0.5f, reverse: true);
-            if (flag)
-            {
-                GameManager.Instance.PrimaryPlayer.CharacterUsesRandomGuns = true;
-                while (GameManager.Instance.PrimaryPlayer.inventory.AllGuns.Count > 1)
-                {
-                    Gun gun = GameManager.Instance.PrimaryPlayer.inventory.AllGuns[1];
-                    GameManager.Instance.PrimaryPlayer.inventory.RemoveGunFromInventory(gun);
-                    UnityEngine.Object.Destroy(gun.gameObject);
-                }
-            }
-
-            if (args.Length == 2)
-            {
-                component2.SwapToAlternateCostume();
-            }
-        }
-        */
+      
 
         public static void ReceiveParadoxModeItem(int itemCase)
         {
