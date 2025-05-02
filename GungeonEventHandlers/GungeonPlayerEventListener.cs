@@ -313,7 +313,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);
 
             SessionHandler.CheckForRunStartServerSettingInstantiation();
-            CharSwap.CheckForParadoxOnRunStart(controller1);
 
             return;
         }

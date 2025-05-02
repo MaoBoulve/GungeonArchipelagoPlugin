@@ -587,6 +587,8 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
+            CheckToInitializeParadoxMode();
+
             RetrieveServerItems();
             
 
@@ -601,7 +603,7 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
             CheckReverseCurse();
-            CheckToInitializeParadoxMode();
+            
 
             return;
 
