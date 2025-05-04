@@ -6,18 +6,32 @@ using UnityEngine;
 using Alexandria.ItemAPI;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.GungeonEventHandlers;
+using static ArchiGungeon.Character.CharSwap;
 
 namespace ArchiGungeon.Character
 {
     public class CharSwap
     {
+        public delegate void CharacterSelected();
+        public static CharacterSelected OnCharacterSelected;
         private static List<PickupObject> paradoxPassiveItems = new List<PickupObject>();
         private static List<PickupObject> paradoxGunItems = new List<PickupObject>();
 
+        public static bool IsChosenCharForRun { get; private set; }
+        public static bool IsParadoxModeOn { get; private set; }
+
 		public static void StartParadoxMode(PlayerController player)
         {
+            if(IsParadoxModeOn)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox mode already initialized");
+                return;
+            }
+
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Starting paradox mode");
 
+            IsParadoxModeOn = true;
+            IsChosenCharForRun = false;
             paradoxPassiveItems.Clear();
             paradoxGunItems.Clear();
 			DoCharacterSwap(PlayableCharacters.Eevee, player);
@@ -25,22 +39,39 @@ namespace ArchiGungeon.Character
 			return;
 		}
 
+        public static void OnParadoxModeCharInit(PlayerController player)
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox reint");
+
+            PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+            player.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
+        }
 
         public static void DoCharacterSwap(PlayableCharacters characterToSwap, PlayerController user)
         {
+            if(IsChosenCharForRun)
+            {
+                return;
+            }
+
             //PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
             //PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
             //playerController.inventory.RemoveGunFromInventory((Gun)archipelaGun);
 
             if(characterToSwap == PlayableCharacters.Eevee)
             {
-                SwapToParadox(user);
+                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Handling enabling Paradox Mode");
+                SwapToParadox(GameManager.Instance.PrimaryPlayer);
+                return;
             }
             else
             {
-                RemoveParadoxStartItems(user);
+                OnCharacterSelected.Invoke();
+                //RemoveParadoxStartItems(user);
+                IsChosenCharForRun = true;
             }
 
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Handling switch case: " + characterToSwap);
             switch (characterToSwap)
             {
                 case PlayableCharacters.Pilot:
@@ -72,8 +103,6 @@ namespace ArchiGungeon.Character
             }
 
             //LootEngine.SpawnItem(archipelaGun.gameObject, user.CenterPosition, Vector2.zero, 0);
-
-            //playerController.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
             //SpawnedItemLog.GivePlayerMissingItemsFromLog(user);
 
             return;
@@ -85,20 +114,11 @@ namespace ArchiGungeon.Character
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Swapping player to Paradox Character via console commands");
             ETGModConsole.Instance?.ParseCommand("character paradox");
 
-            foreach (PassiveItem item in GameManager.Instance.PrimaryPlayer.passiveItems)
-            {
-                paradoxPassiveItems.Add(item);
-            }
-
-            foreach (Gun item in GameManager.Instance.PrimaryPlayer.inventory.AllGuns)
-            {
-                paradoxGunItems.Add(item);
-            }
-
             return;
 
         }
-      
+        
+        // causes massive issues
         private static void RemoveParadoxStartItems(PlayerController player)
         {
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Removing paradox items");
@@ -117,16 +137,22 @@ namespace ArchiGungeon.Character
 
         private static void SwapToPilot(PlayerController player)
         {
+            player.characterIdentity = PlayableCharacters.Pilot;
+
             // 187, 473, 89, 356
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(187));
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(473));
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(187));
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(473));
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(187).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(473).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+
 
             // gun
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(89));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(89));
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(89).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
 
             // active
-            LootEngine.SpawnItem(PickupObjectDatabase.GetById(356).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            //LootEngine.SpawnItem(PickupObjectDatabase.GetById(356).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
 
             return;
         }
@@ -135,27 +161,34 @@ namespace ArchiGungeon.Character
         {
             // 353, 202, 80, 366
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(353));
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(353));
 
             // gun
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(202));
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(80));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(202));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(80));
 
             // active
+            player.characterIdentity = PlayableCharacters.Convict;
             LootEngine.SpawnItem(PickupObjectDatabase.GetById(366).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(353).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(202).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(80).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+
             return;
         }
 
         private static void SwapToRobot(PlayerController player)
         {
+            player.characterIdentity = PlayableCharacters.Robot;
+
             // 410, 88, 411
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(410));
-
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(410));
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(410).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
 
             // gun
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(88));
-
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(88));
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(88).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
             // active
             LootEngine.SpawnItem(PickupObjectDatabase.GetById(411).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
             return;
@@ -165,25 +198,35 @@ namespace ArchiGungeon.Character
         {
             // 354, 86, 77
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(354));
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(354));
 
             // gun
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(86));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(86));
+
 
             // active
-            LootEngine.SpawnItem(PickupObjectDatabase.GetById(77).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(77).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+
+            player.characterIdentity = PlayableCharacters.Soldier;
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(86).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(354).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+
             return;
         }
 
         private static void SwapToHunter(PlayerController player)
         {
+            player.characterIdentity = PlayableCharacters.Guide;
             // 300, 12, 99
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(300));
-
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(300));
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(300).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
             // gun
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(12));
-            player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(99));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(12));
+            //player.inventory.AddGunToInventory((Gun)PickupObjectDatabase.GetById(99));
+
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(12).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(99).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
 
             return;
         }
@@ -192,7 +235,9 @@ namespace ArchiGungeon.Character
         {
             // 414, 417
             // passives
-            player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(414));
+            //player.AcquirePassiveItemPrefabDirectly((PassiveItem)PickupObjectDatabase.GetById(414));
+
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(414).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
 
             // active
             LootEngine.SpawnItem(PickupObjectDatabase.GetById(417).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
@@ -203,6 +248,11 @@ namespace ArchiGungeon.Character
         public static void ReceiveParadoxModeItem(int itemCase)
         {
             EffectsController.PlaySynergyVFX();
+
+            if(IsChosenCharForRun)
+            {
+                return;
+            }
 
             switch (itemCase)
             {
@@ -239,10 +289,13 @@ namespace ArchiGungeon.Character
             return;
         }
 
+        private static List<DebrisObject> identityObjects = new List<DebrisObject>();
+
         private static void SpawnIdentityItem(PlayableCharacters playableCharacters)
         {
             PlayerController player = GameManager.Instance.PrimaryPlayer;
             int identityID = 0;
+            Vector2 spawnDirec = Vector2.zero;
 
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Handling identity spawn for: {playableCharacters}");
 
@@ -250,30 +303,39 @@ namespace ArchiGungeon.Character
             {
                 case PlayableCharacters.Pilot:
                     identityID = PilotParadoxItem.SpawnItemID;
+                    spawnDirec = new Vector2(0.7f, 0.7f);
                     break;
                 case PlayableCharacters.Convict:
                     identityID = ConvictParadoxItem.SpawnItemID;
+                    spawnDirec = new Vector2(-0.7f, 0.7f);
                     break;
                 case PlayableCharacters.Robot:
                     identityID = RobotParadoxItem.SpawnItemID;
+                    spawnDirec = Vector2.down;
                     break;
                 case PlayableCharacters.Soldier:
                     identityID = MarineParadoxItem.SpawnItemID;
+                    spawnDirec = new Vector2(0.7f, -0.7f);
                     break;
                 case PlayableCharacters.Guide:
                     identityID = HunterParadoxItem.SpawnItemID;
+                    spawnDirec = new Vector2(-0.7f, -0.7f);
                     break;
                 case PlayableCharacters.Bullet:
                     identityID = BulletParadoxItem.SpawnItemID;
-                    break;
-                case PlayableCharacters.Gunslinger:
+                    spawnDirec = Vector2.up;
                     break;
                 default:
                     break;
             }
 
-            LootEngine.SpawnItem(PickupObjectDatabase.GetById(identityID).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            DebrisObject identityObject = LootEngine.SpawnItem(PickupObjectDatabase.GetById(identityID).gameObject, player.specRigidbody.UnitCenter, spawnDirec, 3f, false, true, false);
+            identityObjects.Add(identityObject);
+            
             return;
         }
-    }
-}
+
+
+    } // class
+
+} // namespace

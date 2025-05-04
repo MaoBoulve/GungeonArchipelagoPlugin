@@ -11,6 +11,8 @@ namespace ArchiGungeon.EnemyHandlers
     {
         private static Dictionary<string, string> ShuffledEnemyGUIDs { get; set; } = new Dictionary<string, string>();
         private static float enemyDamageMult = 4.0f;
+        private static int enemiesToShufflePerRoom = 15;
+        private static int currentShuffleCount = 0;
 
         public static void InitializeEnemySwapper()
         {
@@ -49,13 +51,29 @@ namespace ArchiGungeon.EnemyHandlers
 
         private static void OnActorPreStart(AIActor actor)
         {
+            if(currentShuffleCount > enemiesToShufflePerRoom)
+            {
+                return;
+            }
 
+            CheckToShuffleEnemySpawn(actor);
+
+            return;
+        }
+
+        public static void ResetShuffleCountOnRoomClear()
+        {
+            currentShuffleCount = 0;
+        }
+
+        private static void CheckToShuffleEnemySpawn(AIActor actor)
+        {
             ArchDebugPrint.DebugLog(DebugCategory.EnemyRandomization, actor.name);
             string currentID = actor.EnemyGuid;
 
-            if(ShuffledEnemyGUIDs.ContainsKey(currentID))
+            if (ShuffledEnemyGUIDs.ContainsKey(currentID))
             {
-                
+                currentShuffleCount++;
                 string newID = ShuffledEnemyGUIDs[currentID];
                 Vector2 spawnPos = actor.CenterPosition;
                 RoomHandler roomHandler = actor.parentRoom;
@@ -69,8 +87,6 @@ namespace ArchiGungeon.EnemyHandlers
                 SpawnReplacementEnemy(newID, spawnPos, roomHandler);
 
             }
-
-            return;
         }
 
         private static void SpawnReplacementEnemy(string enemyID, Vector2 position, RoomHandler parentRoom)
@@ -87,7 +103,7 @@ namespace ArchiGungeon.EnemyHandlers
             enemyToSpawn.HasDonePlayerEnterCheck = true;
             enemyToSpawn.IsInReinforcementLayer = true;
             enemyToSpawn.reinforceType = (AIActor.ReinforceType)2;
-            //enemyToSpawn.HandleReinforcementFallIntoRoom(0.1f);
+            enemyToSpawn.HandleReinforcementFallIntoRoom(0.5f);
 
             enemyToSpawn.healthHaver.AllDamageMultiplier = enemyDamageMult;
 

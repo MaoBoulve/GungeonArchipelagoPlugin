@@ -34,7 +34,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 case 0:
                     ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Rats??");
-                    ETGModConsole.Spawn(new string[] { "rat", "100" });
+                    ETGModConsole.Spawn(new string[] { "rat", "20" });
                     break;
                 case 1:
                     ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Mimic gun");
@@ -83,7 +83,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                     EffectsController.PlayCurseVFX();
                     playerToSpawnOn.CurrentCurseMeterValue += 0.5f;
-                    TrapStatModifier.CheckToCurse(playerToSpawnOn);
+                    //TrapStatModifier.CheckToCurse(playerToSpawnOn);
                     break;
                 case 7:
                     ArchDebugPrint.DebugLog(DebugCategory.TrapHandling, $"Sending trap: Shelleton, maybe");

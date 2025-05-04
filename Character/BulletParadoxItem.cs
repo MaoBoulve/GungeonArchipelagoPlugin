@@ -12,6 +12,7 @@ namespace ArchiGungeon.Character
 
     public class BulletParadoxItem: PassiveItem
     {
+        private static bool IsValid = true;
         public static int SpawnItemID = -1;
 
         private static string displayName = "Bullet Identity";
@@ -35,18 +36,28 @@ namespace ArchiGungeon.Character
             item.quality = ItemQuality.EXCLUDED;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
+            CharSwap.OnCharacterSelected += SetInvalidToPickup;
 
             //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
             return;
         }
 
+        private static void SetInvalidToPickup()
+        {
+            IsValid = false;
+            return;
+        }
 
         public override void Pickup(PlayerController player)
         {
+            if (!IsValid)
+            {
+                return;
+            }
             base.Pickup(player);
 
-            CharSwap.DoCharacterSwap(PlayableCharacters.Soldier, player);
+            CharSwap.DoCharacterSwap(PlayableCharacters.Bullet, player);
 
             return;
         }

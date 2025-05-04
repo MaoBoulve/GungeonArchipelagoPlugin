@@ -11,13 +11,14 @@ namespace ArchiGungeon.ArchipelagoServer
         public string IP;
         public string Port;
         public string PlayerName;
+        public string Password;
 
-        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString)
+        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString, string password = "")
         {
             IP = IPstring;
             Port = portString;
             PlayerName = playerNameString;
-
+            Password = password;
             return;
         }
     }
@@ -209,6 +210,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void SetGoalList(int goalCase)
         {
+            ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Getting goal case list: {goalCase}");
             switch (goalCase)
             {
                 case 0:
@@ -230,6 +232,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static List<SaveCountStats> GetListOfStatsWithGoals()
         {
+            ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Getting list of goals");
             List<SaveCountStats> statsWithGoals = LocationCheckGoals.Keys.ToList();
             return statsWithGoals;
         }

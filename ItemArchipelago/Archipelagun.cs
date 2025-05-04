@@ -4,6 +4,7 @@ using ArchiGungeon.ModConsoleVisuals;
 using System;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
+using ArchiGungeon.ArchipelagoServer;
 
 namespace ArchiGungeon
 {
@@ -19,8 +20,8 @@ namespace ArchiGungeon
 
         private static string itemName = "Archipelagun";
 
-        private static string shortDesc = "Fire for menu, Reload to swap";
-        private static string longDesc = "A Breach to other worlds. Fire to open the main mod menu, reload to swap Gungeoneers.";
+        private static string shortDesc = "Fire - Menu, Reload - Reconnect";
+        private static string longDesc = "A Breach to other worlds. Fire to open the main mod menu, reload to reconnect. Please don't spam reconnect ;(";
 
         public static void Register()
         {
@@ -129,10 +130,11 @@ namespace ArchiGungeon
 
         private void OnReloadPressed(PlayerController controller, Gun gun)
         {
-            if(isStartOfRun && playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
+            if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
             {
-                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
-                CharSwap.SetPlayerToNextAvailableChar(controller);
+                //ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
+                //CharSwap.SetPlayerToNextAvailableChar(controller);
+                SessionHandler.ReconnectSession();
             }
 
             return;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
+using Alexandria.Misc;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -28,32 +29,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private static Dictionary<SpawnableConsumables, string> EnumToItemString { get; } = new Dictionary<SpawnableConsumables, string>()
-        {
-            {SpawnableConsumables.Casing50, "50_casing" },
-            {SpawnableConsumables.Key, "key" },
-            {SpawnableConsumables.Blank, "blank" },
-            {SpawnableConsumables.Armor, "armor" },
-            {SpawnableConsumables.Heart, "heart" },
-            {SpawnableConsumables.Ammo, "ammo" },
-            {SpawnableConsumables.GlassGuon, "glass_guon_stone" }
-        };
-
-        public static void SpawnConsumable(SpawnableConsumables item, int numberToSpawn)
-        {
-            if(IsSpawnValid == false)
-            {
-                return;
-            }
-
-            string itemToSpawn = EnumToItemString[item];
-
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning consumable: {numberToSpawn} {itemToSpawn}");
-
-            ETGModConsole.SpawnItem(new string[] { itemToSpawn, numberToSpawn.ToString() });
-
-            return;
-        }
 
         public static void SpawnConsumableByCase(int itemCase)
         {
@@ -62,31 +37,33 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
             EffectsController.PlaySynergyVFX();
 
             switch (itemCase)
             {
                 case 0:
-                    SpawnConsumable(SpawnableConsumables.GlassGuon, 5);
                     //ChestUtility.SpawnChestEasy(IntVector2.Up, ChestUtility.ChestTier.SYNERGY, false);
+
+                    playerToSpawnOn.GiveItem("glass_guon_stone");
                     break;
                 case 1:
-                    SpawnConsumable(SpawnableConsumables.Casing50, 2);
+                    playerToSpawnOn.GiveItem("50_casing");
                     break;
                 case 2:
-                    SpawnConsumable(SpawnableConsumables.Key, 1);
+                    playerToSpawnOn.GiveItem("key");
                     break;
                 case 3:
-                    SpawnConsumable(SpawnableConsumables.Blank, 1);
+                    playerToSpawnOn.GiveItem("blank");
                     break;
                 case 4:
-                    SpawnConsumable(SpawnableConsumables.Armor, 1);
+                    playerToSpawnOn.GiveItem("armor");
                     break;
                 case 5:
-                    SpawnConsumable(SpawnableConsumables.Heart, 1);
+                    playerToSpawnOn.GiveItem("heart");
                     break;
                 case 6:
-                    SpawnConsumable(SpawnableConsumables.Ammo, 1);
+                    playerToSpawnOn.GiveItem("ammo");
                     break;
 
                 default:
@@ -94,6 +71,9 @@ namespace ArchiGungeon.GungeonEventHandlers
                     break;
 
             }
+
+
+            return;
         }
 
     }

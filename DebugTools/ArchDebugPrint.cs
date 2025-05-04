@@ -31,18 +31,18 @@ namespace ArchiGungeon.DebugTools
         private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
             {DebugCategory.PluginStartup, false },
-            {DebugCategory.PlayerEventListener, true },
-            {DebugCategory.LocalSaveData, false },
+            {DebugCategory.PlayerEventListener, false },
+            {DebugCategory.LocalSaveData, true },
             {DebugCategory.ServerReceive, true },
             {DebugCategory.ServerSend, true },
-            {DebugCategory.CountingGoal, false },
+            {DebugCategory.CountingGoal, true },
             {DebugCategory.EnemyRandomization, false },
             {DebugCategory.InitializingGameState, false },
-            {DebugCategory.ItemHandling, true },
+            {DebugCategory.ItemHandling, false },
             {DebugCategory.TrapHandling, false },
             {DebugCategory.UserInterface, false },
             {DebugCategory.GameCompletion, false },
-            {DebugCategory.CharacterSystems, true }
+            {DebugCategory.CharacterSystems, false }
         };
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)

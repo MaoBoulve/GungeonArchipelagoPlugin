@@ -1,14 +1,25 @@
 # 0.1.1
 Major update adding multiple new features tied to APWorld update
-- Updating expected APWorld to V0.1.1
+## V0.1.1 expects APWorld V0.1.1
+- **Reload on the ArchipelaGun cycles connection**
+	- Reconnecting will prioritize pulling stats not already pulled	
 - Paradox Mode implemented
 	- Character swap restricted until corresponding item received for character
+	- Character item checks!
 - Reverse Curse implemented
 	- Gain 8 curse (either after 1 Past is cleared or immediately)
 	- Item Check to reduce curse created "Reverse Curse Reversal"
 - Shop items can now be replaced by APItem
+	- Replaced items will have their sprites flipped and display 'AP Item' as their name 
 - Chest items now only replace every other chest
-- Pedestal items are now replaced by APItem
+- When Mastery Chambers are given, an APItem will spawn
+- Infuriating Notes automatically given if Resourceful Rat is marked as game completion on server
+- Bullet to the Past automatically given if Pasts are marked as game completion on server
+- Location checks make sense on the server now!!
+- Milestones added as location checks
+	- Floor Clears
+	- Pasts cleared
+- Fixed endless recursive enemies on enemy swap logic 
 
 # 0.0.8
 Debugging!

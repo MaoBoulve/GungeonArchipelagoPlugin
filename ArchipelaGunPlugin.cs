@@ -6,6 +6,7 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using BepInEx;
 using UnityEngine;
+using ArchiGungeon.Character;
 
 namespace ArchiGungeon
 {
@@ -73,6 +74,13 @@ namespace ArchiGungeon
             APPickUpItem.RegisterItemBase();
             ReverseCurse.RegisterItem();
             ReverseCurseReversal.RegisterItem();
+            
+            BulletParadoxItem.RegisterItem();
+            PilotParadoxItem.RegisterItem();
+            ConvictParadoxItem.RegisterItem();
+            MarineParadoxItem.RegisterItem();
+            RobotParadoxItem.RegisterItem();
+            HunterParadoxItem.RegisterItem();
         }
 
         private void InitEnemyHooks()

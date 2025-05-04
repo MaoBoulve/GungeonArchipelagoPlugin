@@ -73,8 +73,8 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
 
             //floor 1
-            { "ffca09398635467da3b1f4a54bcfda80  ", SaveCountStats.Floor1Clears },
-            { "ec6b674e0acd4553b47ee94493d66422 ", SaveCountStats.Floor1Clears },
+            { "ffca09398635467da3b1f4a54bcfda80", SaveCountStats.Floor1Clears },
+            { "ec6b674e0acd4553b47ee94493d66422", SaveCountStats.Floor1Clears },
 
             //floor 2
             { "da797878d215453abba824ff902e21b4", SaveCountStats.Floor2Clears },
@@ -119,11 +119,18 @@ namespace ArchiGungeon.GungeonEventHandlers
             "c00390483f394a849c36143eb878998f"
         };
 
-        private static string KillPillarGuid { get; } = "3f11bbbc439c4086a180eb0fb9990cb4";
+        private static List<string> KillPillarNames { get; } = new List<string>
+        {
+            "AK47",
+            "Shotgun",
+            "Uzi",
+            "DesertEagle"
+        };
 
         private static int triggerTwinKills;
         private static int killPillarKills;
         private static int roomsClearedThisRun;
+        public static bool IsStartOfRun { get; private set; } = false;
 
         public static void StartSystemEventListens()
         {
@@ -202,6 +209,11 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             else
             {
+                if(CharSwap.IsParadoxModeOn == true)
+                {
+                    CharSwap.OnParadoxModeCharInit(controller);
+                }
+
                 ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player One Controller Listener Started");
                 PlayerOne = controller;
                 PlayerOne.OnRealPlayerDeath += OnPlayerOneDeath;
@@ -262,37 +274,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnChestOpen(Chest chest, PlayerController controller)
         {
-            /*
-            if (SessionHandler.Session == null || SessionHandler.Session.Socket.Connected == false)
-            {
-                return;
-            }
-
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Chest Opened");
-
-            if (APPickUpItem.HasAPItemChecksRemaining())
-            {
-                if(IsOnOddCountChest)
-                {
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Clearing chest contents");
-                    chest.contents.Clear();
-
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Spawning AP Item");
-                    chest.contents.Add(PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID));
-                    IsOnOddCountChest = false;
-                }
-                else
-                {
-                    IsOnOddCountChest = true;
-                }
-            }
-            
-
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
-
             return;
-
-            */
         }
 
 
@@ -304,7 +286,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             roomsClearedThisRun = 0;
             killPillarKills = 0;
             triggerTwinKills = 0;
-            SessionHandler.ResetItemRetrieveState();
+            IsStartOfRun = true;
+
+
+            SessionHandler.ResetVariablesToStartOfRun();
+            
 
             //PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
             //controller1.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
@@ -322,6 +308,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
 
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver.name}");
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss GUID: {haver.aiActor.EnemyGuid}");
             string enemyGuid = haver.aiActor.EnemyGuid;
 
             if(PastKillsGuids.Contains(enemyGuid))
@@ -344,7 +331,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
 
-            else if (enemyGuid == KillPillarGuid)
+            else if (KillPillarNames.Contains(haver.name))
             {
                 killPillarKills++;
 
@@ -380,9 +367,13 @@ namespace ArchiGungeon.GungeonEventHandlers
                 return;
             }
 
-            if(!pedestal.IsBossRewardPedestal)
+            if(pedestal.IsBossRewardPedestal)
             {   
-                pedestal.contents = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+                //pedestal.contents = PickupObjectDatabase.GetById(APPickUpItem.SpawnItemID);
+                if(GameManager.Instance.CurrentFloor == 2 || GameManager.Instance.CurrentFloor == 4)
+                {
+                    ArchipelagoGungeonBridge.SpawnAPItem(1);
+                }
             }
             else
             {
@@ -412,8 +403,17 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
+        private static int lastFloorLoaded;
+
         private static void OnNewFloorLoad(PlayerController playerController)
         {
+            if(GameManager.Instance.CurrentFloor == lastFloorLoaded)
+            {
+                return;
+            }
+
+            lastFloorLoaded = GameManager.Instance.CurrentFloor;
+
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Floor loaded: {GameManager.Instance.CurrentFloor}");
 
             EnemySwapping.ReduceEnemyDamageMult(1);
@@ -425,6 +425,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnPlayerEnterCombat()
         {
+            IsStartOfRun = false;
             return;
         }
 
@@ -461,11 +462,12 @@ namespace ArchiGungeon.GungeonEventHandlers
         {
             roomsClearedThisRun += 1;
 
+            EnemySwapping.ResetShuffleCountOnRoomClear();
 
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
 
             SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
-            SessionHandler.CheckForUnhandledServerItems();
+            //SessionHandler.CheckForUnhandledServerItems();
 
             return;
         }

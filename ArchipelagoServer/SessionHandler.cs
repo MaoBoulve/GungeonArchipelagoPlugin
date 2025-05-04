@@ -19,6 +19,7 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using System.Collections.ObjectModel;
+using HutongGames.PlayMaker.Actions;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -55,6 +56,8 @@ namespace ArchiGungeon.ArchipelagoServer
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
         private static PlayerConnectionInfo PlayerServerInfo { get; set; }
 
+        private static TimedServerCalls CoroutineHelperObject { get; set; }
+        private static bool ShouldOutputCheckBeInteruppted { get; set; } = false;
 
         private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoalKeys { get; } = new Dictionary<PlayerCompletionGoals, string>()
         {
@@ -72,7 +75,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         // CONNECTION HANDLING ===============================
 
-        public static void ArchipelagoConnect(string ip, string port, string name, string password = null)
+        public static void ArchipelagoConnect(string ip, string port, string name, string password = "")
         {
             TrapSpawnHandler.SetCanSpawn(false);
             ConsumableSpawnHandler.SetCanSpawn(false);
@@ -107,7 +110,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             // Success after this point
             //LoginSuccessful loginSuccessful = (LoginSuccessful)loginResult;
-            
+
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Login successful, handling initializing via Slot Data");
 
             InitializeServerDataStorage();
@@ -116,11 +119,11 @@ namespace ArchiGungeon.ArchipelagoServer
             BindToArchipelagoEvents();
             CheckToCreateDeathlink();
             CheckToRandomizeEnemies();
-            CheckToInitializeParadoxMode();
-            CheckReverseCurse();
-            
+            //CheckToInitializeParadoxMode();
+            //CheckReverseCurse();
 
-            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name);
+
+            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password);
             // todo > write stuff to JSON
             //LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
 
@@ -131,15 +134,15 @@ namespace ArchiGungeon.ArchipelagoServer
 
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
-            var tempgameObject = new GameObject();
-            TimedServerCalls timedServerCalls = tempgameObject.AddComponent<TimedServerCalls>();
-
-            timedServerCalls.StartCoroutine(timedServerCalls.PullServerDataOnDelay());
+            CheckCoroutineHelperValid();
+            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.PullServerDataOnDelay());
 
             return;
         }
 
-        private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = null)
+
+
+        private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = "")
         {
             Session = ArchipelagoSessionFactory.CreateSession(ip, int.Parse(port));
             LoginResult loginResult;
@@ -235,6 +238,28 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        public static void ReconnectSession()
+        {
+            if (Session == null)
+            {
+                //ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+            else if (Session.Socket.Connected == false)
+            {
+                //ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+
+            ArchipelagoGUI.ConsoleLog("Cycling connection to Archipelago");
+
+            DisconnectFromSession();
+            ArchipelagoConnect(PlayerServerInfo.IP, PlayerServerInfo.Port, PlayerServerInfo.PlayerName, PlayerServerInfo.Password);
+
+            return;
+
+        }
+
         private static void BindToArchipelagoEvents()
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Binding to Session delegate events");
@@ -323,8 +348,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
         // PARADOX MODE =========================================================
 
-        private static void CheckToInitializeParadoxMode()
-        {
+        private static bool CheckToInitializeParadoxMode()
+        {   
+
             if(Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
             {
                 PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
@@ -334,16 +360,22 @@ namespace ArchiGungeon.ArchipelagoServer
                 //LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
 
                 CharSwap.StartParadoxMode(playerController);
+
+                return true;
             }
+
+            return false;
         }
 
 
         // ITEM RETRIEVAL ===============================
 
-        public static void ResetItemRetrieveState()
+        public static void ResetVariablesToStartOfRun()
         {
             SpawnedItemLog.ClearSpawnedItemLog();
             itemsHandledThisRun.Clear();
+            IsReverseCurseSetForRun = false;
+            IsProgressItemsGiven = false;
             return;
         }
 
@@ -457,8 +489,19 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                 return;
             }
+            ShouldOutputCheckBeInteruppted = false;
 
             DataSender.CheckForGameCompletion();
+
+            if(ShouldOutputCheckBeInteruppted)
+            {
+                ArchipelagoGUI.ConsoleLog("\n\nHad to pull server data for Goal Progress. Please hold ========== \n");
+
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.DelayOutputRepeatCall());
+
+                return;
+            }
 
             foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
             {
@@ -468,11 +511,11 @@ namespace ArchiGungeon.ArchipelagoServer
                 {
                     int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
 
-                    if (pastsCase == 1)
+                    if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
                     {
                         statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
                     }
-                    else if (pastsCase == 2)
+                    else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
                     {
                         statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
                     }
@@ -551,8 +594,15 @@ namespace ArchiGungeon.ArchipelagoServer
         }
 
         // REVERSE CURSE =================================================
+
+        private static bool IsReverseCurseSetForRun { get; set; } = false;
         private static void CheckReverseCurse()
         {
+            if(IsReverseCurseSetForRun)
+            {
+                return;
+            }
+
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Checking for reverse curse");
             int reverseCurseModeValue = Convert.ToInt32(PlayerSlotSettings["ReverseCurse"]);
 
@@ -568,6 +618,8 @@ namespace ArchiGungeon.ArchipelagoServer
                 ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Giving curse items without past check");
                 ArchipelagoGungeonBridge.GiveReverseCurse(8);
             }
+
+            IsReverseCurseSetForRun = true;
 
             return;
         }
@@ -589,27 +641,43 @@ namespace ArchiGungeon.ArchipelagoServer
 
             CheckToInitializeParadoxMode();
 
-            RetrieveServerItems();
-            
+            CheckCoroutineHelperValid();
+            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
 
-            if(Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]) != 0)
-            {
-                ProgressionItemSpawnHandler.GivePastBullet();
-            }
-
-            if(Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.AdvancedGungeon]]) == 1)
-            {
-                ProgressionItemSpawnHandler.GiveRatNotes();
-            }
-
-            CheckReverseCurse();
-            
 
             return;
 
         }
 
+        public static void HandleParadoxModeInit()
+        {
+            RetrieveServerItems();
+            CheckForProgressItems();
 
+            //CheckReverseCurse();
+        }
+
+        private static bool IsProgressItemsGiven = false;
+
+        private static void CheckForProgressItems()
+        {
+            if(IsProgressItemsGiven) 
+            {
+                return;
+            }
+
+            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]) != 0)
+            {
+                ProgressionItemSpawnHandler.GivePastBullet();
+            }
+
+            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.AdvancedGungeon]]) == 1)
+            {
+                ProgressionItemSpawnHandler.GiveRatNotes();
+            }
+
+            IsProgressItemsGiven = true;
+        }
 
         //
         //
@@ -622,7 +690,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void SendFoundLocationCheck(long idToSend)
             {
-                ScoutFoundLocationCheck(idToSend);
+                //ScoutFoundLocationCheck(idToSend);
                 Session.Locations.CompleteLocationChecks(idToSend);
 
                 return;
@@ -655,20 +723,46 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Handling initial async data pull");
 
-                SaveCountStats[] basicCountStats = new SaveCountStats[]
+                List<SaveCountStats> basicCountStats = new List<SaveCountStats> ()
                 {
-                    SaveCountStats.CashSpent,
-                    SaveCountStats.RoomPoints,
-                    SaveCountStats.ChestsOpened,
                     SaveCountStats.PastKills
                 };
 
-                foreach (SaveCountStats countStat in basicCountStats)
+
+                foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
                 {
-                    AsyncPullCountFromServer(countStat);
+                    List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
+
+                    if (playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
+                    {
+                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
+
+                        if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
+                        {
+                            statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                        }
+                        else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
+                        {
+                            statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                        }
+                    }
+
+                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
+                    {
+                        statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
+                    }
+
+                    basicCountStats.AddRange(statsForGoal);
                 }
 
-                
+
+                foreach (SaveCountStats countStat in basicCountStats)
+                {
+                    if(CountSaveData.GetCountStat(countStat) == -1)
+                    {
+                        AsyncPullCountFromServer(countStat);
+                    }
+                }
 
                 return;
             }
@@ -687,6 +781,9 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling & add {statToPull}");
 
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.CheckIfStatInitFailed(statToPull));
+
                 Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
                     statValue => 
                     {
@@ -696,20 +793,6 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
-            private static void AsyncPullCountAndRecheckGameCompletion(SaveCountStats statToPull)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling {statToPull}");
-
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
-                    statValue =>
-                    {
-                        DataReceiver.OnStatPulledFromServer(statToPull, statValue);
-
-                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Rechecking game completion");
-                        CheckForGameCompletion();
-                    });
-                return;
-            }
 
 
             public static void CheckForGameCompletion()
@@ -749,7 +832,8 @@ namespace ArchiGungeon.ArchipelagoServer
                         int statCount = CountSaveData.GetCountStat(statCheck);
                         if (statCount < 0)
                         {
-                            AsyncPullCountAndRecheckGameCompletion(statCheck);
+                            ShouldOutputCheckBeInteruppted = true;
+                            AsyncPullCountFromServer(statCheck);
                             ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{statCheck} stat not initialized, STOPPING game completion check");
                             return;
                         }
@@ -943,8 +1027,24 @@ namespace ArchiGungeon.ArchipelagoServer
                 }
 
                 CountSaveData.SetCountStat(statToPull, count);
+
+                if(statToPull == SaveCountStats.PastKills)
+                {
+                    CheckReverseCurse();
+                }
             }
 
+        }
+
+        private static void CheckCoroutineHelperValid()
+        {
+            if (CoroutineHelperObject == null)
+            {
+                var tempgameObject = new GameObject();
+                CoroutineHelperObject = tempgameObject.AddComponent<TimedServerCalls>();
+            }
+
+            return;
         }
 
     }
@@ -963,5 +1063,33 @@ namespace ArchiGungeon.ArchipelagoServer
             SessionHandler.CheckForRunStartServerSettingInstantiation();
 
         }
+
+        public IEnumerator WaitForParadoxReint(float waitTime = 2f)
+        {
+            ArchipelagoGUI.ConsoleLog("Starting paradox mode! Need to initialize backend");
+            yield return new WaitForSeconds(waitTime);
+
+            SessionHandler.HandleParadoxModeInit();
+        }
+
+        public IEnumerator CheckIfStatInitFailed(SaveCountStats statToCheck, float waitTime = 10.0f)
+        {
+            yield return new WaitForSeconds(waitTime);
+
+            if(CountSaveData.GetCountStat(statToCheck) == -1)
+            {
+                ArchipelagoGUI.ConsoleLog("Detected archipelago broken connection, reconnecting");
+                SessionHandler.ReconnectSession();
+            }
+
+        }
+
+        public IEnumerator DelayOutputRepeatCall(float waitTime = 3.0f)
+        {
+            yield return new WaitForSeconds(waitTime);
+
+            SessionHandler.OutputGameGoalStatus();
+        }
     }
+
 }

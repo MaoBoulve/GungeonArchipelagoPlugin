@@ -35,15 +35,25 @@ namespace ArchiGungeon.Character
             item.quality = ItemQuality.EXCLUDED;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
-
+            CharSwap.OnCharacterSelected += SetInvalidToPickup;
             //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
             return;
         }
 
+        private static bool IsValid = true;
+        private static void SetInvalidToPickup()
+        {
+            IsValid = false;
+            return;
+        }
 
         public override void Pickup(PlayerController player)
         {
+            if(!IsValid)
+            {
+                return;
+            }
             base.Pickup(player);
 
             CharSwap.DoCharacterSwap(PlayableCharacters.Pilot, player);

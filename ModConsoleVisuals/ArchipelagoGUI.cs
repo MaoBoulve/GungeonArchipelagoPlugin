@@ -151,7 +151,24 @@ namespace ArchiGungeon.ModConsoleVisuals
             {
                 Icon = image
             };
-            base.GUI[0].Children.Add(sLabel);
+
+            try
+            {
+                base.GUI[0].Children.Add(sLabel);
+            }
+            catch (IndexOutOfRangeException) 
+            {
+                base.GUI[0].Children.Clear();
+                ((SGroup)base.GUI[0]).ContentSize.y = 0f;
+                ((SGroup)base.GUI[0]).ScrollPosition.y = 0f;
+
+                PrintHelpTextToConsole();
+
+                base.GUI[0].Children.Add(sLabel);
+
+            }
+
+            
             ((SGroup)base.GUI[0]).ScrollPosition.y = float.MaxValue;
             return sLabel;
         }

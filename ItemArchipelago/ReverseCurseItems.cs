@@ -34,6 +34,8 @@ namespace ArchiGungeon.ItemArchipelago
             item.IgnoredByRat = true;
             item.quality = ItemQuality.EXCLUDED;
 
+            ItemBuilder.AddPassiveStatModifier(item, PlayerStats.StatType.Curse, 1, StatModifier.ModifyMethod.ADDITIVE);
+
             SpawnItemID = PickupObjectDatabase.GetId(item);
 
             //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
@@ -46,7 +48,7 @@ namespace ArchiGungeon.ItemArchipelago
         {
             base.Pickup(player);
 
-            player.CurrentCurseMeterValue += 1;
+            //player. += 1;
 
             return;
         }
@@ -76,6 +78,9 @@ namespace ArchiGungeon.ItemArchipelago
 
             ItemBuilder.SetupItem(item, "Tried and true counter", "A technique to reverse another's sneaky attack. Ruins friendships. Removes 1 curse.", ArchipelaGunPlugin.MOD_ITEM_PREFIX);
 
+            ItemBuilder.AddPassiveStatModifier(item, PlayerStats.StatType.Curse, -1, StatModifier.ModifyMethod.ADDITIVE);
+
+
             item.ShouldBeExcludedFromShops = true;
             item.CanBeDropped = false;
             item.CanBeSold = false;
@@ -93,8 +98,6 @@ namespace ArchiGungeon.ItemArchipelago
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);
-
-            player.CurrentCurseMeterValue -= 1;
 
             return;
         }

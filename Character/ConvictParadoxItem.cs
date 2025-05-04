@@ -13,7 +13,7 @@ namespace ArchiGungeon.Character
     public class ConvictParadoxItem: PassiveItem
     {
         public static int SpawnItemID = -1;
-
+        private static bool IsValid = true;
         private static string displayName = "Convict Identity";
         private static string spriteDirectory = "ArchiGungeon/Resources/identity_convictV2.png";
 
@@ -35,15 +35,26 @@ namespace ArchiGungeon.Character
             item.quality = ItemQuality.EXCLUDED;
 
             SpawnItemID = PickupObjectDatabase.GetId(item);
+            CharSwap.OnCharacterSelected += SetInvalidToPickup;
 
             //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
             return;
         }
 
-
+        private static void SetInvalidToPickup()
+        {
+            IsValid = false;
+            return;
+        }
         public override void Pickup(PlayerController player)
         {
+            if(IsValid == false)
+            {
+                return;
+            }
+
+                
             base.Pickup(player);
 
             CharSwap.DoCharacterSwap(PlayableCharacters.Convict, player);
