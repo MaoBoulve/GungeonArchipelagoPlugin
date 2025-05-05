@@ -1,3 +1,7 @@
+# 0.1.2
+Emergency hotfix to stop debug writer writing GB's worth of text data.
+My bad,
+
 # 0.1.1
 Major update adding multiple new features tied to APWorld update
 ## V0.1.1 expects APWorld V0.1.1
