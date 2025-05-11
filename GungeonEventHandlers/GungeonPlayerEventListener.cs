@@ -25,6 +25,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static List<BaseShopController> BaseShopControllers { get; } = new List<BaseShopController>();
         private static int ItemCountToReachToReplaceShopItem { get; } = 3;
         private static int CurrentShopItemCount { get; set; }
+        private static bool PickedUpArchipelagun { get; set; }
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -150,9 +151,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             ETGMod.Chest.OnPreOpen += OnChestPreOpen;
             ETGMod.Chest.OnPostOpen += OnChestOpen;
 
+            Archipelagun.OnPickup += OnArchipelagunPickup;
 
             return;
         }
+
+        
 
         private static void OnShopItemCreated(ShopItemController obj)
         {
@@ -209,7 +213,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             else
             {
-                if(CharSwap.IsParadoxModeOn == true)
+                if(CharSwap.IsParadoxModeOn == true && controller.characterIdentity == PlayableCharacters.Eevee && PickedUpArchipelagun)
                 {
                     CharSwap.OnParadoxModeCharInit(controller);
                 }
@@ -223,6 +227,23 @@ namespace ArchiGungeon.GungeonEventHandlers
             StartPlayerControllerEventListens(controller);
 
             return;
+        }
+
+        private static void OnArchipelagunPickup()
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Archipelagun picked up, valid for events");
+            PickedUpArchipelagun = true;
+            return;
+        }
+
+        private static void CheckToForceArchipelagunOwnership()
+        {
+            if (PickedUpArchipelagun) { return; }
+
+            PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+            GetFirstAlivePlayer().inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
+
+            PickedUpArchipelagun = true;
         }
 
         private static void OnArchipelagoMenuOpen()
@@ -250,6 +271,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 return shouldOpen;
             }
+
+            CheckToForceArchipelagunOwnership();
 
             ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Chest Pre-Open Call");
 
@@ -280,6 +303,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnRunStarted(PlayerController controller1, PlayerController controller2, GameManager.GameMode mode)
         {
+            PickedUpArchipelagun = false;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Run started!");
 
             EnemySwapping.ResetEnemyDamageMult();
@@ -288,7 +312,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             triggerTwinKills = 0;
             IsStartOfRun = true;
 
-
+            CharSwap.EndParadoxModeForReset();
             SessionHandler.ResetVariablesToStartOfRun();
             
 
@@ -298,14 +322,13 @@ namespace ArchiGungeon.GungeonEventHandlers
             GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
             LootEngine.SpawnItem(archipelItem, controller1.CenterPosition, Vector2.zero, 0);
 
-            SessionHandler.CheckForRunStartServerSettingInstantiation();
-
             return;
         }
 
 
         private static void OnBossKilled(HealthHaver haver, bool arg2)
         {
+            CheckToForceArchipelagunOwnership();
 
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss killed: {haver.name}");
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Boss GUID: {haver.aiActor.EnemyGuid}");
@@ -439,6 +462,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
             controller.characterIdentity = PlayableCharacters.Pilot;
+            PickedUpArchipelagun = false;
             SessionHandler.DataSender.SendLocalCountValuesToServer();
 
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
@@ -460,6 +484,8 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnRoomClear(PlayerController playerController)
         {
+            CheckToForceArchipelagunOwnership();
+
             roomsClearedThisRun += 1;
 
             EnemySwapping.ResetShuffleCountOnRoomClear();
@@ -479,6 +505,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 return;
             }
+
+            CheckToForceArchipelagunOwnership();
 
             int spentMoney = shopItem.CurrentPrice;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);

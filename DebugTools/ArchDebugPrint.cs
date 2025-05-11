@@ -45,6 +45,11 @@ namespace ArchiGungeon.DebugTools
             {DebugCategory.CharacterSystems, false }
         };
 
+        public static void ClearDebugLog()
+        {
+            LocalDebugLogWriter.ClearLocalFile();
+        }
+
         public static void DebugLog(DebugCategory debugGroup, string textToLog)
         {
             
@@ -70,11 +75,11 @@ namespace ArchiGungeon.DebugTools
 
         internal static void OnCatchException(string condition, string stackTrace, LogType type)
         {
-            LocalDebugLogWriter.AppendToLocalDebugLog("\n\n ============ ERROR CAUGHT: Contact Archipelago mod developer to debug ============= \n\n");
+            //LocalDebugLogWriter.AppendToLocalDebugLog("\n\n ============ ERROR CAUGHT: Contact Archipelago mod developer to debug ============= \n\n");
             LocalDebugLogWriter.AppendToLocalDebugLog(condition);
             LocalDebugLogWriter.AppendToLocalDebugLog(stackTrace);
 
-            LocalDebugLogWriter.StartWritingDebugToLocal();
+            //LocalDebugLogWriter.StartWritingDebugToLocal();
 
             return;
         }
@@ -125,7 +130,8 @@ namespace ArchiGungeon.DebugTools
                 return;
             }
 
-            AppendToLocalDebugLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
+            isWritingText = true;
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
             WriteCurrentLogToFile();
 
             return;
@@ -152,6 +158,11 @@ namespace ArchiGungeon.DebugTools
             }
 
             return;
+        }
+
+        public static void ClearLocalFile()
+        {
+            File.WriteAllText(@Path.Combine(DocPath, "ArchiGungeonDebug.txt"), "");
         }
     }
 }
