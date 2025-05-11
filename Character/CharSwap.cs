@@ -39,6 +39,18 @@ namespace ArchiGungeon.Character
 			return;
 		}
 
+        public static void EndParadoxModeForReset()
+        {
+            if (!IsParadoxModeOn)
+            {
+                return;
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Resetting paradox mode");
+
+            IsParadoxModeOn = false;
+        }
+
         public static void OnParadoxModeCharInit(PlayerController player)
         {
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox reint");

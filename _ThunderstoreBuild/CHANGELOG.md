@@ -1,10 +1,20 @@
+# 0.1.3
+Stability fixes!
+- Check to only handle 1 deathlink event per run
+- Error fallback on item give to stop the loud loop error
+- Delaying initialize events on successive runs to picking up Archipelagun
+- Tentatively removed misfire beast from shuffle
+- Fix to enemy shuffle error
+
 # 0.1.2
 Emergency hotfix to stop debug writer writing GB's worth of text data.
 My bad,
 
 # 0.1.1
 Major update adding multiple new features tied to APWorld update
-## V0.1.1 expects APWorld V0.1.1
+
+**V0.1.1 expects APWorld V0.1.1**
+
 - **Reload on the ArchipelaGun cycles connection**
 	- Reconnecting will prioritize pulling stats not already pulled	
 - Paradox Mode implemented

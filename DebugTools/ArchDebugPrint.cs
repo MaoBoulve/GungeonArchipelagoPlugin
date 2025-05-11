@@ -131,8 +131,7 @@ namespace ArchiGungeon.DebugTools
             }
 
             isWritingText = true;
-
-            AppendToLocalDebugLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
             WriteCurrentLogToFile();
 
             return;

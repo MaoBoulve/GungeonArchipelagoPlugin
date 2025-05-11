@@ -58,6 +58,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static TimedServerCalls CoroutineHelperObject { get; set; }
         private static bool ShouldOutputCheckBeInteruppted { get; set; } = false;
+        private static bool HandlingDeathlinkEvent { get; set; } = false;
 
         private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoalKeys { get; } = new Dictionary<PlayerCompletionGoals, string>()
         {
@@ -72,6 +73,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
+
+        private static bool IsProgressItemsGiven { get; set; } = false;
+        public static bool IsReadyToSpawn { get; private set; } = false;
 
         // CONNECTION HANDLING ===============================
 
@@ -372,10 +376,15 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void ResetVariablesToStartOfRun()
         {
-            SpawnedItemLog.ClearSpawnedItemLog();
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Resetting variables for new run");
+
+            //SpawnedItemLog.ClearSpawnedItemLog();
             itemsHandledThisRun.Clear();
             IsReverseCurseSetForRun = false;
             IsProgressItemsGiven = false;
+            IsReadyToSpawn = false;
+            HandlingDeathlinkEvent = false;
+
             return;
         }
 
@@ -466,13 +475,21 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void Update()
         {
-            if (item_add_queue.Count > 0)
+            if (item_add_queue.Count > 0 && IsReadyToSpawn)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Handling item ID: {item_add_queue[0]}");
 
-                ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
+                try
+                {
+                    ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
+                    itemsHandledThisRun.Add(item_add_queue[0]);
+                }
+                
 
-                itemsHandledThisRun.Add(item_add_queue[0]);
+                catch (Exception ex)
+                {
+                    ArchipelagoGUI.ConsoleLog("Exception caused during handling giving Archipelago item. Please contact dev: " + ex);
+                }
 
                 item_add_queue.RemoveAt(0);
             }
@@ -651,13 +668,15 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void HandleParadoxModeInit()
         {
+            
             RetrieveServerItems();
             CheckForProgressItems();
 
+            IsReadyToSpawn = true;
             //CheckReverseCurse();
         }
 
-        private static bool IsProgressItemsGiven = false;
+
 
         private static void CheckForProgressItems()
         {
@@ -705,6 +724,12 @@ namespace ArchiGungeon.ArchipelagoServer
                     return;
                 }
 
+                if(HandlingDeathlinkEvent)
+                {
+                    return;
+                }
+
+                HandlingDeathlinkEvent = true;
                 ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending deathlink");
 
                 string deathName = PlayerServerInfo.PlayerName;
@@ -979,6 +1004,11 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void OnDeathlink(DeathLink deathLink)
             {
+                if(HandlingDeathlinkEvent)
+                {
+                    return;
+                }
+                HandlingDeathlinkEvent = true;
                 ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received DeathLink");
 
                 string playerCauser = deathLink.Source;

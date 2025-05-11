@@ -5,6 +5,7 @@ using System;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using ArchiGungeon.ArchipelagoServer;
+using static ArchiGungeon.Character.CharSwap;
 
 namespace ArchiGungeon
 {
@@ -12,6 +13,9 @@ namespace ArchiGungeon
 
     public class Archipelagun : GunBehaviour
     {
+        public delegate void ArchipelagunEvents();
+        public static ArchipelagunEvents OnPickup;
+
         private static bool isStartOfRun = true;
         public static int SpawnItemID = -1;
         private static bool canBeWielded = true;
@@ -86,6 +90,8 @@ namespace ArchiGungeon
 
         public override void OnPlayerPickup(PlayerController playerOwner)
         {
+            OnPickup.Invoke();
+
             isStartOfRun = true;
             canBeWielded = true;
             playerWithArchipelagun = playerOwner;
@@ -98,8 +104,7 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
 
-
-            // TODO, auto connect to archipelago
+            SessionHandler.CheckForRunStartServerSettingInstantiation();
 
             return;
         }

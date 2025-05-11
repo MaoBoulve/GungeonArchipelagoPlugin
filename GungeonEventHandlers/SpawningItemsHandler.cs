@@ -5,6 +5,8 @@ using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
 using Alexandria.Misc;
+using ArchiGungeon.ModConsoleVisuals;
+using Alexandria.ItemAPI;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -91,10 +93,11 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static PassiveItem GetRandomPassiveByQualities(PickupObject.ItemQuality[] itemQuals)
         {
+            // don't understand actives yet
             PassiveItem passiveItem = PickupObjectDatabase.GetRandomPassiveOfQualities(random, new List<int>(), itemQuals);
-
             return passiveItem;
         }
+
 
         public static void GivePlayerRandomGun(PickupObject.ItemQuality[] itemquals)
         {
@@ -102,7 +105,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             Gun gunToGive = GetRandomGunByQualities(itemquals);
 
             ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving random gun: {gunToGive.name}");
-            SpawnedItemLog.GunItems.Add(gunToGive);
             playerToSpawnOn.inventory.AddGunToInventory(gunToGive);
 
             return;
@@ -113,9 +115,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
             PassiveItem passiveToSpawn = GetRandomPassiveByQualities(itemquals);
 
+            //ArchipelagoGUI.ConsoleLog(passiveToSpawn.Cool);
+            //ItemBuilder.SetCooldownType
             ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving random passive: {passiveToSpawn.name}");
-            SpawnedItemLog.PassiveItems.Add(passiveToSpawn);
             playerToSpawnOn.AcquirePassiveItem(passiveToSpawn);
+
+            //SpawnObjectPlayerItem.ItemQuality.
 
             return;
         }
@@ -177,14 +182,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 case 1:
 
-                    SpawnedItemLog.ConsoleCommandGivenItems.Add("gnawed_key");
                     GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("gnawed_key");
 
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving gnawed key");
 
                     break;
                 case 2:
-                    SpawnedItemLog.ConsoleCommandGivenItems.Add("old_crest");
                     GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("old_crest");
 
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving Old Crest");
@@ -192,7 +195,6 @@ namespace ArchiGungeon.GungeonEventHandlers
                     break;
 
                 case 3:
-                    SpawnedItemLog.ConsoleCommandGivenItems.Add("weird_egg");
                     GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("weird_egg");
 
                     ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Spawning weird egg");
@@ -211,7 +213,6 @@ namespace ArchiGungeon.GungeonEventHandlers
         public static void GivePastBullet()
         {
 
-            SpawnedItemLog.ConsoleCommandGivenItems.Add("bullet_that_can_kill_the_past");
             GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem("bullet_that_can_kill_the_past");
 
             ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Giving bullet");
@@ -235,7 +236,6 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             foreach(string note in ratNoteItems)
             {
-                SpawnedItemLog.ConsoleCommandGivenItems.Add(note);
                 GungeonPlayerEventListener.GetFirstAlivePlayer().GiveItem(note);
             }
 
@@ -244,51 +244,4 @@ namespace ArchiGungeon.GungeonEventHandlers
 
     }
 
-    public class SpawnedItemLog
-    {
-        public static List<PassiveItem> PassiveItems { get; } = new List<PassiveItem>();
-        public static List<Gun> GunItems { get; } = new List<Gun>();
-        public static List<string> ConsoleCommandGivenItems { get; } = new List<string>();
-
-        public static void ClearSpawnedItemLog()
-        {
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Clearing item log");
-            PassiveItems.Clear();
-            GunItems.Clear();
-            ConsoleCommandGivenItems.Clear();
-        }
-
-        public static void GivePlayerMissingItemsFromLog(PlayerController player)
-        {
-            ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, "Restoring player inventory");
-
-            foreach(PassiveItem item in PassiveItems)
-            {
-                if(!player.HasPickupID(item.PickupObjectId))
-                {
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Restoring item: {item.name}");
-                    item.suppressPickupVFX = true;
-
-                    player.AcquirePassiveItemPrefabDirectly(item);
-                }
-            }
-
-            foreach(Gun gunItem in GunItems)
-            {
-                if (!player.HasPickupID(gunItem.PickupObjectId))
-                {   
-
-                    ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Restoring item: {gunItem.name}");
-                    player.inventory.AddGunToInventory(gunItem);
-                }
-            }
-
-            foreach(string consoleItem in ConsoleCommandGivenItems)
-            {
-
-            }
-
-            return;
-        }
-    }
 }
