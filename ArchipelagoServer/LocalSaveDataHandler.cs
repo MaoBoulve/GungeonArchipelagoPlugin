@@ -5,13 +5,18 @@ using System.Text;
 using BepInEx;
 using System.IO;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.ModConsoleVisuals;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
 
     public class LocalSaveDataHandler
     {
-
+        private static string ArchipelConfigPath { get; } = Paths.ConfigPath;
+        private const string PREV_CONNECTION_FILENAME = "LastConnection.json";
+        public static PlayerConnectionInfo PreviousConnectionSettings { get; private set; }
 
         //public static string dataPath = Path.Combine(SaveManager.SavePath, "<path to your custom save data>");
 
@@ -26,54 +31,51 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static List<string> RetrievePreviousGameSettings()
+        public static void SaveArchipelagoConnectionSettings(PlayerConnectionInfo connectionSettingsToSave)
         {
+            // want to create TWO separate local save data tasks
+            // TODO: write last successful connection settings locally
 
-            return new List<string>();
-        }
-
-        public static void SaveArchipelagoConnectionSettings(string ip, string port, string playerName)
-        {
             ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
-            PlayerConnectionInfo connectionSettings = new(ip, port, playerName);
+            string outputToWrite = JsonConvert.SerializeObject(connectionSettingsToSave);
+            File.WriteAllText(Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME), outputToWrite);
 
-            /*
-            JObject JSONoutput = new(
-                new JProperty("IP", connectionSettings.IP),
-                new JProperty("Port", connectionSettings.Port),
-                new JProperty("Name", connectionSettings.PlayerName)
-                );
-            */
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Connection settings: {outputToWrite} \n\n" +
+                $"Written at: {Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME)}");
 
-            //ArchDebugPrint.DebugLog(DebugCategory.LocalFileSaveData, $"{JSONoutput}");
+            // todo: write a most recent connection
+            // todo: TEST ABOVE
+            return;
+        }
 
-            /*
-            File.WriteAllText(@"c:\videogames.json", JSONoutput.ToString());
-
-            // write JSON directly to a file
-            using (StreamWriter file = File.CreateText(@"c:\videogames.json"))
-            using (JsonTextWriter writer = new JsonTextWriter(file))
+        public static bool CheckPreviousConnectionExists()
+        {
+            if (File.Exists(Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME)) == false)
             {
-                JSONoutput.WriteTo(writer);
+                ArchipelagoGUI.ConsoleLog("ERROR: No data for previous connection could be found!");
+                return false;
             }
 
-            */
 
-            return;
+            PreviousConnectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(File.ReadAllText(Path.Combine(ArchipelConfigPath,
+                PREV_CONNECTION_FILENAME)));
+
+            return true;
         }
 
-        public static void LoadLocalConnectionSettings()
+        public static void SaveLocalArchipelagoData()
         {
-            // TKTK READ JSON
+            // TODO: write sava data by slot name + randomizer key as file name
+            // todo: serialize count save data
 
-            //string JSONoutput = "TEST TKTKTK";
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Connection & player data locally saved at: ");
 
-            //PlayerConnectionInfo connectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(JSONoutput);
-
-
+            // todo: figure format of output
             return;
         }
+
+
 
     }
 

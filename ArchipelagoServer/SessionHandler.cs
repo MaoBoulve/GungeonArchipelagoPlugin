@@ -19,7 +19,6 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using System.Collections.ObjectModel;
-using HutongGames.PlayMaker.Actions;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
@@ -128,8 +127,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
 
             PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password);
-            // todo > write stuff to JSON
-            //LocalSaveDataHandler.SaveArchipelagoConnectionSettings(ip, port, name);
+            LocalSaveDataHandler.SaveArchipelagoConnectionSettings(PlayerServerInfo);
 
             InitializeAPLocationChecks();
 
@@ -144,7 +142,7 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-
+        // TODO: function to reconnect using local json save
 
         private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = "")
         {
@@ -575,7 +573,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
             EnemySwapping.MakeNormalShuffleEnemies(seed);
             return;
-            //TODO CHECK FOR enemy randomizer KEY
         }
 
         // =====================================================================
