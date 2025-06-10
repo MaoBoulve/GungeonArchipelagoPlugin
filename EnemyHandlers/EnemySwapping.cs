@@ -3,6 +3,7 @@ using UnityEngine;
 using Dungeonator;
 using System.Collections.Generic;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Data;
 
 
 namespace ArchiGungeon.EnemyHandlers

@@ -8,6 +8,7 @@ using ArchiGungeon.DebugTools;
 using ArchiGungeon.ModConsoleVisuals;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ArchipelagoServer
 {

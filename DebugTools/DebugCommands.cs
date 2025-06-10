@@ -5,40 +5,11 @@ using System.Text;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.DebugTools
 {
-    public enum AvailableDebugCMD
-    {
-        SpawnAPItem,
-        SendDeathlink,
-        ReceiveDeathlink,
-        AddChest,
-        Add1RoomPoint,
-        Add100CashSpent,
-        Speedrun,
-        FullDebug,
-        NoDebug,
-        LoadFloor1,
-        LoadFloor2,
-        LoadFloor3,
-        LoadFloor4,
-        LoadFloor5,
-        LoadHell,
-        LoadSewers,
-        LoadAbbey,
-        LoadRat,
-        LoadDept,
-        PastMarine,
-        PastConvict,
-        PastHunter,
-        PastPilot,
-        PastRobot,
-        PastBullet,
-        PastGunslinger,
-        PastCoop,
-        ReceiveItem
-    }
+    
 
     public class DebugCommands
     {

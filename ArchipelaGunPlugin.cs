@@ -7,6 +7,7 @@ using ArchiGungeon.DebugTools;
 using BepInEx;
 using UnityEngine;
 using ArchiGungeon.Character;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon
 {

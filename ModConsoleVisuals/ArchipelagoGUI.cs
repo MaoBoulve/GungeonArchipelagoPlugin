@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Data;
 
 
 namespace ArchiGungeon.ModConsoleVisuals

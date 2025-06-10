@@ -7,6 +7,7 @@ using Alexandria.ItemAPI;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.GungeonEventHandlers;
 using static ArchiGungeon.Character.CharSwap;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.Character
 {
@@ -20,44 +21,7 @@ namespace ArchiGungeon.Character
         public static bool IsChosenCharForRun { get; private set; }
         public static bool IsParadoxModeOn { get; private set; }
 
-		public static void StartParadoxMode(PlayerController player)
-        {
-            if(IsParadoxModeOn)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox mode already initialized");
-                return;
-            }
-
-            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Starting paradox mode");
-
-            IsParadoxModeOn = true;
-            IsChosenCharForRun = false;
-            paradoxPassiveItems.Clear();
-            paradoxGunItems.Clear();
-			DoCharacterSwap(PlayableCharacters.Eevee, player);
-
-			return;
-		}
-
-        public static void EndParadoxModeForReset()
-        {
-            if (!IsParadoxModeOn)
-            {
-                return;
-            }
-
-            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Resetting paradox mode");
-
-            IsParadoxModeOn = false;
-        }
-
-        public static void OnParadoxModeCharInit(PlayerController player)
-        {
-            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox reint");
-
-            PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
-            player.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
-        }
+        #region Character Swap Control
 
         public static void DoCharacterSwap(PlayableCharacters characterToSwap, PlayerController user)
         {
@@ -120,7 +84,17 @@ namespace ArchiGungeon.Character
             return;
         }
 
-       
+        public static void HandleLostItemsOnCharacterSwap(PlayerController player)
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Reint lost items from character swap paradox mode");
+
+            PickupObject archipelaGun = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+            player.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
+        }
+
+        #endregion
+
+        #region Character Swap Defitions
         private static void SwapToParadox(PlayerController player)
         {
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, $"Swapping player to Paradox Character via console commands");
@@ -130,22 +104,6 @@ namespace ArchiGungeon.Character
 
         }
         
-        // causes massive issues
-        private static void RemoveParadoxStartItems(PlayerController player)
-        {
-            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Removing paradox items");
-
-            foreach (PickupObject item in paradoxPassiveItems)
-            {
-                player.RemovePassiveItem(item.PickupObjectId);
-            }
-            foreach(PickupObject gun in paradoxGunItems)
-            {
-                player.inventory.RemoveGunFromInventory((Gun)gun);
-            }
-
-            return;
-        }
 
         private static void SwapToPilot(PlayerController player)
         {
@@ -256,6 +214,39 @@ namespace ArchiGungeon.Character
             return;
         }
 
+        #endregion
+
+        #region Paradox Mode Control
+        public static void StartParadoxMode(PlayerController player)
+        {
+            if (IsParadoxModeOn)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Paradox mode already initialized");
+                return;
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Starting paradox mode");
+
+            IsParadoxModeOn = true;
+            IsChosenCharForRun = false;
+            paradoxPassiveItems.Clear();
+            paradoxGunItems.Clear();
+            DoCharacterSwap(PlayableCharacters.Eevee, player);
+
+            return;
+        }
+
+        public static void EndParadoxModeForReset()
+        {
+            if (!IsParadoxModeOn)
+            {
+                return;
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Resetting paradox mode");
+
+            IsParadoxModeOn = false;
+        }
 
         public static void ReceiveParadoxModeItem(int itemCase)
         {
@@ -301,7 +292,6 @@ namespace ArchiGungeon.Character
             return;
         }
 
-        private static List<DebrisObject> identityObjects = new List<DebrisObject>();
 
         private static void SpawnIdentityItem(PlayableCharacters playableCharacters)
         {
@@ -342,11 +332,11 @@ namespace ArchiGungeon.Character
             }
 
             DebrisObject identityObject = LootEngine.SpawnItem(PickupObjectDatabase.GetById(identityID).gameObject, player.specRigidbody.UnitCenter, spawnDirec, 3f, false, true, false);
-            identityObjects.Add(identityObject);
             
             return;
         }
 
+        #endregion
 
     } // class
 

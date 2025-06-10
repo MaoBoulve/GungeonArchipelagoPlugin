@@ -13,6 +13,7 @@ using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
 using ArchiGungeon.Character;
 using UnityEngine.Networking;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -215,7 +216,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 if(CharSwap.IsParadoxModeOn == true && controller.characterIdentity == PlayableCharacters.Eevee && PickedUpArchipelagun)
                 {
-                    CharSwap.OnParadoxModeCharInit(controller);
+                    CharSwap.HandleLostItemsOnCharacterSwap(controller);
                 }
 
                 ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player One Controller Listener Started");

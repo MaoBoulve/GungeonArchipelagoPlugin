@@ -7,6 +7,7 @@ using ArchiGungeon.DebugTools;
 using Alexandria.Misc;
 using ArchiGungeon.ModConsoleVisuals;
 using Alexandria.ItemAPI;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {

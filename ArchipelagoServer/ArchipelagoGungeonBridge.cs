@@ -7,21 +7,23 @@ using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
     public class ArchipelagoGungeonBridge
     {
-        private static long baseItemID = 8754000;
-        private static long consumableCategoryItemID = 8754100;
-        private static long trapCategoryItemID = 8754200;
-        private static long progressionItemID = 8754300;
-        private static long paradoxCharacterItemID = 8754400;
+        #region APWorld Data
+        private static readonly long baseItemID = 8754000;
+        private static readonly long consumableCategoryItemID = 8754100;
+        private static readonly long trapCategoryItemID = 8754200;
+        private static readonly long progressionItemID = 8754300;
+        private static readonly long paradoxCharacterItemID = 8754400;
+        private static readonly long undoCurseItemID = 8754500;
 
-        private static long undoCurseItemID = 8754500;
+        #endregion
 
-
-
+        #region Player References
         private static PlayerController playerOne;
         private static PlayerController playerTwo;
 
@@ -37,7 +39,9 @@ namespace ArchiGungeon.ArchipelagoServer
             playerTwo = controller;
             return;
         }
+        #endregion
 
+        #region Server Receive Events
         public static void DeathlinkKillPlayer(string causeOfDeath = "Deathlink")
         {
             
@@ -74,7 +78,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void GiveGungeonItem(long receivedItemID)
         {
-            bool foundSpecificItem = CheckForSpecificItem(receivedItemID);
+            bool foundSpecificItem = CheckIDForSpecificItem(receivedItemID);
 
             if(foundSpecificItem)
             {
@@ -123,8 +127,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
             return;
         }
+        #endregion
 
-        private static bool CheckForSpecificItem(long itemIdToCheck)
+        #region Item Spawning
+        private static bool CheckIDForSpecificItem(long itemIdToCheck)
         {
             bool matchedItem = false;
 
@@ -231,7 +237,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             return;
         }
-
+        #endregion
     }
 
 }

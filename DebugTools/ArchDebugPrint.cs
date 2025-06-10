@@ -2,27 +2,13 @@
 using System.IO;
 using System.Collections.Generic;
 using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.Data;
 using UnityEngine;
 using BepInEx;
 
 namespace ArchiGungeon.DebugTools
 {
-    public enum DebugCategory
-    {
-        PluginStartup,
-        PlayerEventListener,
-        LocalSaveData,
-        ServerReceive,
-        ServerSend,
-        CountingGoal,
-        EnemyRandomization,
-        InitializingGameState,
-        ItemHandling,
-        TrapHandling,
-        UserInterface,
-        GameCompletion,
-        CharacterSystems
-    }
+    
 
     public class ArchDebugPrint
     {

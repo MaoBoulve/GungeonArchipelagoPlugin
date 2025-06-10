@@ -19,34 +19,10 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using System.Collections.ObjectModel;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
-
-    public enum PlayerCompletionGoals
-    {
-        Dragun,
-        Lich,
-        PastsBase,
-        PastsFull,
-        SecretChamber,
-        AdvancedGungeon,
-        FarewellArms,
-    }
-
-
-
-    public struct CountGoalServerKeys
-    {
-        public string CountKey;
-
-        public CountGoalServerKeys(string countKey)
-        {
-            CountKey = countKey;
-            return;
-        }
-    }
-
 
     public class SessionHandler : MonoBehaviour
     {
@@ -117,13 +93,11 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Login successful, handling initializing via Slot Data");
 
             InitializeServerDataStorage();
-            PullLatestSlotData();
+            PullPlayerYAMLSlotData();
 
             BindToArchipelagoEvents();
             CheckToCreateDeathlink();
             CheckToRandomizeEnemies();
-            //CheckToInitializeParadoxMode();
-            //CheckReverseCurse();
 
 
             PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password);
@@ -201,7 +175,7 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        private static void PullLatestSlotData()
+        private static void PullPlayerYAMLSlotData()
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Pulling slot data");
 

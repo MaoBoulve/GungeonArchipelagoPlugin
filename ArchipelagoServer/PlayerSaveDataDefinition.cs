@@ -3,76 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ArchipelagoServer
 {
-    public struct PlayerConnectionInfo
-    {
-        public string IP;
-        public string Port;
-        public string PlayerName;
-        public string Password;
-
-        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString, string password = "")
-        {
-            IP = IPstring;
-            Port = portString;
-            PlayerName = playerNameString;
-            Password = password;
-            return;
-        }
-    }
-
-    public enum SaveCountStats
-    {
-        // public readonly int location_check_initial_ID = 8755000;
-        ChestsOpened,
-        RoomPoints,
-        CashSpent,
-
-        BlobulordKills,
-        OldKingKills,
-        RatKills,
-        DeptAgunimKills,
-        AdvancedDragunKills,
-        DragunKills,
-        LichKills,
-
-        Floor1Clears,
-        Floor2Clears,
-        Floor3Clears,
-        Floor4Clears,
-        Floor5Clears,
-        FloorHellClears,
-        FloorGoopClears,
-        FloorAbbeyClears,
-        FloorRatClears,
-        FloorDeptClears,
-
-        PastMarine,
-        PastConvict,
-        PastPilot,
-        PastHunter,
-        PastRobot,
-        PastBullet,
-        PastKills
-    }
-
-
 
     public class CountSaveData
     {
-       
-        public static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
-        {
-            { PlayerCompletionGoals.Lich, new SaveCountStats[] { SaveCountStats.LichKills } },
-            { PlayerCompletionGoals.Dragun, new SaveCountStats[] { SaveCountStats.DragunKills} },
-            { PlayerCompletionGoals.SecretChamber, new SaveCountStats[] { SaveCountStats.OldKingKills, SaveCountStats.BlobulordKills} },
-            { PlayerCompletionGoals.AdvancedGungeon, new SaveCountStats[] { SaveCountStats.AdvancedDragunKills, SaveCountStats.RatKills} },
-            { PlayerCompletionGoals.FarewellArms, new SaveCountStats[] { SaveCountStats.DeptAgunimKills} },
-            { PlayerCompletionGoals.PastsBase, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot} },
-            { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
-        };  
+        #region APWorld Data
 
         public static Dictionary<SaveCountStats, CountGoalServerKeys> CountStatToKeys { get; } = new Dictionary<SaveCountStats, CountGoalServerKeys>()
         {
@@ -109,6 +47,20 @@ namespace ArchiGungeon.ArchipelagoServer
             { SaveCountStats.PastKills, new CountGoalServerKeys("PastKills")},
         };
 
+        #endregion
+
+        #region Dictionary Inits
+        public static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
+        {
+            { PlayerCompletionGoals.Lich, new SaveCountStats[] { SaveCountStats.LichKills } },
+            { PlayerCompletionGoals.Dragun, new SaveCountStats[] { SaveCountStats.DragunKills} },
+            { PlayerCompletionGoals.SecretChamber, new SaveCountStats[] { SaveCountStats.OldKingKills, SaveCountStats.BlobulordKills} },
+            { PlayerCompletionGoals.AdvancedGungeon, new SaveCountStats[] { SaveCountStats.AdvancedDragunKills, SaveCountStats.RatKills} },
+            { PlayerCompletionGoals.FarewellArms, new SaveCountStats[] { SaveCountStats.DeptAgunimKills} },
+            { PlayerCompletionGoals.PastsBase, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot} },
+            { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
+        };  
+
         private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
         {
             { SaveCountStats.ChestsOpened, -1 },
@@ -144,9 +96,12 @@ namespace ArchiGungeon.ArchipelagoServer
             { SaveCountStats.PastKills, -1},
         };
 
-        //TO DO: set from server settings
+        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
         private static Dictionary<SaveCountStats, List<int>> LocationCheckGoals { get; set; } = new Dictionary<SaveCountStats, List<int>>();
 
+        #endregion
+
+        #region Goal Definitions
         private static Dictionary<SaveCountStats, List<int>> ShortGoals { get; } = new Dictionary<SaveCountStats, List<int>>()
         {
             { SaveCountStats.ChestsOpened, new List<int>{ 4, 8, 13, 18 }   },
@@ -207,7 +162,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             { SaveCountStats.PastKills, new List<int>{1, 2, 3, 4, 5, 6}  },
         };
+        #endregion
 
+        #region Goal Management
         public static void SetGoalList(int goalCase)
         {
             ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Getting goal case list: {goalCase}");
@@ -253,7 +210,6 @@ namespace ArchiGungeon.ArchipelagoServer
             
         }
 
-        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
         public static int GetCountStat(SaveCountStats statToGet)
         {
             int statData = SaveDataTrackedStats[statToGet];
@@ -346,6 +302,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
             else {  return false; }
         }
-
+        #endregion
     }
 }

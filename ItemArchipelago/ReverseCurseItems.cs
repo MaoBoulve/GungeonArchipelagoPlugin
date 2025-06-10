@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ItemArchipelago
 {

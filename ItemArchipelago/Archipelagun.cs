@@ -6,6 +6,7 @@ using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using ArchiGungeon.ArchipelagoServer;
 using static ArchiGungeon.Character.CharSwap;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon
 {

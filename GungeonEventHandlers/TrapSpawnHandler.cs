@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {

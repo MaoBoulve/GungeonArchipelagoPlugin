@@ -50,9 +50,10 @@
     <Compile Include="Character\MarineParadoxItem.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
+    <Compile Include="Data\DataDefinitions.cs" />
     <Compile Include="DebugTools\DebugCommands.cs" />
     <Compile Include="DebugTools\ArchDebugPrint.cs" />
-    <Compile Include="EnemyHandlers\EnemyGuidDatabase.cs" />
+    <Compile Include="Data\EnemyGuidDatabase.cs" />
     <Compile Include="EnemyHandlers\EnemySwapping.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />
     <Compile Include="ItemArchipelago\ReverseCurseItems.cs" />
