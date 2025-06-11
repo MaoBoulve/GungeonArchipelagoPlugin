@@ -27,6 +27,7 @@ namespace ArchiGungeon
 
         public const string MOD_ITEM_PREFIX = "arch";
 
+        #region Plugin Startup
         public static ArchipelagoGUI ArchipelagoModMenu { get; protected set; }
         private static bool isInit = false;
 
@@ -115,11 +116,16 @@ namespace ArchiGungeon
             return;
         }
 
-        private static void Log(string text, string color="#FFFFFF")
+        private static void Log(string text, string color = "#FFFFFF")
         {
             ETGModConsole.Log($"<color={color}>{text}</color>");
         }
 
+        #endregion
+
+
+
+        #region Unity Tick Management
         public void Update()
         {   
             if ( !isInit )
@@ -132,5 +138,7 @@ namespace ArchiGungeon
 
             return;
         }
+
+        #endregion
     }
 }

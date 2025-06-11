@@ -8,12 +8,12 @@ using BepInEx;
 
 namespace ArchiGungeon.DebugTools
 {
-    
+
+    #region Console Output
 
     public class ArchDebugPrint
     {
         
-
         private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
             {DebugCategory.PluginStartup, false },
@@ -33,7 +33,7 @@ namespace ArchiGungeon.DebugTools
 
         public static void ClearDebugLog()
         {
-            LocalDebugLogWriter.ClearLocalFile();
+            DebugFileWriter.ClearLocalFile();
         }
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)
@@ -53,7 +53,7 @@ namespace ArchiGungeon.DebugTools
             }
             else
             {
-                LocalDebugLogWriter.AppendToLocalDebugLog($"Group: {debugGroup} -- " + textToLog);
+                DebugFileWriter.AppendToLocalDebugLog($"Group: {debugGroup} -- " + textToLog);
             }
 
             return;
@@ -62,8 +62,8 @@ namespace ArchiGungeon.DebugTools
         internal static void OnCatchException(string condition, string stackTrace, LogType type)
         {
             //LocalDebugLogWriter.AppendToLocalDebugLog("\n\n ============ ERROR CAUGHT: Contact Archipelago mod developer to debug ============= \n\n");
-            LocalDebugLogWriter.AppendToLocalDebugLog(condition);
-            LocalDebugLogWriter.AppendToLocalDebugLog(stackTrace);
+            DebugFileWriter.AppendToLocalDebugLog(condition);
+            DebugFileWriter.AppendToLocalDebugLog(stackTrace);
 
             //LocalDebugLogWriter.StartWritingDebugToLocal();
 
@@ -83,7 +83,7 @@ namespace ArchiGungeon.DebugTools
 
             if(newState)
             {
-                LocalDebugLogWriter.StartWritingDebugToLocal();
+                DebugFileWriter.StartWritingDebugToLocal();
             }
 
             return;
@@ -91,7 +91,10 @@ namespace ArchiGungeon.DebugTools
         
     }
 
-    public class LocalDebugLogWriter
+    #endregion
+
+    #region File Writing
+    public class DebugFileWriter
     {
         public static string DocPath { get; } = Paths.ConfigPath;
         private static bool isWritingText = false;
@@ -151,4 +154,5 @@ namespace ArchiGungeon.DebugTools
             File.WriteAllText(@Path.Combine(DocPath, "ArchiGungeonDebug.txt"), "");
         }
     }
+    #endregion
 }

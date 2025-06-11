@@ -17,9 +17,11 @@ using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
+    #region Event Listening
     // See: https://github.com/Nevernamed22/Alexandria/blob/main/Misc/CustomActions.cs#L121
     public class GungeonPlayerEventListener
     {
+        #region Tracking Variables
         private static PlayerController PlayerOne { get; set; }
         private static PlayerController PlayerTwo { get; set; }
         private static bool IsOnOddCountChest { get; set; } = true;
@@ -27,6 +29,10 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static int ItemCountToReachToReplaceShopItem { get; } = 3;
         private static int CurrentShopItemCount { get; set; }
         private static bool PickedUpArchipelagun { get; set; }
+        private static int triggerTwinKills;
+        private static int killPillarKills;
+        private static int roomsClearedThisRun;
+        public static bool IsStartOfRun { get; private set; } = false;
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -42,7 +48,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             return null;
         }
 
+        #endregion
 
+        #region Gungeon IDs Definitions
         private static List<string> PastKillsGuids { get; } = new List<string>()
         {
              "8d441ad4e9924d91b6070d5b3438d066",
@@ -128,11 +136,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             "Uzi",
             "DesertEagle"
         };
+        #endregion
 
-        private static int triggerTwinKills;
-        private static int killPillarKills;
-        private static int roomsClearedThisRun;
-        public static bool IsStartOfRun { get; private set; } = false;
+        #region General Gungeon Event Listens
 
         public static void StartSystemEventListens()
         {
@@ -250,14 +256,14 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static void OnArchipelagoMenuOpen()
         {
             ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu opened, blocking character input");
-            KeyboardInputConsuming.BlockPlayerInputToCharacter(true);
+            PlayerInputModifier.BlockPlayerInputToCharacter(true);
             return;
         }
 
         private static void OnArchipelagoMenuClose()
         {
             ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu closed, resuming input");
-            KeyboardInputConsuming.BlockPlayerInputToCharacter(false);
+            PlayerInputModifier.BlockPlayerInputToCharacter(false);
             return;
         }
 
@@ -407,8 +413,11 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             return;
         }
+        #endregion
 
-
+        #region Player Event Listens
+        // events timed to listens after a player controller is instantiated
+        // With two players BOTH players fire events for these events, need to account for repeat cases.
         private static void StartPlayerControllerEventListens(PlayerController playerToListen)
         {
 
@@ -529,9 +538,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             // TODO: add table flip location
             return;
         }
+        #endregion
     }
+    #endregion
 
-    public class KeyboardInputConsuming
+    #region Input Modding
+    public class PlayerInputModifier
     {
         public static void BlockPlayerInputToCharacter(bool isBlocking)
         {
@@ -552,4 +564,5 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
     }
+    #endregion
 }

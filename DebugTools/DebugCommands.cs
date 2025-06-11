@@ -13,44 +13,10 @@ namespace ArchiGungeon.DebugTools
 
     public class DebugCommands
     {
-
+        #region Command Definitions
         //commands MUST have no spacing
-        public static Dictionary<AvailableDebugCMD, string> CommandToInputString { get; } = new Dictionary<AvailableDebugCMD, string>()
-        {
-            { AvailableDebugCMD.SpawnAPItem, "item" },
-            { AvailableDebugCMD.SendDeathlink, "sendDeath" },
-            { AvailableDebugCMD.ReceiveDeathlink, "receiveDeath" },
-            { AvailableDebugCMD.AddChest, "chest" },
-            { AvailableDebugCMD.Add1RoomPoint, "room" },
-            { AvailableDebugCMD.Add100CashSpent, "cash" },
-            { AvailableDebugCMD.Speedrun, "speedrun" },
-            { AvailableDebugCMD.FullDebug, "fullDebug" },
-            { AvailableDebugCMD.NoDebug, "noDebug" },
 
-            { AvailableDebugCMD.LoadFloor1, "floor1" },
-            { AvailableDebugCMD.LoadFloor2, "floor2" },
-            { AvailableDebugCMD.LoadFloor3, "floor3" },
-            { AvailableDebugCMD.LoadFloor4, "floor4" },
-            { AvailableDebugCMD.LoadFloor5, "floor5" },
-            { AvailableDebugCMD.LoadHell, "hell" },
-            { AvailableDebugCMD.LoadSewers, "sewers" },
-            { AvailableDebugCMD.LoadAbbey, "abbey" },
-            { AvailableDebugCMD.LoadRat, "rat" },
-            { AvailableDebugCMD.LoadDept, "dept" },
-
-            { AvailableDebugCMD.PastMarine, "pastmarine" },
-            { AvailableDebugCMD.PastConvict, "pastconvict" },
-            { AvailableDebugCMD.PastHunter, "pasthunter" },
-            { AvailableDebugCMD.PastPilot, "pastpilot" },
-            { AvailableDebugCMD.PastRobot, "pastrobot" },
-            { AvailableDebugCMD.PastBullet, "pastbullet" },
-            { AvailableDebugCMD.PastGunslinger, "pastgunslinger" },
-            { AvailableDebugCMD.PastCoop, "pastcoop" },
-
-            {AvailableDebugCMD.ReceiveItem, "receive" }
-        };
-
-        private static Dictionary<string, AvailableDebugCMD> InputToCommand { get; } = new Dictionary<string, AvailableDebugCMD>()
+        public static Dictionary<string, AvailableDebugCMD> InputToCommand { get; } = new Dictionary<string, AvailableDebugCMD>()
         {
             { "item", AvailableDebugCMD.SpawnAPItem},
             { "sendDeath", AvailableDebugCMD.SendDeathlink },
@@ -107,7 +73,9 @@ namespace ArchiGungeon.DebugTools
             { AvailableDebugCMD.PastGunslinger, "gunslingerpast" },
             { AvailableDebugCMD.PastCoop, "cultistpast" },
         };
+        #endregion
 
+        #region Debug Commands
         private static void DebugSpawnAPItem()
         {
             ArchipelagoGungeonBridge.SpawnAPItem(1);
@@ -189,7 +157,9 @@ namespace ArchiGungeon.DebugTools
 
             return;
         }
+        #endregion
 
+        #region Command Handling
         public static void HandleCommand(string inputString, string additionalInput = "")
         {
             if(!InputToCommand.ContainsKey(inputString))
@@ -283,5 +253,6 @@ namespace ArchiGungeon.DebugTools
             }
 
         }
+        #endregion
     }
 }

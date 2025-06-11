@@ -11,6 +11,7 @@ using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ModConsoleVisuals
 {
+    #region Mod Console Defition
     public delegate void MenuEvent();
 
     // Front end Archipelago menu
@@ -39,7 +40,7 @@ namespace ArchiGungeon.ModConsoleVisuals
         // The current instance of the GUI class
         public static ArchipelagoGUI Instance { get; protected set; }
 
-
+        #region Initializing GUI
         public ArchipelagoGUI()
         {
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Creating ArchiGungeon GUI");
@@ -122,7 +123,9 @@ namespace ArchiGungeon.ModConsoleVisuals
 
             return;
         }
+        #endregion
 
+        #region General GUI Commands
         private void PrintHelpTextToConsole()
         {
             foreach (SLabel helpText in ModMenuText.HelpCommandText)
@@ -137,7 +140,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
             ConsoleLog("==================  FOLLOWING ARE DEBUG COMMANDS");
 
-            foreach(string commadText in DebugCommands.CommandToInputString.Values)
+            foreach(string commadText in DebugCommands.InputToCommand.Keys)
             {
                 ConsoleLog(commadText);
             }
@@ -177,7 +180,7 @@ namespace ArchiGungeon.ModConsoleVisuals
         // Log internally in Archipelago & ETGModConsole menus
         public static SLabel ConsoleLog(object text, bool debuglog = false)
         {
-            LocalDebugLogWriter.AppendToLocalDebugLog(text.ToString());
+            DebugFileWriter.AppendToLocalDebugLog(text.ToString());
 
             if (Instance == null)
             {
@@ -247,6 +250,44 @@ namespace ArchiGungeon.ModConsoleVisuals
             return;
         }
 
+        public override void Update()
+        {
+            if (IsOpen && IsHoldingInput)
+            {
+                // keep focus on UI while open
+                base.GUI[1].Focus();
+            }
+
+            if (!IsHoldingInput)
+            {
+                IsHoldingInput = true;
+            }
+
+            return;
+        }
+
+        public override void OnOpen()
+        {
+            base.OnOpen();
+            base.GUI[1].Focus();
+            IsOpen = true;
+
+            return;
+        }
+
+
+        public override void OnClose()
+        {
+            base.OnClose();
+            OnMenuClose.Invoke();
+            IsOpen = false;
+
+            return;
+        }
+
+        #endregion
+
+        #region Archipelago Command Frontend
         protected void ParseCommandForArchipelago(string command)
         {
             string[] commandInputs;
@@ -378,42 +419,6 @@ namespace ArchiGungeon.ModConsoleVisuals
             return;
         }
 
-
-        public override void Update()
-        {
-            if (IsOpen && IsHoldingInput)
-            {
-                // keep focus on UI while open
-                base.GUI[1].Focus();
-            }
-
-            if(!IsHoldingInput)
-            {
-                IsHoldingInput = true;
-            }
-
-            return;
-        }
-
-        public override void OnOpen()
-        {
-            base.OnOpen();
-            base.GUI[1].Focus();
-            IsOpen = true;
-
-            return;
-        }
-
-
-        public override void OnClose()
-        {
-            base.OnClose();
-            OnMenuClose.Invoke();
-            IsOpen = false;
-
-            return;
-        }
-
         public static void SetConnectionParameter(string paramToSet, string textValue)
         {
             switch (paramToSet)
@@ -451,9 +456,11 @@ namespace ArchiGungeon.ModConsoleVisuals
             return;
         }
 
+        #endregion
     }
+    #endregion
 
-
+    #region Command Text References
     public class ModMenuText
     {
         public static List<SLabel> HelpCommandText { get; } = new List<SLabel>()
@@ -501,7 +508,9 @@ namespace ArchiGungeon.ModConsoleVisuals
             new SLabel("") { Foreground = UnityEngine.Color.green }
         };
     }
+    #endregion
 
+    #region Archipelago ETG Mod Console Hook
     public class ArchipelConsoleCommandParser
     {
 
@@ -578,5 +587,6 @@ namespace ArchiGungeon.ModConsoleVisuals
         }
 
     }
+    #endregion
 
 }

@@ -14,6 +14,7 @@ namespace ArchiGungeon.ItemArchipelago
 
     public class APPickUpItem: PassiveItem
     {
+        #region Item Init
         private static long APItemStartID { get; } = 8755000;
 
         private static List<long> remainingLocationIDs = new List<long>();
@@ -47,7 +48,9 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
+        #endregion
 
+        #region Item Behavior
         public static void RegisterAPItemLocations(int APItemCount)
         {
             for (int i = 0; i < APItemCount; i++)
@@ -109,6 +112,6 @@ namespace ArchiGungeon.ItemArchipelago
             return (remainingLocationIDs.Count > 0);
         }
 
-
+        #endregion
     }
 }

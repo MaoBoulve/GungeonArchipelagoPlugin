@@ -14,8 +14,9 @@ namespace ArchiGungeon.EnemyHandlers
         private static float enemyDamageMult = 4.0f;
         private static int enemiesToShufflePerRoom = 15;
         private static int currentShuffleCount = 0;
-        private static List<AIActor> actorsClearedForShuffling = new List<AIActor>();
+        private static List<AIActor> actorsValidForShuffling = new List<AIActor>();
 
+        #region Enemy GUID Shuffling
         public static void InitializeEnemySwapper()
         {
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting Enemy Swapper");
@@ -50,7 +51,9 @@ namespace ArchiGungeon.EnemyHandlers
             ShuffledEnemyGUIDs.Clear();
             return;
         }
+        #endregion
 
+        #region Enemy Spawn Handling
         private static void OnActorPreStart(AIActor actor)
         {
             if(currentShuffleCount > enemiesToShufflePerRoom)
@@ -58,7 +61,7 @@ namespace ArchiGungeon.EnemyHandlers
                 return;
             }
 
-            actorsClearedForShuffling.Add(actor);
+            actorsValidForShuffling.Add(actor);
             CheckToShuffleEnemySpawn(actor);
 
             return;
@@ -141,12 +144,12 @@ namespace ArchiGungeon.EnemyHandlers
         private static void OnActorPostStart(AIActor actor)
         {
             
-            if(!actorsClearedForShuffling.Contains(actor))
+            if(!actorsValidForShuffling.Contains(actor))
             {
                 return;
             }
 
-            actorsClearedForShuffling.Remove(actor);
+            actorsValidForShuffling.Remove(actor);
             string currentID = actor.EnemyGuid;
 
             if (ShuffledEnemyGUIDs.ContainsKey(currentID))
@@ -157,5 +160,6 @@ namespace ArchiGungeon.EnemyHandlers
             return;
         }
 
+        #endregion
     }
 }
