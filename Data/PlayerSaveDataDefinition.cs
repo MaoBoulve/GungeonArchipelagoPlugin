@@ -5,7 +5,7 @@ using System.Text;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Data;
 
-namespace ArchiGungeon.ArchipelagoServer
+namespace ArchiGungeon.Data
 {
 
     public class CountSaveData

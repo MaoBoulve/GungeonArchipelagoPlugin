@@ -94,7 +94,4 @@ namespace ArchiGungeon.DebugTools
 
     #endregion
 
-    #region File Writing
-    
-    #endregion
 }
