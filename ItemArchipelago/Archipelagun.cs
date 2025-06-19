@@ -141,8 +141,6 @@ namespace ArchiGungeon
         {
             if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
             {
-                //ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
-                //CharSwap.SetPlayerToNextAvailableChar(controller);
                 SessionHandler.ReconnectSession();
             }
 

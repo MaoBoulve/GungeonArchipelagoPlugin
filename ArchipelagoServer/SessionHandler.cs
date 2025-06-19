@@ -128,7 +128,6 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        // TODO: function to reconnect using local json save
 
         private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = "")
         {
@@ -230,11 +229,13 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             if (Session == null)
             {
+                ServerConnectWithLocalData();
                 //ArchipelagoGUI.ConsoleLog("Not connected to a session!");
                 return;
             }
             else if (Session.Socket.Connected == false)
             {
+                ServerConnectWithLocalData();
                 //ArchipelagoGUI.ConsoleLog("Not connected to a session!");
                 return;
             }
@@ -247,6 +248,21 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
 
         }
+
+        public static void ServerConnectWithLocalData()
+        {
+            if (ConnectionDataWriter.CheckPreviousConnectionExists() == true)
+            {
+                PlayerConnectionInfo localConnectData = ConnectionDataWriter.PreviousConnectionSettings;
+                ArchipelagoConnect(localConnectData.IP, localConnectData.Port, localConnectData.PlayerName, localConnectData.Password);
+            }
+            else
+            {
+                ArchipelagoGUI.ConsoleLog("No data for previous connection could be found!");
+            }
+                return;
+        }
+
         #endregion
 
         #region Archipelago Initializing

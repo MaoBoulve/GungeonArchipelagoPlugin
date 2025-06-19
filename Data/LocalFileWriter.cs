@@ -12,6 +12,20 @@ using ArchiGungeon.Data;
 
 namespace ArchiGungeon.Data
 {
+
+    #region Save Data 
+    public class SaveDataWriter
+    {   
+        // using randomizer key as save data key
+        private static string ConfigPath { get; } = Paths.ConfigPath;
+        private const string SAVE_DATA_FILENAME = "ArchipelaGunSave.json";
+
+        // TODO: write sava data by slot name + randomizer key as file name
+        // todo: serialize count save data
+    }
+
+    #endregion
+
     #region Connection Data
     public class ConnectionDataWriter
     {
@@ -55,7 +69,7 @@ namespace ArchiGungeon.Data
         {
             if (File.Exists(Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME)) == false)
             {
-                ArchipelagoGUI.ConsoleLog("ERROR: No data for previous connection could be found!");
+                
                 return false;
             }
 
@@ -65,19 +79,6 @@ namespace ArchiGungeon.Data
 
             return true;
         }
-
-        public static void SaveLocalArchipelagoData()
-        {
-            // TODO: write sava data by slot name + randomizer key as file name
-            // todo: serialize count save data
-
-            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Connection & player data locally saved at: ");
-
-            // todo: figure format of output
-            return;
-        }
-
-
 
     }
 
