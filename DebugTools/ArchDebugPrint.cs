@@ -33,7 +33,8 @@ namespace ArchiGungeon.DebugTools
 
         public static void ClearDebugLog()
         {
-            DebugFileWriter.ClearLocalFile();
+            DebugFileWriter.CheckForOldestDebugFile();
+            DebugFileWriter.ClearLocalOldestFile();
         }
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)
@@ -96,7 +97,18 @@ namespace ArchiGungeon.DebugTools
     #region File Writing
     public class DebugFileWriter
     {
-        public static string DocPath { get; } = Paths.ConfigPath;
+        private static string DocPath { get; } = Paths.ConfigPath;
+        private static string[] DebugFilename { get; } = 
+        [
+            Path.Combine(DocPath, "ArchiGungeonDebug_A.txt"),
+            Path.Combine(DocPath, "ArchiGungeonDebug_B.txt"),
+            Path.Combine(DocPath, "ArchiGungeonDebug_C.txt"),
+            Path.Combine(DocPath, "ArchiGungeonDebug_D.txt")
+        ];
+
+        private static string oldestFile = "N/A";
+        private static string fileToWrite;
+
         private static bool isWritingText = false;
         private static List<string> TextLog { get; } = new List<string>();
 
@@ -120,7 +132,7 @@ namespace ArchiGungeon.DebugTools
             }
 
             isWritingText = true;
-            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {fileToWrite} **=== \n\n");
             WriteCurrentLogToFile();
 
             return;
@@ -128,7 +140,7 @@ namespace ArchiGungeon.DebugTools
 
         private static void WriteCurrentLogToFile()
         {
-            using(StreamWriter outputFile = new StreamWriter(Path.Combine(DocPath, "ArchiGungeonDebug.txt"), true))
+            using(StreamWriter outputFile = new StreamWriter(fileToWrite, true))
             {
                 foreach (string debugEntry in TextLog)
                 {
@@ -141,7 +153,7 @@ namespace ArchiGungeon.DebugTools
 
         private static void AppendWriteToFile(string newText)
         {
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(DocPath, "ArchiGungeonDebug.txt"), true))
+            using (StreamWriter outputFile = new StreamWriter(fileToWrite, true))
             {
                 outputFile.WriteLine(newText);
             }
@@ -149,9 +161,49 @@ namespace ArchiGungeon.DebugTools
             return;
         }
 
-        public static void ClearLocalFile()
+        public static void ClearLocalOldestFile()
         {
-            File.WriteAllText(@Path.Combine(DocPath, "ArchiGungeonDebug.txt"), "");
+            File.Delete(oldestFile);
+            return;
+        }
+
+        public static void CheckForOldestDebugFile()
+        {
+
+            int filenameCount = DebugFilename.Length;
+
+            if (File.Exists(DebugFilename[filenameCount - 1]) == true)
+            {
+                // last entry exists
+
+                for (int i = 0; i <= (filenameCount - 2); i++)
+                {
+                    if (File.Exists(DebugFilename[i]) == false)
+                    {
+                        // C doesn't exist, D is oldest
+                        fileToWrite = DebugFilename[i];
+                        oldestFile = DebugFilename[i + 1];
+                        return;
+                    }
+                }
+            }
+
+            
+            for (int i = 0; i <= (filenameCount - 2); i++)
+            {
+                if(File.Exists(DebugFilename[i]) == false)
+                {
+                    fileToWrite = DebugFilename[i];
+                    return;
+                }
+            }
+
+            // if still in function, first (length - 1) entries exist
+
+            oldestFile = DebugFilename[0];
+            fileToWrite = DebugFilename[filenameCount - 1];
+            return;
+
         }
     }
     #endregion
