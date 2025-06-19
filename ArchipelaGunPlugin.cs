@@ -134,7 +134,7 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            SessionHandler.Update();
+            SessionHandler.TickCheckItemQueue();
 
             return;
         }

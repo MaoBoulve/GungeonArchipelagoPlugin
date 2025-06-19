@@ -27,13 +27,10 @@ namespace ArchiGungeon.ArchipelagoServer
     public class SessionHandler : MonoBehaviour
     {
         public static ArchipelagoSession Session { get; protected set; }
-        public static DeathLinkService DeathLinkService { get; protected set; }
+
+        #region Initializing Variables
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
         private static PlayerConnectionInfo PlayerServerInfo { get; set; }
-
-        private static TimedServerCalls CoroutineHelperObject { get; set; }
-        private static bool ShouldOutputCheckBeInteruppted { get; set; } = false;
-        private static bool HandlingDeathlinkEvent { get; set; } = false;
 
         private static Dictionary<PlayerCompletionGoals, string> GameCompletionGoalKeys { get; } = new Dictionary<PlayerCompletionGoals, string>()
         {
@@ -46,12 +43,27 @@ namespace ArchiGungeon.ArchipelagoServer
             { PlayerCompletionGoals.FarewellArms, "FarewellArms" },
         };
 
+        #endregion
+
+        #region Item Handling Variables
         private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
 
         private static bool IsProgressItemsGiven { get; set; } = false;
-        public static bool IsReadyToSpawn { get; private set; } = false;
+        public static bool IsValidToSpawnItems { get; private set; } = false;
+        #endregion
 
+        #region Randomizer Parameter Variables
+        public static DeathLinkService DeathLinkService { get; protected set; }
+
+        private static bool HandlingDeathlinkEvent { get; set; } = false;
+
+        private static bool ShouldOutputCheckBeInteruppted { get; set; } = false;
+        #endregion
+
+
+
+        #region Connection Handling
         // CONNECTION HANDLING ===============================
 
         public static void ArchipelagoConnect(string ip, string port, string name, string password = "")
@@ -101,7 +113,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
 
             PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password);
-            LocalSaveDataHandler.SaveArchipelagoConnectionSettings(PlayerServerInfo);
+            ConnectionDataWriter.SaveArchipelagoConnectionSettings(PlayerServerInfo);
 
             InitializeAPLocationChecks();
 
@@ -235,114 +247,85 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
 
         }
+        #endregion
 
+        #region Archipelago Initializing
         private static void BindToArchipelagoEvents()
         {
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Binding to Session delegate events");
+
             // binds
-            Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
+
             Session.Items.ItemReceived += DataReceiver.OnItemReceived;
-            Session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
+
+            //Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
+            //Session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
 
             return;
         }
 
 
-
-        // DEATHLINK =====================
-
-        private static void CheckToCreateDeathlink()
+        // =====================================================================
+        // LOCATION CHECKS =========================================================================
+        // ===================================================
+        private static void InitializeAPLocationChecks()
         {
-            // deathlink
-            if (Convert.ToInt32(PlayerSlotSettings["DeathLink"]) == 1)
-            {
-                InitializeDeathlink(true);
-                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink ON");
-            }
-            else
-            {
-                InitializeDeathlink(false);
-                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink off");
-            }
-        }
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
 
-        private static void InitializeDeathlink(bool isDeathlinkEnabled)
-        {
-            DeathLinkService = Session.CreateDeathLinkService();
+            int userAchievementCase = Convert.ToInt32(PlayerSlotSettings["AchievementChecks"]);
+            CountSaveData.SetGoalList(userAchievementCase);
 
-            if (isDeathlinkEnabled)
+            List<SaveCountStats> countStatLocationChecks = CountSaveData.GetListOfStatsWithGoals();
+            foreach (SaveCountStats stats in countStatLocationChecks)
             {
-                DeathLinkService.EnableDeathLink();
+                AchievementLocationCheckHandler.SetStatLocationIDsFromGoalList(stats);
             }
 
-            DeathLinkService.OnDeathLinkReceived += DataReceiver.OnDeathlink;
+            int itemLocationCheckCase = Convert.ToInt32(PlayerSlotSettings["APItemChecks"]);
+
+
+            int baseChecks = APPickUpItem.GetBaseAPItemAmount(itemLocationCheckCase);
+            int extraLocations = Convert.ToInt32(PlayerSlotSettings["ExtraLocations"]);
+            int totalChest = baseChecks + extraLocations;
+
+            APPickUpItem.RegisterAPItemLocations(totalChest);
+
+
+            //List<long> allServerLocations = Session.Locations.AllLocations.ToList();
+            //ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
 
             return;
         }
 
-        public static void SetDeathLinkMode(int modeToSet)
+        // RUN START ===========================================================
+
+        public static void CheckForRunStartServerSettingInstantiation()
         {
-            if(DeathLinkService == null || Session == null)
+            if (Session == null)
             {
-                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+
                 return;
             }
 
-            switch (modeToSet)
+            if (Session.Socket.Connected == false)
             {
-                case 0:
-                    DeathLinkService.DisableDeathLink();
-                    return;
-                case 1:
-                    DeathLinkService.EnableDeathLink();
-                    return;
-                case 2:
-                    DeathLinkService.EnableDeathLink();
-                    return;
-                default:
-                    ArchipelagoGUI.ConsoleLog("Invalid deathlink mode setting!");
-                    return;
+                return;
             }
-        }
 
-        // ENEMIES =========================================================
+            CheckToInitializeParadoxMode();
 
-        private static void CheckToRandomizeEnemies()
-        {
-  
-            if (Convert.ToInt32(PlayerSlotSettings["RandomEnemies"]) == 1)
-            {
-                InitializeEnemySwapper();
-                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Random enemies");
-            }
-            else
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Enemies not randomized");
-            }
+            CheckCoroutineHelperValid();
+            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
+
+
             return;
+
         }
 
-        // PARADOX MODE =========================================================
+        #endregion
 
-        private static bool CheckToInitializeParadoxMode()
-        {   
 
-            if(Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
-            {
-                PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
-                
-                //ETGModConsole.Instance?.ParseCommand("character paradox");
-                //GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
-                //LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
-
-                CharSwap.StartParadoxMode(playerController);
-
-                return true;
-            }
-
-            return false;
-        }
-
+        #region Item Handling
 
         // ITEM RETRIEVAL ===============================
 
@@ -354,7 +337,7 @@ namespace ArchiGungeon.ArchipelagoServer
             itemsHandledThisRun.Clear();
             IsReverseCurseSetForRun = false;
             IsProgressItemsGiven = false;
-            IsReadyToSpawn = false;
+            IsValidToSpawnItems = false;
             HandlingDeathlinkEvent = false;
 
             return;
@@ -445,9 +428,30 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static void Update()
+
+        private static void CheckForProgressItems()
         {
-            if (item_add_queue.Count > 0 && IsReadyToSpawn)
+            if (IsProgressItemsGiven)
+            {
+                return;
+            }
+
+            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]) != 0)
+            {
+                ProgressionItemSpawnHandler.GivePastBullet();
+            }
+
+            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.AdvancedGungeon]]) == 1)
+            {
+                ProgressionItemSpawnHandler.GiveRatNotes();
+            }
+
+            IsProgressItemsGiven = true;
+        }
+
+        public static void TickCheckItemQueue()
+        {
+            if (item_add_queue.Count > 0 && IsValidToSpawnItems)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ItemHandling, $"Handling item ID: {item_add_queue[0]}");
 
@@ -456,7 +460,7 @@ namespace ArchiGungeon.ArchipelagoServer
                     ArchipelagoGungeonBridge.GiveGungeonItem(item_add_queue[0]);
                     itemsHandledThisRun.Add(item_add_queue[0]);
                 }
-                
+
 
                 catch (Exception ex)
                 {
@@ -469,71 +473,85 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        // USER OUTPUT HELPER ===============================
+        #endregion
 
-        public static void OutputGameGoalStatus()
+
+        #region Deathlink
+        // DEATHLINK =====================
+
+        private static void CheckToCreateDeathlink()
         {
-            if (Session == null)
+            // deathlink
+            if (Convert.ToInt32(PlayerSlotSettings["DeathLink"]) == 1)
             {
-                ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
-                return;
+                InitializeDeathlink(true);
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink ON");
             }
-            ShouldOutputCheckBeInteruppted = false;
-
-            DataSender.CheckForGameCompletion();
-
-            if(ShouldOutputCheckBeInteruppted)
+            else
             {
-                ArchipelagoGUI.ConsoleLog("\n\nHad to pull server data for Goal Progress. Please hold ========== \n");
-
-                CheckCoroutineHelperValid();
-                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.DelayOutputRepeatCall());
-
-                return;
+                InitializeDeathlink(false);
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Deathlink off");
             }
+        }
 
-            foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
+        private static void InitializeDeathlink(bool isDeathlinkEnabled)
+        {
+            DeathLinkService = Session.CreateDeathLinkService();
+
+            if (isDeathlinkEnabled)
             {
-                List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
-
-                if(playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
-                {
-                    int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
-
-                    if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
-                    {
-                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
-                    }
-                    else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
-                    {
-                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
-                    }
-                }
-
-                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
-                {
-                   statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
-
-                }
-
-                foreach (SaveCountStats statCheck in statsForGoal)
-                {
-                    int statCount = CountSaveData.GetCountStat(statCheck);
-                    string killConfirm = "*** YES ****";
-
-                    if (statCount < 1)
-                    {
-                        killConfirm = "NO";
-                    }
-
-                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {playerGoal}: {statCheck} -- Killed: {killConfirm}");
-                }
+                DeathLinkService.EnableDeathLink();
             }
 
-            
+            DeathLinkService.OnDeathLinkReceived += DataReceiver.OnDeathlink;
 
             return;
         }
+
+        public static void SetDeathLinkMode(int modeToSet)
+        {
+            if (DeathLinkService == null || Session == null)
+            {
+                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+
+            switch (modeToSet)
+            {
+                case 0:
+                    DeathLinkService.DisableDeathLink();
+                    return;
+                case 1:
+                    DeathLinkService.EnableDeathLink();
+                    return;
+                case 2:
+                    DeathLinkService.EnableDeathLink();
+                    return;
+                default:
+                    ArchipelagoGUI.ConsoleLog("Invalid deathlink mode setting!");
+                    return;
+            }
+        }
+        #endregion
+
+        #region Enemies
+        // ENEMIES =========================================================
+
+        private static void CheckToRandomizeEnemies()
+        {
+
+            if (Convert.ToInt32(PlayerSlotSettings["RandomEnemies"]) == 1)
+            {
+                InitializeEnemySwapper();
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Random enemies");
+            }
+            else
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Enemies not randomized");
+            }
+            return;
+        }
+
 
         // ENEMY SWAPPER ==========================================
 
@@ -549,37 +567,43 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        // =====================================================================
-        // LOCATION CHECKS =========================================================================
-        // ===================================================
-        private static void InitializeAPLocationChecks()
+        #endregion
+
+        #region Paradox Mode
+        // PARADOX MODE =========================================================
+
+        private static bool CheckToInitializeParadoxMode()
         {
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
 
-            int userAchievementCase = Convert.ToInt32(PlayerSlotSettings["AchievementChecks"]); 
-            CountSaveData.SetGoalList(userAchievementCase);
-
-            List<SaveCountStats> countStatLocationChecks = CountSaveData.GetListOfStatsWithGoals();
-            foreach( SaveCountStats stats in countStatLocationChecks )
+            if (Convert.ToInt32(PlayerSlotSettings["Paradox"]) == 1)
             {
-                AchievementLocationCheckHandler.SetStatLocationIDsFromGoalList(stats);
+                PlayerController playerController = GungeonPlayerEventListener.GetFirstAlivePlayer();
+
+                //ETGModConsole.Instance?.ParseCommand("character paradox");
+                //GameObject archipelItem = PickupObjectDatabase.GetById(Archipelagun.SpawnItemID).gameObject;
+                //LootEngine.SpawnItem(archipelItem, playerController.CenterPosition, Vector2.zero, 0);
+
+                CharSwap.StartParadoxMode(playerController);
+
+                return true;
             }
 
-            int itemLocationCheckCase = Convert.ToInt32(PlayerSlotSettings["APItemChecks"]);
-
-
-            int baseChecks = APPickUpItem.GetBaseAPItemAmount(itemLocationCheckCase);
-            int extraLocations = Convert.ToInt32(PlayerSlotSettings["ExtraLocations"]);
-            int totalChest = baseChecks + extraLocations;
-
-            APPickUpItem.RegisterAPItemLocations(totalChest);
-            
-
-            //List<long> allServerLocations = Session.Locations.AllLocations.ToList();
-            //ArchipelagoGUI.ConsoleLog($"There are {allServerLocations.Count} total locations in gungeon");
-
-            return;
+            return false;
         }
+
+        public static void HandleParadoxModeInit()
+        {
+
+            RetrieveServerItems();
+            CheckForProgressItems();
+
+            IsValidToSpawnItems = true;
+            //CheckReverseCurse();
+        }
+
+        #endregion
+
+        #region Reverse Curse
 
         // REVERSE CURSE =================================================
 
@@ -612,62 +636,80 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        // RUN START ===========================================================
+        #endregion
 
-        public static void CheckForRunStartServerSettingInstantiation()
+
+        #region User Output
+        // USER OUTPUT HELPER ===============================
+
+        public static void OutputGameGoalStatus()
         {
             if (Session == null)
             {
-
+                ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                 return;
             }
+            ShouldOutputCheckBeInteruppted = false;
 
-            if (Session.Socket.Connected == false)
+            DataSender.CheckForGameCompletion();
+
+            if (ShouldOutputCheckBeInteruppted)
             {
+                ArchipelagoGUI.ConsoleLog("\n\nHad to pull server data for Goal Progress. Please hold ========== \n");
+
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.DelayOutputRepeatCall());
+
                 return;
             }
 
-            CheckToInitializeParadoxMode();
+            foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
+            {
+                List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
 
-            CheckCoroutineHelperValid();
-            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
+                if (playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
+                {
+                    int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
+
+                    if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
+                    {
+                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                    }
+                    else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
+                    {
+                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                    }
+                }
+
+                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
+                {
+                    statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
+
+                }
+
+                foreach (SaveCountStats statCheck in statsForGoal)
+                {
+                    int statCount = CountSaveData.GetCountStat(statCheck);
+                    string killConfirm = "*** YES ****";
+
+                    if (statCount < 1)
+                    {
+                        killConfirm = "NO";
+                    }
+
+                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {playerGoal}: {statCheck} -- Killed: {killConfirm}");
+                }
+            }
+
 
 
             return;
-
         }
 
-        public static void HandleParadoxModeInit()
-        {
-            
-            RetrieveServerItems();
-            CheckForProgressItems();
-
-            IsReadyToSpawn = true;
-            //CheckReverseCurse();
-        }
+        #endregion
 
 
-
-        private static void CheckForProgressItems()
-        {
-            if(IsProgressItemsGiven) 
-            {
-                return;
-            }
-
-            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]) != 0)
-            {
-                ProgressionItemSpawnHandler.GivePastBullet();
-            }
-
-            if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.AdvancedGungeon]]) == 1)
-            {
-                ProgressionItemSpawnHandler.GiveRatNotes();
-            }
-
-            IsProgressItemsGiven = true;
-        }
+        #region Server Communication
 
         //
         //
@@ -678,6 +720,8 @@ namespace ArchiGungeon.ArchipelagoServer
         public class DataSender
         {
 
+            #region High Priority Send Functions
+            // High priority generally meaning, randomizer hard stops if these fail communication
             public static void SendFoundLocationCheck(long idToSend)
             {
                 //ScoutFoundLocationCheck(idToSend);
@@ -708,6 +752,76 @@ namespace ArchiGungeon.ArchipelagoServer
                 DeathLinkService.SendDeathLink(new DeathLink(deathName, causeOfDeath));
                 return;
             }
+
+            public static void CheckForGameCompletion()
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, "Checking for game completion");
+
+                foreach (PlayerCompletionGoals playerGoalEnum in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
+                {
+                    List<SaveCountStats> statsToCheck = new List<SaveCountStats>();
+
+                    //Setup stats to check for goal completion
+                    if (playerGoalEnum == PlayerCompletionGoals.PastsFull || playerGoalEnum == PlayerCompletionGoals.PastsBase)
+                    {
+                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
+
+                        if (pastsCase == 1)
+                        {
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking Base 4 Pasts");
+                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                        }
+                        else if (pastsCase == 2)
+                        {
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking 6 Pasts");
+                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                        }
+                    }
+
+                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoalEnum]]) == 1)
+                    {
+                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{playerGoalEnum} marked for game completion check by Slot Data");
+                        statsToCheck = CountSaveData.GoalToStatChecks[playerGoalEnum].ToList();
+                    }
+
+                    // Iterate through savecountstats enum
+                    foreach (SaveCountStats statCheck in statsToCheck)
+                    {
+                        int statCount = CountSaveData.GetCountStat(statCheck);
+                        if (statCount < 0)
+                        {
+                            ShouldOutputCheckBeInteruppted = true;
+                            AsyncPullCountFromServer(statCheck);
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{statCheck} stat not initialized, STOPPING game completion check");
+                            return;
+                        }
+
+                        if (statCount < 1)
+                        {
+                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {statCheck} not met, STOPPING game completion check");
+                            return;
+                        }
+                    }
+                }
+
+                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal checks passed! Sending completion event");
+
+                SendGameCompletion();
+                return;
+            }
+
+            private static void SendGameCompletion()
+            {
+                StatusUpdatePacket statusUpdatePacket = new StatusUpdatePacket();
+                statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
+                Session.Socket.SendPacket(statusUpdatePacket);
+                return;
+            }
+
+            #endregion
+
+        // TODO: refactor save data management to local file!! GRAA
+            #region Save Data Management
 
             public static void PullBasicCountStatsData()
             {
@@ -790,80 +904,6 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
 
-
-            public static void CheckForGameCompletion()
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, "Checking for game completion");
-
-                foreach(PlayerCompletionGoals playerGoalEnum in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
-                {
-                    List<SaveCountStats> statsToCheck = new List<SaveCountStats>();
-
-                    //Setup stats to check for goal completion
-                    if (playerGoalEnum == PlayerCompletionGoals.PastsFull || playerGoalEnum == PlayerCompletionGoals.PastsBase)
-                    {
-                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
-
-                        if (pastsCase == 1)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking Base 4 Pasts");
-                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
-                        }
-                        else if (pastsCase == 2)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking 6 Pasts");
-                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
-                        }
-                    }
-
-                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoalEnum]]) == 1)
-                    {
-                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{playerGoalEnum} marked for game completion check by Slot Data");
-                        statsToCheck = CountSaveData.GoalToStatChecks[playerGoalEnum].ToList();
-                    }
-
-                    // Iterate through savecountstats enum
-                    foreach (SaveCountStats statCheck in statsToCheck)
-                    {
-                        int statCount = CountSaveData.GetCountStat(statCheck);
-                        if (statCount < 0)
-                        {
-                            ShouldOutputCheckBeInteruppted = true;
-                            AsyncPullCountFromServer(statCheck);
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{statCheck} stat not initialized, STOPPING game completion check");
-                            return;
-                        }
-
-                        if (statCount < 1)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {statCheck} not met, STOPPING game completion check");
-                            return;
-                        }
-                    }
-                }
-
-                ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal checks passed! Sending completion event");
-
-                SendGameCompletion();
-                return;
-            }
-
-            private static void SendGameCompletion()
-            {
-                StatusUpdatePacket statusUpdatePacket = new StatusUpdatePacket();
-                statusUpdatePacket.Status = ArchipelagoClientState.ClientGoal;
-                Session.Socket.SendPacket(statusUpdatePacket);
-                return;
-            }
-
-            public static void SendChatMessage(string message)
-            {
-                Session.Socket.SendPacketAsync(new SayPacket
-                {
-                    Text = message
-                });
-            }
-
             public static void AddToGoalCount(SaveCountStats statToAdd, int numberToAdd)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
@@ -927,6 +967,17 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
+            #endregion
+
+            #region Low Priority Send Functions
+            public static void SendChatMessage(string message)
+            {
+                Session.Socket.SendPacketAsync(new SayPacket
+                {
+                    Text = message
+                });
+            }
+
             public static void ScoutFoundLocationCheck(long locationID)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Scouting location check: {locationID}");
@@ -941,6 +992,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 locationID);
                 return;
             }
+            #endregion
 
         }
 
@@ -952,26 +1004,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public class DataReceiver
         {
-
-            public static void OnPacketReceived(ArchipelagoPacketBase packet)
-            {
-
-                //ArchipelagoGUI.ConsoleLog(packet);
-
-                /*
-                if (packet is ItemPrintJsonPacket)
-                {
-                    ItemPrintJsonPacket itemPrintJsonPacket = (ItemPrintJsonPacket)packet;
-                    if (itemPrintJsonPacket.ReceivingPlayer == session.ConnectionInfo.Slot || session.Locations.AllLocations.Contains(itemPrintJsonPacket.Item.Location))
-                    {
-                        string game = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.Item.Player].Game;
-                        string game2 = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.ReceivingPlayer].Game;
-                        ArchipelagoPickupNotification(session.Players.GetPlayerName(itemPrintJsonPacket.ReceivingPlayer) + " got " + session.Items.GetItemName(itemPrintJsonPacket.Item.Item, game2), "from " + session.Locations.GetLocationNameFromId(itemPrintJsonPacket.Item.Location, game));
-                    }
-                }
-                */
-            }
-
+            #region High Priority Receive Calls
 
             public static void OnDeathlink(DeathLink deathLink)
             {
@@ -1006,12 +1039,9 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
-            
-            public static void OnMessageReceived(LogMessage message)
-            {
-                ArchipelagoGUI.ConsoleLog(message.ToString());
-            }
+            #endregion
 
+            #region Data Sender Initiated Async Calls
             public static void OnStatPulledFromServer(SaveCountStats statToPull, JToken statValue)
             {
                 int count = statValue.ToObject<int>();
@@ -1035,8 +1065,39 @@ namespace ArchiGungeon.ArchipelagoServer
                 }
             }
 
+            #endregion
+
+            #region Low Priority Receive Calls
+            public static void OnPacketReceived(ArchipelagoPacketBase packet)
+            {
+
+                //ArchipelagoGUI.ConsoleLog(packet);
+
+                /*
+                if (packet is ItemPrintJsonPacket)
+                {
+                    ItemPrintJsonPacket itemPrintJsonPacket = (ItemPrintJsonPacket)packet;
+                    if (itemPrintJsonPacket.ReceivingPlayer == session.ConnectionInfo.Slot || session.Locations.AllLocations.Contains(itemPrintJsonPacket.Item.Location))
+                    {
+                        string game = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.Item.Player].Game;
+                        string game2 = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.ReceivingPlayer].Game;
+                        ArchipelagoPickupNotification(session.Players.GetPlayerName(itemPrintJsonPacket.ReceivingPlayer) + " got " + session.Items.GetItemName(itemPrintJsonPacket.Item.Item, game2), "from " + session.Locations.GetLocationNameFromId(itemPrintJsonPacket.Item.Location, game));
+                    }
+                }
+                */
+            }
+
+            public static void OnMessageReceived(LogMessage message)
+            {
+                ArchipelagoGUI.ConsoleLog(message.ToString());
+            }
+            #endregion
         }
 
+        #endregion
+
+        #region Session Coroutine Logic
+        private static TimedServerCalls CoroutineHelperObject { get; set; }
         private static void CheckCoroutineHelperValid()
         {
             if (CoroutineHelperObject == null)
@@ -1048,7 +1109,10 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        #endregion
     }
+
+    #region Coroutine Handlers
 
     public class TimedServerCalls:MonoBehaviour
     {
@@ -1093,4 +1157,5 @@ namespace ArchiGungeon.ArchipelagoServer
         }
     }
 
+    #endregion
 }
