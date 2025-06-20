@@ -22,7 +22,7 @@ namespace ArchiGungeon.Data
 
         public static bool InitSaveFilenameAndCheckPrevious(string playerName, string seedString)
         {
-            string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString;
+            string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0,8);
             SaveFilepath = Path.Combine(ConfigPath, fileName);
 
             return File.Exists(SaveFilepath);
@@ -42,7 +42,7 @@ namespace ArchiGungeon.Data
         {
             if(playerName != "" && seedString != "")
             {
-                string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString;
+                string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0, 8);
                 SaveFilepath = Path.Combine(ConfigPath, fileName);
             }
 
