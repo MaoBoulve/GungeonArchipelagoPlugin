@@ -27,6 +27,7 @@ namespace ArchiGungeon.ArchipelagoServer
     public class SessionHandler : MonoBehaviour
     {
         public static ArchipelagoSession Session { get; protected set; }
+        private static string RoomSeed { get; set; }
 
         #region Initializing Variables
         private static Dictionary<string, object> PlayerSlotSettings { get; set; } = new Dictionary<string, object>(); // player settings, use to initialize data
@@ -104,7 +105,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Login successful, handling initializing via Slot Data");
 
-            InitializeServerDataStorage();
+            //InitializeServerDataStorage();
             PullPlayerYAMLSlotData();
 
             BindToArchipelagoEvents();
@@ -112,7 +113,7 @@ namespace ArchiGungeon.ArchipelagoServer
             CheckToRandomizeEnemies();
 
 
-            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password);
+            PlayerServerInfo = new PlayerConnectionInfo(ip, port, name, password, RoomSeed);
             ConnectionDataWriter.SaveArchipelagoConnectionSettings(PlayerServerInfo);
 
             InitializeAPLocationChecks();
@@ -123,7 +124,7 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
             CheckCoroutineHelperValid();
-            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.PullServerDataOnDelay());
+            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.RetrieveDataAfterSlotDataPullDelay());
 
             return;
         }
@@ -191,6 +192,7 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Pulling slot data");
 
             PlayerSlotSettings = Session.DataStorage.GetSlotData();
+            RoomSeed = Session.RoomState.Seed;
 
             foreach (string key in PlayerSlotSettings.Keys)
             {
@@ -253,7 +255,7 @@ namespace ArchiGungeon.ArchipelagoServer
         {
             if (ConnectionDataWriter.CheckPreviousConnectionExists() == true)
             {
-                PlayerConnectionInfo localConnectData = ConnectionDataWriter.PreviousConnectionSettings;
+                PlayerConnectionInfo localConnectData = ConnectionDataWriter.SavedConnectionSettings;
                 ArchipelagoConnect(localConnectData.IP, localConnectData.Port, localConnectData.PlayerName, localConnectData.Password);
             }
             else
@@ -315,7 +317,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         // RUN START ===========================================================
 
-        public static void CheckForRunStartServerSettingInstantiation()
+        public static void CheckForSlotDataInstantiation()
         {
             if (Session == null)
             {
@@ -337,6 +339,26 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
 
         }
+
+        #endregion
+
+
+        #region Save Data Management
+
+        public static void InitializeSaveData()
+        {
+            if (Session == null)
+            {
+                ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
+                return;
+            }
+
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Handling save data initialization");
+            SaveDataManagement.TryPreviousSaveLoad(playerInfo: PlayerServerInfo);
+
+            return;
+        }
+
 
         #endregion
 
@@ -574,9 +596,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
         private static void InitializeEnemySwapper()
         {
-            string seedString = Session.RoomState.Seed;
             System.Security.Cryptography.MD5 md5Hasher = System.Security.Cryptography.MD5.Create();
-            var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(seedString));
+            var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(RoomSeed));
             int seed = BitConverter.ToInt32(hashed, 0);
 
             EnemySwapping.MakeNormalShuffleEnemies(seed);
@@ -727,11 +748,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         #region Server Communication
 
-        //
-        //
         // ============================ DATA SENDER ==========================================
-        //
-        //
 
         public class DataSender
         {
@@ -804,14 +821,6 @@ namespace ArchiGungeon.ArchipelagoServer
                     foreach (SaveCountStats statCheck in statsToCheck)
                     {
                         int statCount = CountSaveData.GetCountStat(statCheck);
-                        if (statCount < 0)
-                        {
-                            ShouldOutputCheckBeInteruppted = true;
-                            AsyncPullCountFromServer(statCheck);
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{statCheck} stat not initialized, STOPPING game completion check");
-                            return;
-                        }
-
                         if (statCount < 1)
                         {
                             ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {statCheck} not met, STOPPING game completion check");
@@ -836,154 +845,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
             #endregion
 
-        // TODO: refactor save data management to local file!! GRAA
-            #region Save Data Management
-
-            public static void PullBasicCountStatsData()
-            {
-                if (Session == null)
-                {
-                    ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
-                    return;
-                }
-
-                ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Handling initial async data pull");
-
-                List<SaveCountStats> basicCountStats = new List<SaveCountStats> ()
-                {
-                    SaveCountStats.PastKills
-                };
-
-
-                foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
-                {
-                    List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
-
-                    if (playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
-                    {
-                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
-
-                        if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
-                        {
-                            statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
-                        }
-                        else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
-                        {
-                            statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
-                        }
-                    }
-
-                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
-                    {
-                        statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
-                    }
-
-                    basicCountStats.AddRange(statsForGoal);
-                }
-
-
-                foreach (SaveCountStats countStat in basicCountStats)
-                {
-                    if(CountSaveData.GetCountStat(countStat) == -1)
-                    {
-                        AsyncPullCountFromServer(countStat);
-                    }
-                }
-
-                return;
-            }
-
-
-            protected static void AsyncPullCountFromServer(SaveCountStats statToPull)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling {statToPull}");
-
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
-                    statValue => DataReceiver.OnStatPulledFromServer(statToPull,statValue));
-                return;
-            }
-
-            private static void AsyncPullCountAndAddFromServer(SaveCountStats statToPull, int goalAddCount)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Async pulling & add {statToPull}");
-
-                CheckCoroutineHelperValid();
-                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.CheckIfStatInitFailed(statToPull));
-
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey].GetAsync(
-                    statValue => 
-                    {
-                        DataReceiver.OnStatPulledFromServer(statToPull, statValue);
-                        AddToGoalCount(statToPull, goalAddCount);
-                    });
-                return;
-            }
-
-
-            public static void AddToGoalCount(SaveCountStats statToAdd, int numberToAdd)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
-
-                if (Session == null || Session.Socket.Connected == false)
-                {
-                    ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, "TODO: Add local progress writer for goal");
-                    
-                    return;
-                }
-
-                if (CountSaveData.GetCountStat(statToAdd) < 0)
-                {
-                    ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} not initialized locally, pulling from server and returning");
-                    AsyncPullCountAndAddFromServer(statToAdd, numberToAdd);
-
-                    return;
-                }
-
-                int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
-
-                if (goalsMet >= 1)
-                {
-                    SendCountGoalLocationCheck(statToAdd, goalsMet);
-                }
-            }
-
-            private static void SendCountGoalLocationCheck(SaveCountStats statCategory, int locationChecks)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statCategory}] Goal handling {locationChecks} completions");
-
-                AchievementLocationCheckHandler.SendStatLocationChecks(statCategory, locationChecks);
-                CountSaveData.RemoveClearedGoals(statCategory, locationChecks);
-
-                int statCountForServer = CountSaveData.GetCountStat(statCategory);
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statCategory].CountKey] = statCountForServer;
-                return;
-            }
-
-
-            public static void SendLocalCountValuesToServer()
-            {
-                if (Session == null || Session.Socket.Connected == false)
-                {
-                    return;
-                }
-
-                foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
-                {
-                    int statData = CountSaveData.GetCountStat(countStat);
-
-                    if(statData > -1)
-                    {
-                        Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStat].CountKey] = statData;
-
-                        ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending count for {countStat}: {statData}");
-                    }
-
-                }
-
-                return;
-            }
-
-            #endregion
+     
 
             #region Low Priority Send Functions
             public static void SendChatMessage(string message)
@@ -1012,11 +874,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         }
 
-        //
-        //
         // ============================ DATA RECEIVER ==========================================
-        //
-        //
 
         public class DataReceiver
         {
@@ -1057,31 +915,6 @@ namespace ArchiGungeon.ArchipelagoServer
 
             #endregion
 
-            #region Data Sender Initiated Async Calls
-            public static void OnStatPulledFromServer(SaveCountStats statToPull, JToken statValue)
-            {
-                int count = statValue.ToObject<int>();
-                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Received from server {statToPull} -- Count: {count}");
-
-
-                if ((int)statValue < 0)
-                {
-                    ArchipelagoGUI.ConsoleLog($"Something went very wrong with {statToPull} data, saved as negative on server");
-                    ArchipelagoGUI.ConsoleLog($"RESETTING {statToPull} TO ZERO");
-
-                    Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[statToPull].CountKey] = 0;
-                    count = 0;
-                }
-
-                CountSaveData.SetCountStat(statToPull, count);
-
-                if(statToPull == SaveCountStats.PastKills)
-                {
-                    CheckReverseCurse();
-                }
-            }
-
-            #endregion
 
             #region Low Priority Receive Calls
             public static void OnPacketReceived(ArchipelagoPacketBase packet)
@@ -1132,17 +965,16 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class TimedServerCalls:MonoBehaviour
     {
-        public IEnumerator PullServerDataOnDelay(float waitTime = 1.0f)
-        {
 
-            ArchipelagoGUI.ConsoleLog($"Pulling server data, please standby ============== ");
+        public IEnumerator RetrieveDataAfterSlotDataPullDelay(float waitTime = 1.0f)
+        {
+            ArchipelagoGUI.ConsoleLog($"Waiting for Archipelago data, please standby ============== ");
 
             yield return new WaitForSeconds(waitTime);
 
-            SessionHandler.DataSender.PullBasicCountStatsData();
+            SessionHandler.InitializeSaveData();
 
-            SessionHandler.CheckForRunStartServerSettingInstantiation();
-
+            SessionHandler.CheckForSlotDataInstantiation();
         }
 
         public IEnumerator WaitForParadoxReint(float waitTime = 2f)

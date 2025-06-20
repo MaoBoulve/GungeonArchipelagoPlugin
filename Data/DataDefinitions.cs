@@ -80,13 +80,16 @@ namespace ArchiGungeon.Data
         public string Port;
         public string PlayerName;
         public string Password;
+        public string Seed;
 
-        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString, string password = "")
+        public PlayerConnectionInfo(string IPstring, string portString, string playerNameString, string password = "", string seed = "")
         {
             IP = IPstring;
             Port = portString;
             PlayerName = playerNameString;
             Password = password;
+            Seed = seed;
+
             return;
         }
     }

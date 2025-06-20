@@ -108,7 +108,7 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
 
-            SessionHandler.CheckForRunStartServerSettingInstantiation();
+            SessionHandler.CheckForSlotDataInstantiation();
 
             return;
         }

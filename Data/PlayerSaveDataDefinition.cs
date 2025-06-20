@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ArchiGungeon.Data;
+using ArchiGungeon.DebugTools;
+using ArchiGungeon.ItemArchipelago;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ArchiGungeon.DebugTools;
-using ArchiGungeon.Data;
+using static DungeonTileStampData;
 
 namespace ArchiGungeon.Data
 {
@@ -63,40 +65,40 @@ namespace ArchiGungeon.Data
 
         private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
         {
-            { SaveCountStats.ChestsOpened, -1 },
-            { SaveCountStats.RoomPoints, -1},
-            { SaveCountStats.CashSpent, -1},
+            { SaveCountStats.ChestsOpened, 0 },
+            { SaveCountStats.RoomPoints, 0},
+            { SaveCountStats.CashSpent, 0},
 
-            { SaveCountStats.BlobulordKills, -1},
-            { SaveCountStats.OldKingKills, -1},
-            { SaveCountStats.RatKills, -1},
-            { SaveCountStats.DeptAgunimKills, -1},
-            { SaveCountStats.AdvancedDragunKills, -1},
-            { SaveCountStats.DragunKills, -1},
-            { SaveCountStats.LichKills, -1},
+            { SaveCountStats.BlobulordKills, 0},
+            { SaveCountStats.OldKingKills, 0},
+            { SaveCountStats.RatKills, 0},
+            { SaveCountStats.DeptAgunimKills, 0},
+            { SaveCountStats.AdvancedDragunKills, 0},
+            { SaveCountStats.DragunKills, 0},
+            { SaveCountStats.LichKills, 0},
 
-            { SaveCountStats.Floor1Clears, -1},
-            { SaveCountStats.Floor2Clears, -1},
-            { SaveCountStats.Floor3Clears, -1},
-            { SaveCountStats.Floor4Clears, -1},
-            { SaveCountStats.Floor5Clears, -1},
+            { SaveCountStats.Floor1Clears, 0},
+            { SaveCountStats.Floor2Clears, 0},
+            { SaveCountStats.Floor3Clears, 0},
+            { SaveCountStats.Floor4Clears, 0},
+            { SaveCountStats.Floor5Clears, 0},
 
-            { SaveCountStats.FloorHellClears, -1},
-            { SaveCountStats.FloorGoopClears, -1},
-            { SaveCountStats.FloorAbbeyClears, -1},
-            { SaveCountStats.FloorRatClears, -1},
-            { SaveCountStats.FloorDeptClears, -1},
+            { SaveCountStats.FloorHellClears, 0},
+            { SaveCountStats.FloorGoopClears, 0},
+            { SaveCountStats.FloorAbbeyClears, 0    },
+            { SaveCountStats.FloorRatClears, 0},
+            { SaveCountStats.FloorDeptClears, 0},
 
-            { SaveCountStats.PastBullet, -1},
-            { SaveCountStats.PastConvict, -1},
-            { SaveCountStats.PastHunter, -1},
-            { SaveCountStats.PastMarine, -1},
-            { SaveCountStats.PastPilot, -1},
-            { SaveCountStats.PastRobot, -1},
-            { SaveCountStats.PastKills, -1},
+            { SaveCountStats.PastBullet, 0},
+            { SaveCountStats.PastConvict, 0},
+            { SaveCountStats.PastHunter, 0},
+            { SaveCountStats.PastMarine, 0},
+            { SaveCountStats.PastPilot, 0},
+            { SaveCountStats.PastRobot, 0},
+            { SaveCountStats.PastKills, 0},
         };
 
-        private static Dictionary<SaveCountStats, int> SaveDataTrackedStats { get; set; } = InitialStatValues;
+        private static Dictionary<SaveCountStats, int> CountSaveDataDict { get; set; } = InitialStatValues;
         private static Dictionary<SaveCountStats, List<int>> LocationCheckGoals { get; set; } = new Dictionary<SaveCountStats, List<int>>();
 
         #endregion
@@ -212,7 +214,7 @@ namespace ArchiGungeon.Data
 
         public static int GetCountStat(SaveCountStats statToGet)
         {
-            int statData = SaveDataTrackedStats[statToGet];
+            int statData = CountSaveDataDict[statToGet];
 
             return statData;
         }
@@ -220,11 +222,19 @@ namespace ArchiGungeon.Data
 
         public static void SetCountStat(SaveCountStats statToSet, int count)
         {
-            SaveDataTrackedStats[statToSet] = count;
+            CountSaveDataDict[statToSet] = count;
             return;
         }
 
+        public static Dictionary<SaveCountStats, int> GetFullCountSaveData()
+        {
+            return CountSaveDataDict;
+        }
 
+        public static void SetFullCountSaveData(Dictionary<SaveCountStats, int> dataToLoad)
+        {
+            CountSaveDataDict = dataToLoad;
+        }
 
         public static int AddToGoalCount(SaveCountStats statToModify, int addAmount)
         {
@@ -233,7 +243,7 @@ namespace ArchiGungeon.Data
                 return 0;
             }
 
-            int statCount = SaveDataTrackedStats[statToModify];
+            int statCount = CountSaveDataDict[statToModify];
             statCount += addAmount;
             SetCountStat(statToModify, statCount);
 
@@ -286,7 +296,7 @@ namespace ArchiGungeon.Data
 
             if (goalList.Count == 0)
             {
-                SaveDataTrackedStats[statToModify] = 99999;
+                CountSaveDataDict[statToModify] = 99999;
                 outOfGoals = true;
                 ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, statToModify + " goals complete");
             }
@@ -296,12 +306,91 @@ namespace ArchiGungeon.Data
 
         private static bool IsCountStatNull(SaveCountStats statToCheck)
         {
-            int statCount = SaveDataTrackedStats[statToCheck];
+            int statCount = CountSaveDataDict[statToCheck];
 
             if(statCount == 99999) { return true; }
 
             else {  return false; }
         }
         #endregion
+    }
+
+    public class SaveDataManagement
+    {
+        public static void TryPreviousSaveLoad(PlayerConnectionInfo playerInfo)
+        {
+            if(SaveDataWriter.InitSaveFilenameAndCheckPrevious(playerInfo.PlayerName, playerInfo.Seed) == true)
+            {
+                // todo: define other dicts for multiple save data types to consider
+                Dictionary<SaveCountStats, int> saveData = SaveDataWriter.RetrieveSaveData();
+
+                CountSaveData.SetFullCountSaveData(saveData);
+
+                CheckFullCountStatsForGoals();
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        private static void HandleSaveValidationAndWrite()
+        {
+            Dictionary<SaveCountStats, int> countSaveDataToWrite = new Dictionary<SaveCountStats, int>();
+
+            foreach (SaveCountStats countStat in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
+            {
+                int statData = CountSaveData.GetCountStat(countStat);
+
+                if (statData > -1)
+                {
+                    countSaveDataToWrite[countStat] = statData;
+
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Saving count for {countStat}: {statData}");
+                }
+                else
+                {
+                    countSaveDataToWrite[countStat] = 0;
+                }
+
+            }
+
+            SaveDataWriter.WriteSaveFile(countSaveDataToWrite);
+        }
+
+        public static void SaveCurrentRandomizerProgress()
+        {
+            HandleSaveValidationAndWrite();
+            return;
+        }
+
+        public static void AddToCountSaveDataEntry(SaveCountStats statToAdd, int numberToAdd)
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
+            int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
+
+            if (goalsMet >= 1)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"[{statToAdd}] Goal handling {goalsMet} completions");
+
+                AchievementLocationCheckHandler.SendStatLocationChecks(statToAdd, goalsMet);
+                CountSaveData.RemoveClearedGoals(statToAdd, goalsMet);
+
+                SaveCurrentRandomizerProgress();
+            }
+
+            return;
+        }
+
+        private static void CheckFullCountStatsForGoals()
+        {
+            Dictionary<SaveCountStats, int> fullCountSave = CountSaveData.GetFullCountSaveData();
+            foreach(SaveCountStats countStat in fullCountSave.Keys)
+            {
+                AddToCountSaveDataEntry(countStat, 0);
+            }
+            return;
+        }
     }
 }

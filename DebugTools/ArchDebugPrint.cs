@@ -31,7 +31,7 @@ namespace ArchiGungeon.DebugTools
             {DebugCategory.CharacterSystems, false }
         };
 
-        public static void ClearDebugLog()
+        public static void ClearOldestDebugLog()
         {
             DebugFileWriter.CheckForOldestDebugFile();
             DebugFileWriter.ClearLocalOldestFile();

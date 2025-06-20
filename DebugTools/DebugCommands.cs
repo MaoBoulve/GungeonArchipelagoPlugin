@@ -101,19 +101,19 @@ namespace ArchiGungeon.DebugTools
 
         private static void DebugChest(int chestNum)
         {
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, chestNum);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.ChestsOpened, chestNum);
             return;
         }
 
         private static void DebugRoomPoint(int pointNum)
         {
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, pointNum);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.RoomPoints, pointNum);
             return;
         }
 
         private static void DebugCash(int cashNum)
         {
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, cashNum);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.CashSpent, cashNum);
             return;
         }
 

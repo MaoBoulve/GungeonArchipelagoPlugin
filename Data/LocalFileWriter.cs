@@ -8,7 +8,6 @@ using ArchiGungeon.DebugTools;
 using ArchiGungeon.ModConsoleVisuals;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using ArchiGungeon.Data;
 
 namespace ArchiGungeon.Data
 {
@@ -18,10 +17,50 @@ namespace ArchiGungeon.Data
     {   
         // using randomizer key as save data key
         private static string ConfigPath { get; } = Paths.ConfigPath;
-        private const string SAVE_DATA_FILENAME = "ArchipelaGunSave.json";
+        private const string SAVE_DATA_FILEPREFIX = "SAVE_";
+        private static string SaveFilepath { get; set; }
+
+        public static bool InitSaveFilenameAndCheckPrevious(string playerName, string seedString)
+        {
+            string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString;
+            SaveFilepath = Path.Combine(ConfigPath, fileName);
+
+            return File.Exists(SaveFilepath);
+        }
+
+        public static void WriteSaveFile(Dictionary<SaveCountStats, int> countSaveData)
+        {
+            string outputToWrite = JsonConvert.SerializeObject(countSaveData);
+            File.WriteAllText(SaveFilepath, outputToWrite);
+
+            ArchipelagoGUI.ConsoleLog($"Save data updated: {SaveFilepath}");
+
+            return;
+        }
+        
+        public static Dictionary<SaveCountStats, int> RetrieveSaveData(string playerName ="", string seedString="")
+        {
+            if(playerName != "" && seedString != "")
+            {
+                string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString;
+                SaveFilepath = Path.Combine(ConfigPath, fileName);
+            }
+
+            if (File.Exists(SaveFilepath))
+            {
+                string localData = File.ReadAllText(SaveFilepath);
+                Dictionary<SaveCountStats, int> saveData = JsonConvert.DeserializeObject<Dictionary<SaveCountStats, int>>(localData);
+
+                return saveData;
+            }
+            else
+            {
+                ArchipelagoGUI.ConsoleLog($"ERROR filepath does not exist:{SaveFilepath}");
+                return null;
+            }
+        }
 
         // TODO: write sava data by slot name + randomizer key as file name
-        // todo: serialize count save data
     }
 
     #endregion
@@ -30,8 +69,8 @@ namespace ArchiGungeon.Data
     public class ConnectionDataWriter
     {
         private static string ArchipelConfigPath { get; } = Paths.ConfigPath;
-        private const string PREV_CONNECTION_FILENAME = "LastConnection.json";
-        public static PlayerConnectionInfo PreviousConnectionSettings { get; private set; }
+        private const string SAVED_CONNECTION_FILENAME = "LastConnection.json";
+        public static PlayerConnectionInfo SavedConnectionSettings { get; private set; }
 
         //public static string dataPath = Path.Combine(SaveManager.SavePath, "<path to your custom save data>");
 
@@ -55,10 +94,10 @@ namespace ArchiGungeon.Data
             ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"============== LocalSaveDataHandler JSON WIP ==========");
 
             string outputToWrite = JsonConvert.SerializeObject(connectionSettingsToSave);
-            File.WriteAllText(Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME), outputToWrite);
+            File.WriteAllText(Path.Combine(ArchipelConfigPath, SAVED_CONNECTION_FILENAME), outputToWrite);
 
             ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Connection settings: {outputToWrite} \n\n" +
-                $"Written at: {Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME)}");
+                $"Written at: {Path.Combine(ArchipelConfigPath, SAVED_CONNECTION_FILENAME)}");
 
 
             // todo: TEST ABOVE
@@ -67,15 +106,15 @@ namespace ArchiGungeon.Data
 
         public static bool CheckPreviousConnectionExists()
         {
-            if (File.Exists(Path.Combine(ArchipelConfigPath, PREV_CONNECTION_FILENAME)) == false)
+            if (File.Exists(Path.Combine(ArchipelConfigPath, SAVED_CONNECTION_FILENAME)) == false)
             {
                 
                 return false;
             }
 
 
-            PreviousConnectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(File.ReadAllText(Path.Combine(ArchipelConfigPath,
-                PREV_CONNECTION_FILENAME)));
+            SavedConnectionSettings = JsonConvert.DeserializeObject<PlayerConnectionInfo>(File.ReadAllText(Path.Combine(ArchipelConfigPath,
+                SAVED_CONNECTION_FILENAME)));
 
             return true;
         }

@@ -43,8 +43,7 @@ namespace ArchiGungeon
 
         private void InitExceptionCatcher()
         {
-            // TODO: automate debug output better
-            ArchDebugPrint.ClearDebugLog();
+            ArchDebugPrint.ClearOldestDebugLog();
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Init Exception Catcher");
             Application.logMessageReceived += ArchDebugPrint.OnCatchException;
         }
