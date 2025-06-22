@@ -22,7 +22,7 @@ namespace ArchiGungeon
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";
         public const string NAME = "Archipelago Gungeon Randomizer";
-        public const string VERSION = "0.1.1";
+        public const string VERSION = "0.1.2";
         public const string TEXT_COLOR = "#B6FFB8";
 
         public const string MOD_ITEM_PREFIX = "arch";
@@ -102,7 +102,7 @@ namespace ArchiGungeon
         {
             StartGungeonPlayerListener();
 
-            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} -- ArchiGungeonDebug.txt **=== \n\n");
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} **=== \n\n");
             // Print all directories BepInEx will allow
             //LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 

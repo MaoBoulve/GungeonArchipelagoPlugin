@@ -63,7 +63,7 @@ namespace ArchiGungeon.Data
             { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
         };  
 
-        private static Dictionary<SaveCountStats, int> InitialStatValues { get; } = new Dictionary<SaveCountStats, int>()
+        private static Dictionary<SaveCountStats, int> CountSaveDataDict { get; set; } = new Dictionary<SaveCountStats, int>()
         {
             { SaveCountStats.ChestsOpened, 0 },
             { SaveCountStats.RoomPoints, 0},
@@ -97,8 +97,6 @@ namespace ArchiGungeon.Data
             { SaveCountStats.PastRobot, 0},
             { SaveCountStats.PastKills, 0},
         };
-
-        private static Dictionary<SaveCountStats, int> CountSaveDataDict { get; set; } = InitialStatValues;
         private static Dictionary<SaveCountStats, List<int>> LocationCheckGoals { get; set; } = new Dictionary<SaveCountStats, List<int>>();
 
         #endregion
@@ -325,8 +323,6 @@ namespace ArchiGungeon.Data
                 Dictionary<SaveCountStats, int> saveData = SaveDataWriter.RetrieveSaveData();
 
                 CountSaveData.SetFullCountSaveData(saveData);
-
-                CheckFullCountStatsForGoals();
                 return;
             }
             else
@@ -343,11 +339,11 @@ namespace ArchiGungeon.Data
             {
                 int statData = CountSaveData.GetCountStat(countStat);
 
-                if (statData > -1)
+                if (statData > 0)
                 {
                     countSaveDataToWrite[countStat] = statData;
 
-                    ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Saving count for {countStat}: {statData}");
+                    ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"Saving count for {countStat}: {statData}");
                 }
                 else
                 {
@@ -367,7 +363,10 @@ namespace ArchiGungeon.Data
 
         public static void AddToCountSaveDataEntry(SaveCountStats statToAdd, int numberToAdd)
         {
-            ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
+            if(numberToAdd > 0)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.LocalSaveData, $"{statToAdd} goal adding: {numberToAdd}");
+            }
             int goalsMet = CountSaveData.AddToGoalCount(statToAdd, numberToAdd);
 
             if (goalsMet >= 1)
@@ -383,10 +382,12 @@ namespace ArchiGungeon.Data
             return;
         }
 
-        private static void CheckFullCountStatsForGoals()
+        public static void CheckFullCountStatsForGoals()
         {
-            Dictionary<SaveCountStats, int> fullCountSave = CountSaveData.GetFullCountSaveData();
-            foreach(SaveCountStats countStat in fullCountSave.Keys)
+            ArchDebugPrint.DebugLog(DebugCategory.CountingGoal, $"Checking save data for cleared goals");
+
+            List<SaveCountStats> countStatList = CountSaveData.GetFullCountSaveData().Keys.ToList<SaveCountStats>();
+            foreach(SaveCountStats countStat in countStatList)
             {
                 AddToCountSaveDataEntry(countStat, 0);
             }

@@ -975,6 +975,8 @@ namespace ArchiGungeon.ArchipelagoServer
             SessionHandler.InitializeSaveData();
 
             SessionHandler.CheckForSlotDataInstantiation();
+            SaveDataManagement.CheckFullCountStatsForGoals();
+
         }
 
         public IEnumerator WaitForParadoxReint(float waitTime = 2f)

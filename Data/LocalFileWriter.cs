@@ -18,18 +18,25 @@ namespace ArchiGungeon.Data
         // using randomizer key as save data key
         private static string ConfigPath { get; } = Paths.ConfigPath;
         private const string SAVE_DATA_FILEPREFIX = "SAVE_";
+        private static bool isSavePathInitialized = false;
         private static string SaveFilepath { get; set; }
 
         public static bool InitSaveFilenameAndCheckPrevious(string playerName, string seedString)
         {
-            string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0,8);
+            string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0,8) + ".json";
             SaveFilepath = Path.Combine(ConfigPath, fileName);
+
+            isSavePathInitialized = true;
 
             return File.Exists(SaveFilepath);
         }
 
         public static void WriteSaveFile(Dictionary<SaveCountStats, int> countSaveData)
         {
+            if(!isSavePathInitialized)
+            {
+                return;
+            }
             string outputToWrite = JsonConvert.SerializeObject(countSaveData);
             File.WriteAllText(SaveFilepath, outputToWrite);
 
@@ -42,7 +49,7 @@ namespace ArchiGungeon.Data
         {
             if(playerName != "" && seedString != "")
             {
-                string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0, 8);
+                string fileName = SAVE_DATA_FILEPREFIX + playerName + seedString.Substring(0, 8) +".json";
                 SaveFilepath = Path.Combine(ConfigPath, fileName);
             }
 
@@ -192,7 +199,11 @@ namespace ArchiGungeon.Data
 
         public static void ClearLocalOldestFile()
         {
-            File.Delete(oldestFile);
+            if(oldestFile != "N/A")
+            {
+                File.Delete(oldestFile);
+            }
+            
             return;
         }
 
