@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 
-namespace ArchiGungeon.EnemyHandlers
+namespace ArchiGungeon.Data
 {
+	// INVALID ENEMIES FOR USE BY RANDOMIZER
 	//{ "chicken", "76bc43539fc24648bff4568c75c686d1" },
 	//{ "poopulons_corn", "0ff278534abb4fbaaa65d3f638003648" },
 	//{ "snake", "1386da0f42fb4bcabc5be8feb16a7c38" },
@@ -19,16 +20,12 @@ namespace ArchiGungeon.EnemyHandlers
 	//{ "super_space_turtle_dummy", "cc9c41aa8c194e17b44ac45f993dd212" },
 	//{ "cop_android", "640238ba85dd4e94b3d6f68888e6ecb8" }
 
-	public enum EnemyShuffleCategories
-    {
-		NormalDifficultyShuffle,
-		HardDifficultyShuffle,
-		BossShuffle
-    }
+	
 
 	public class EnemyGuidDatabase
 	{
-		private static Dictionary<string, string> FullEnemyList { get; } = new Dictionary<string, string>
+        #region Enemy Lists by GUID
+        private static Dictionary<string, string> FullEnemyList { get; } = new Dictionary<string, string>
 		{
 			{ "bullet_kin", "01972dee89fc4404a5c408d50007dad5" },
 			{ "ak47_bullet_kin", "db35531e66ce41cbb81d507a34366dfe" },
@@ -598,8 +595,9 @@ namespace ArchiGungeon.EnemyHandlers
 			{ "infinilich", "7c5d5f09911e49b78ae644d2b50ff3bf" },
 		};
 
+        #endregion
 
-		public static Dictionary<string, string> GetShuffledGUIDList(EnemyShuffleCategories shuffledList, int seed)
+        public static Dictionary<string, string> GetShuffledGUIDList(EnemyShuffleCategories shuffledList, int seed)
         {
 			var rng = new System.Random(seed);
 

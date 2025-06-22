@@ -6,12 +6,14 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ItemArchipelago
 {
 
     public class ReverseCurse: PassiveItem
     {
+        #region Item Init
         public static int SpawnItemID = -1;
 
         private static string displayName = "Reverse Curse";
@@ -43,7 +45,7 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
-
+        #endregion
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);
@@ -61,7 +63,7 @@ namespace ArchiGungeon.ItemArchipelago
 
     public class ReverseCurseReversal : PassiveItem
     {
-
+        #region Item Init
         public static int SpawnItemID = -1;
 
         private static string displayName = "Reverse Curse Reversal";
@@ -94,7 +96,7 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
-
+        #endregion
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);

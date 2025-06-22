@@ -37,16 +37,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ArchipelagoServer\ArchipelagoGungeonBridge.cs" />
-    <Compile Include="ArchipelagoServer\LocalSaveDataHandler.cs" />
-    <Compile Include="ArchipelagoServer\PlayerSaveDataDefinition.cs" />
+    <Compile Include="Data\LocalFileWriter.cs" />
+    <Compile Include="Data\PlayerSaveDataDefinition.cs" />
     <Compile Include="ArchipelagoServer\SessionHandler.cs" />
     <Compile Include="ArchipelaGunPlugin.cs" />
     <Compile Include="Character\CharSwap.cs" />
     <Compile Include="CustomItemClass\CustomBlankModItem.cs" />
     <Compile Include="CustomItemClass\CustomOrbital.cs" />
+    <Compile Include="Data\DataDefinitions.cs" />
     <Compile Include="DebugTools\DebugCommands.cs" />
     <Compile Include="DebugTools\ArchDebugPrint.cs" />
-    <Compile Include="EnemyHandlers\EnemyGuidDatabase.cs" />
+    <Compile Include="Data\EnemyGuidDatabase.cs" />
     <Compile Include="EnemyHandlers\EnemySwapping.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />
     <Compile Include="ItemArchipelago\APPickUpItem.cs" />

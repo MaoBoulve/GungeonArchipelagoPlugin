@@ -2,32 +2,18 @@
 using System.IO;
 using System.Collections.Generic;
 using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.Data;
 using UnityEngine;
 using BepInEx;
 
 namespace ArchiGungeon.DebugTools
 {
-    public enum DebugCategory
-    {
-        PluginStartup,
-        PlayerEventListener,
-        LocalSaveData,
-        ServerReceive,
-        ServerSend,
-        CountingGoal,
-        EnemyRandomization,
-        InitializingGameState,
-        ItemHandling,
-        TrapHandling,
-        UserInterface,
-        GameCompletion,
-        CharacterSystems
-    }
+
+    #region Console Output
 
     public class ArchDebugPrint
     {
         
-
         private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
             {DebugCategory.PluginStartup, false },
@@ -45,9 +31,10 @@ namespace ArchiGungeon.DebugTools
             {DebugCategory.CharacterSystems, false }
         };
 
-        public static void ClearDebugLog()
+        public static void ClearOldestDebugLog()
         {
-            LocalDebugLogWriter.ClearLocalFile();
+            DebugFileWriter.CheckForOldestDebugFile();
+            DebugFileWriter.ClearLocalOldestFile();
         }
 
         public static void DebugLog(DebugCategory debugGroup, string textToLog)
@@ -67,7 +54,7 @@ namespace ArchiGungeon.DebugTools
             }
             else
             {
-                LocalDebugLogWriter.AppendToLocalDebugLog($"Group: {debugGroup} -- " + textToLog);
+                DebugFileWriter.AppendToLocalDebugLog($"Group: {debugGroup} -- " + textToLog);
             }
 
             return;
@@ -76,8 +63,8 @@ namespace ArchiGungeon.DebugTools
         internal static void OnCatchException(string condition, string stackTrace, LogType type)
         {
             //LocalDebugLogWriter.AppendToLocalDebugLog("\n\n ============ ERROR CAUGHT: Contact Archipelago mod developer to debug ============= \n\n");
-            LocalDebugLogWriter.AppendToLocalDebugLog(condition);
-            LocalDebugLogWriter.AppendToLocalDebugLog(stackTrace);
+            DebugFileWriter.AppendToLocalDebugLog(condition);
+            DebugFileWriter.AppendToLocalDebugLog(stackTrace);
 
             //LocalDebugLogWriter.StartWritingDebugToLocal();
 
@@ -97,7 +84,7 @@ namespace ArchiGungeon.DebugTools
 
             if(newState)
             {
-                LocalDebugLogWriter.StartWritingDebugToLocal();
+                DebugFileWriter.StartWritingDebugToLocal();
             }
 
             return;
@@ -105,64 +92,6 @@ namespace ArchiGungeon.DebugTools
         
     }
 
-    public class LocalDebugLogWriter
-    {
-        public static string DocPath { get; } = Paths.ConfigPath;
-        private static bool isWritingText = false;
-        private static List<string> TextLog { get; } = new List<string>();
+    #endregion
 
-        public static void AppendToLocalDebugLog(string newEntry)
-        {
-            TextLog.Add(newEntry);
-
-            if(isWritingText)
-            {
-                AppendWriteToFile(newEntry);
-            }
-
-            return;
-        }
-
-        public static void StartWritingDebugToLocal()
-        {
-            if(isWritingText)
-            {
-                return;
-            }
-
-            isWritingText = true;
-            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} as 'ArchiGungeonDebug.txt' **=== \n\n");
-            WriteCurrentLogToFile();
-
-            return;
-        }
-
-        private static void WriteCurrentLogToFile()
-        {
-            using(StreamWriter outputFile = new StreamWriter(Path.Combine(DocPath, "ArchiGungeonDebug.txt"), true))
-            {
-                foreach (string debugEntry in TextLog)
-                {
-                    outputFile.WriteLine(debugEntry);
-                }
-            }
-
-            return;
-        }
-
-        private static void AppendWriteToFile(string newText)
-        {
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(DocPath, "ArchiGungeonDebug.txt"), true))
-            {
-                outputFile.WriteLine(newText);
-            }
-
-            return;
-        }
-
-        public static void ClearLocalFile()
-        {
-            File.WriteAllText(@Path.Combine(DocPath, "ArchiGungeonDebug.txt"), "");
-        }
-    }
 }

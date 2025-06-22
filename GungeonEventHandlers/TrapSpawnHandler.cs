@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
+    #region Trap Spawning
     public class TrapSpawnHandler
     {
         public static bool IsSpawnValid { get; protected set; } = true;
@@ -103,6 +105,8 @@ namespace ArchiGungeon.GungeonEventHandlers
     
     }
 
+    #endregion
+    #region Stat Modding Handler
     public class TrapStatModifier
     {
         public static void CheckToCurse(PlayerController targetPlayer)
@@ -133,6 +137,7 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
     }
+    #endregion
 }
 
 /*

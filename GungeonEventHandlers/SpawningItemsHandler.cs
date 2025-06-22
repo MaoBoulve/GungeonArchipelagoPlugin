@@ -7,20 +7,11 @@ using ArchiGungeon.DebugTools;
 using Alexandria.Misc;
 using ArchiGungeon.ModConsoleVisuals;
 using Alexandria.ItemAPI;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
-    public enum SpawnableConsumables
-    {
-        Casing50,
-        Key,
-        Blank,
-        Armor,
-        Heart,
-        Ammo,
-        GlassGuon
-    }
-
+    #region General Item Spawning
     public class ConsumableSpawnHandler
     {
         public static bool IsSpawnValid { get; protected set; } = true;
@@ -172,6 +163,9 @@ namespace ArchiGungeon.GungeonEventHandlers
 
     }
 
+    #endregion
+
+    #region Progression Key Objects
     public class ProgressionItemSpawnHandler
     {
         public static void SpawnProgressionItem(int itemCase)
@@ -243,5 +237,6 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
     }
+    #endregion
 
 }

@@ -6,6 +6,7 @@ using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
 using ArchiGungeon.ArchipelagoServer;
 using static ArchiGungeon.Character.CharSwap;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon
 {
@@ -13,6 +14,7 @@ namespace ArchiGungeon
 
     public class Archipelagun : GunBehaviour
     {
+        #region Item Init
         public delegate void ArchipelagunEvents();
         public static ArchipelagunEvents OnPickup;
 
@@ -87,7 +89,9 @@ namespace ArchiGungeon
             return;
         }
 
+        #endregion
 
+        #region Item Behavior
         public override void OnPlayerPickup(PlayerController playerOwner)
         {
             OnPickup.Invoke();
@@ -104,7 +108,7 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
 
-            SessionHandler.CheckForRunStartServerSettingInstantiation();
+            SessionHandler.CheckForSlotDataInstantiation();
 
             return;
         }
@@ -137,8 +141,6 @@ namespace ArchiGungeon
         {
             if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
             {
-                //ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Swapping to next character");
-                //CharSwap.SetPlayerToNextAvailableChar(controller);
                 SessionHandler.ReconnectSession();
             }
 
@@ -173,7 +175,7 @@ namespace ArchiGungeon
 
             return;
         }
-
+        #endregion
 
     }
 }

@@ -6,6 +6,8 @@ using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using BepInEx;
 using UnityEngine;
+using ArchiGungeon.Character;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon
 {
@@ -20,13 +22,13 @@ namespace ArchiGungeon
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";
         public const string NAME = "Archipelago Gungeon Randomizer";
-        public const string VERSION = "0.0.8";
+        public const string VERSION = "0.1.2";
         public const string TEXT_COLOR = "#B6FFB8";
 
         public const string MOD_ITEM_PREFIX = "arch";
 
+        #region Plugin Startup
         public static ArchipelagoGUI ArchipelagoModMenu { get; protected set; }
-        public static GungeonPlayerEventListener PlayerListener { get; protected set; }
         private static bool isInit = false;
 
 
@@ -41,7 +43,7 @@ namespace ArchiGungeon
 
         private void InitExceptionCatcher()
         {
-            ArchDebugPrint.ClearDebugLog();
+            ArchDebugPrint.ClearOldestDebugLog();
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Init Exception Catcher");
             Application.logMessageReceived += ArchDebugPrint.OnCatchException;
         }
@@ -73,6 +75,15 @@ namespace ArchiGungeon
         {
             Archipelagun.Register();
             APPickUpItem.RegisterItemBase();
+            ReverseCurse.RegisterItem();
+            ReverseCurseReversal.RegisterItem();
+            
+            BulletParadoxItem.RegisterItem();
+            PilotParadoxItem.RegisterItem();
+            ConvictParadoxItem.RegisterItem();
+            MarineParadoxItem.RegisterItem();
+            RobotParadoxItem.RegisterItem();
+            HunterParadoxItem.RegisterItem();
         }
 
         private void InitEnemyHooks()
@@ -91,8 +102,9 @@ namespace ArchiGungeon
         {
             StartGungeonPlayerListener();
 
+            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} **=== \n\n");
             // Print all directories BepInEx will allow
-            LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
+            //LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 
             return;
         }
@@ -103,11 +115,16 @@ namespace ArchiGungeon
             return;
         }
 
-        private static void Log(string text, string color="#FFFFFF")
+        private static void Log(string text, string color = "#FFFFFF")
         {
             ETGModConsole.Log($"<color={color}>{text}</color>");
         }
 
+        #endregion
+
+
+
+        #region Unity Tick Management
         public void Update()
         {   
             if ( !isInit )
@@ -116,9 +133,11 @@ namespace ArchiGungeon
             }
 
             ArchipelagoModMenu.Update();
-            SessionHandler.Update();
+            SessionHandler.TickCheckItemQueue();
 
             return;
         }
+
+        #endregion
     }
 }

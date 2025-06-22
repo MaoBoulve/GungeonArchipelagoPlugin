@@ -13,12 +13,15 @@ using Alexandria.ItemAPI;
 using Alexandria.NPCAPI;
 using ArchiGungeon.Character;
 using UnityEngine.Networking;
+using ArchiGungeon.Data;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
+    #region Event Listening
     // See: https://github.com/Nevernamed22/Alexandria/blob/main/Misc/CustomActions.cs#L121
     public class GungeonPlayerEventListener
     {
+        #region Tracking Variables
         private static PlayerController PlayerOne { get; set; }
         private static PlayerController PlayerTwo { get; set; }
         private static bool IsOnOddCountChest { get; set; } = true;
@@ -26,6 +29,10 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static int ItemCountToReachToReplaceShopItem { get; } = 3;
         private static int CurrentShopItemCount { get; set; }
         private static bool PickedUpArchipelagun { get; set; }
+        private static int triggerTwinKills;
+        private static int killPillarKills;
+        private static int roomsClearedThisRun;
+        public static bool IsStartOfRun { get; private set; } = false;
 
         public static PlayerController GetFirstAlivePlayer()
         {
@@ -41,7 +48,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             return null;
         }
 
+        #endregion
 
+        #region Gungeon IDs Definitions
         private static List<string> PastKillsGuids { get; } = new List<string>()
         {
              "8d441ad4e9924d91b6070d5b3438d066",
@@ -127,11 +136,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             "Uzi",
             "DesertEagle"
         };
+        #endregion
 
-        private static int triggerTwinKills;
-        private static int killPillarKills;
-        private static int roomsClearedThisRun;
-        public static bool IsStartOfRun { get; private set; } = false;
+        #region General Gungeon Event Listens
 
         public static void StartSystemEventListens()
         {
@@ -215,7 +222,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 if(CharSwap.IsParadoxModeOn == true && controller.characterIdentity == PlayableCharacters.Eevee && PickedUpArchipelagun)
                 {
-                    CharSwap.OnParadoxModeCharInit(controller);
+                    CharSwap.HandleLostItemsOnCharacterSwap(controller);
                 }
 
                 ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player One Controller Listener Started");
@@ -249,14 +256,14 @@ namespace ArchiGungeon.GungeonEventHandlers
         private static void OnArchipelagoMenuOpen()
         {
             ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu opened, blocking character input");
-            KeyboardInputConsuming.BlockPlayerInputToCharacter(true);
+            PlayerInputModifier.BlockPlayerInputToCharacter(true);
             return;
         }
 
         private static void OnArchipelagoMenuClose()
         {
             ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Menu closed, resuming input");
-            KeyboardInputConsuming.BlockPlayerInputToCharacter(false);
+            PlayerInputModifier.BlockPlayerInputToCharacter(false);
             return;
         }
 
@@ -291,7 +298,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
 
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.ChestsOpened, 1);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.ChestsOpened, 1);
             return shouldOpen;
         }
 
@@ -336,12 +343,12 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             if(PastKillsGuids.Contains(enemyGuid))
             {
-                SessionHandler.DataSender.AddToGoalCount(SaveCountStats.PastKills, 1);
+                SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.PastKills, 1);
             }
             
             if(BossGUIDToStat.ContainsKey(enemyGuid))
             {
-                SessionHandler.DataSender.AddToGoalCount(BossGUIDToStat[enemyGuid], 1);
+                SaveDataManagement.AddToCountSaveDataEntry(BossGUIDToStat[enemyGuid], 1);
             }
 
             else if(TriggerTwinGuids.Contains(enemyGuid))
@@ -350,7 +357,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                 if(triggerTwinKills == 2)
                 {
-                    SessionHandler.DataSender.AddToGoalCount(SaveCountStats.Floor1Clears, 1);
+                    SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.Floor1Clears, 1);
                 }
             }
 
@@ -360,15 +367,16 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                 if (killPillarKills == 4)
                 {
-                    SessionHandler.DataSender.AddToGoalCount(SaveCountStats.Floor4Clears, 1);
+                    SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.Floor4Clears, 1);
                 }
             }
 
             if(GameCompletionGUIds.ContainsKey(enemyGuid))
             {
                 ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Possible completion boss: {haver.name}");
-                SessionHandler.DataSender.AddToGoalCount(GameCompletionGUIds[enemyGuid], 1);
-                SessionHandler.DataSender.SendLocalCountValuesToServer();
+                SaveDataManagement.AddToCountSaveDataEntry(GameCompletionGUIds[enemyGuid], 1);
+
+                SaveDataManagement.SaveCurrentRandomizerProgress();
                 SessionHandler.DataSender.CheckForGameCompletion();
 
             }
@@ -406,8 +414,11 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             return;
         }
+        #endregion
 
-
+        #region Player Event Listens
+        // events timed to listens after a player controller is instantiated
+        // With two players BOTH players fire events for these events, need to account for repeat cases.
         private static void StartPlayerControllerEventListens(PlayerController playerToListen)
         {
 
@@ -441,7 +452,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             EnemySwapping.ReduceEnemyDamageMult(1);
 
-            SessionHandler.DataSender.SendLocalCountValuesToServer();
+            SaveDataManagement.SaveCurrentRandomizerProgress();
 
             return;
         }
@@ -463,7 +474,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
             controller.characterIdentity = PlayableCharacters.Pilot;
             PickedUpArchipelagun = false;
-            SessionHandler.DataSender.SendLocalCountValuesToServer();
+            SaveDataManagement.SaveCurrentRandomizerProgress();
 
             string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
             SessionHandler.DataSender.SendDeathlink(causeOfDeath:deathCause);
@@ -474,7 +485,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             if(PlayerOne.healthHaver.IsDead )
             {
-                SessionHandler.DataSender.SendLocalCountValuesToServer();
+                SaveDataManagement.SaveCurrentRandomizerProgress();
                 string deathCause = $"Died to {controller.healthHaver.lastIncurredDamageSource} in the Gungeon";
                 SessionHandler.DataSender.SendDeathlink(causeOfDeath: deathCause);
             }
@@ -492,7 +503,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
 
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.RoomPoints, roomsClearedThisRun);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.RoomPoints, roomsClearedThisRun);
             //SessionHandler.CheckForUnhandledServerItems();
 
             return;
@@ -511,7 +522,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             int spentMoney = shopItem.CurrentPrice;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 
-            SessionHandler.DataSender.AddToGoalCount(SaveCountStats.CashSpent, spentMoney);
+            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.CashSpent, spentMoney);
 
             return;
         }
@@ -528,9 +539,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             // TODO: add table flip location
             return;
         }
+        #endregion
     }
+    #endregion
 
-    public class KeyboardInputConsuming
+    #region Input Modding
+    public class PlayerInputModifier
     {
         public static void BlockPlayerInputToCharacter(bool isBlocking)
         {
@@ -551,4 +565,5 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
     }
+    #endregion
 }
