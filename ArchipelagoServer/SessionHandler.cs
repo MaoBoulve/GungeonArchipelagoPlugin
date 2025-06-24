@@ -203,6 +203,30 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
+        // TODO: implement when APWorld updates
+        private static void CheckAPWorldVersion()
+        {
+            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Checking AP World compatability");
+            if (PlayerSlotSettings.ContainsKey("APWorld"))
+            {
+                if ((string)PlayerSlotSettings["APWorld"] == ArchipelaGunPlugin.AP_WORLD_VERSION)
+                {
+                    ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "AP World matches!");
+                    return;
+                }
+
+            }
+
+            ArchipelagoGUI.ConsoleLog("============= INCOMPATIBLE AP WORLD VERSION ==============");
+
+            ArchipelagoGUI.ConsoleLog($"ArchipelaGun Mod looking for APWorld {ArchipelaGunPlugin.AP_WORLD_VERSION}");
+            ArchipelagoGUI.ConsoleLog("Lotsa stuff will break with mismatching versions!");
+
+            ArchipelagoGUI.ConsoleLog("============= INCOMPATIBLE AP WORLD VERSION ==============");
+
+            return;
+        }
+
         public static void DisconnectFromSession()
         {
             if (Session == null)
