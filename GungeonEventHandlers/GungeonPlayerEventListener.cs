@@ -1,19 +1,20 @@
-﻿using System;
+﻿using Alexandria.ItemAPI;
+using Alexandria.Misc;
+using Alexandria.NPCAPI;
+using ArchiGungeon.ArchipelagoServer;
+using ArchiGungeon.Character;
+using ArchiGungeon.Data;
+using ArchiGungeon.DebugTools;
+using ArchiGungeon.EnemyHandlers;
+using ArchiGungeon.ItemArchipelago;
+using ArchiGungeon.ModConsoleVisuals;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Alexandria.Misc;
-using ArchiGungeon.ItemArchipelago;
 using UnityEngine;
-using ArchiGungeon.ModConsoleVisuals;
-using ArchiGungeon.ArchipelagoServer;
-using ArchiGungeon.EnemyHandlers;
-using ArchiGungeon.DebugTools;
-using Alexandria.ItemAPI;
-using Alexandria.NPCAPI;
-using ArchiGungeon.Character;
 using UnityEngine.Networking;
-using ArchiGungeon.Data;
+using static ETGMod;
 
 namespace ArchiGungeon.GungeonEventHandlers
 {
@@ -289,7 +290,8 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                 if (IsOnOddCountChest)
                 {
-                    chest.forceContentIds = new List<int> { APPickUpItem.SpawnItemID };
+                    ModifyChestContentsByChestType(chest);
+                    
                     IsOnOddCountChest = false;
                 }
                 else
@@ -300,6 +302,35 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.ChestsOpened, 1);
             return shouldOpen;
+        }
+
+        private static void ModifyChestContentsByChestType(Chest chestToEdit)
+        {
+            // TODO: test
+            PickupObject.ItemQuality chestContentQuality = chestToEdit.contents[0].quality;
+
+            if (chestToEdit.IsRainbowChest)
+            {
+                chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
+            }
+            if(chestToEdit.ChestIdentifier == Chest.SpecialChestIdentifier.RAT)
+            {
+                chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
+            }
+            else if(chestContentQuality == PickupObject.ItemQuality.S)
+            {
+                chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
+            }
+            else if(chestContentQuality == PickupObject.ItemQuality.A)
+            {
+                chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
+            }
+            else
+            {
+                chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID };
+            }
+
+            return;
         }
 
         private static void OnChestOpen(Chest chest, PlayerController controller)

@@ -67,7 +67,6 @@ namespace ArchiGungeon.Data
             }
         }
 
-        // TODO: write sava data by slot name + randomizer key as file name
     }
 
     #endregion
@@ -107,7 +106,6 @@ namespace ArchiGungeon.Data
                 $"Written at: {Path.Combine(ArchipelConfigPath, SAVED_CONNECTION_FILENAME)}");
 
 
-            // todo: TEST ABOVE
             return;
         }
 
