@@ -191,12 +191,42 @@ namespace ArchiGungeon.ArchipelagoServer
 
             PlayerSlotSettings = Session.DataStorage.GetSlotData();
             RoomSeed = Session.RoomState.Seed;
+            SetPlayerCompletionGoalsDataFromSlotData();
 
             foreach (string key in PlayerSlotSettings.Keys)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"KEY: {key} -- VALUE: {PlayerSlotSettings[key]}");
             }
 
+
+            return;
+        }
+
+        private static void SetPlayerCompletionGoalsDataFromSlotData()
+        {
+            foreach (PlayerCompletionGoals possiblePlayerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
+            {
+
+                // check all goals and see if player has key for goal set to true/1
+                if (possiblePlayerGoal == PlayerCompletionGoals.PastsFull || possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
+                {
+                    int chosenPlayerPastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
+
+                    if (chosenPlayerPastsCase == 1 && possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
+                    {
+                        ArchipelagoCompletion.AddToCompletionGoalsToCheck(PlayerCompletionGoals.PastsBase);
+                    }
+                    else if (chosenPlayerPastsCase == 2 && possiblePlayerGoal == PlayerCompletionGoals.PastsFull)
+                    {
+                        ArchipelagoCompletion.AddToCompletionGoalsToCheck(PlayerCompletionGoals.PastsFull);
+                    }
+                }
+
+                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[possiblePlayerGoal]]) == 1)
+                {
+                    ArchipelagoCompletion.AddToCompletionGoalsToCheck(possiblePlayerGoal);
+                }
+            }
 
             return;
         }
@@ -703,8 +733,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void OutputGameGoalStatus()
         {
-            // TODO: handle game progression in a nicer list
-
+            // TODO have a separate game progress text window
             if (Session == null)
             {
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
@@ -712,53 +741,6 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
             DataSender.CheckForGameCompletion();
-
-            foreach (PlayerCompletionGoals possiblePlayerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
-            {
-                #region CountSaveStat Enum List Collectiing
-                List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
-                //statsForGoal is the countSaveStats enums that will be checked if greater than 0
-
-
-                // check all goals and see if player has key for goal set to true/1
-                if (possiblePlayerGoal == PlayerCompletionGoals.PastsFull || possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
-                {
-                    int chosenPlayerPastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
-
-                    if (chosenPlayerPastsCase == 1 && possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
-                    {
-                        statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsBase).ToList();
-                    }
-                    else if (chosenPlayerPastsCase == 2 && possiblePlayerGoal == PlayerCompletionGoals.PastsFull)
-                    {
-                        statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsFull).ToList();
-                    }
-                }
-
-                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[possiblePlayerGoal]]) == 1)
-                {
-                    statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(possiblePlayerGoal).ToList();
-
-                }
-
-                #endregion
-
-                foreach (SaveCountStats statCheck in statsForGoal)
-                {
-                    int statCount = CountSaveData.GetCountStat(statCheck);
-                    string killConfirm = "*** YES ****";
-
-                    if (statCount < 1)
-                    {
-                        killConfirm = "NO";
-                    }
-
-                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {possiblePlayerGoal}: {statCheck} -- Killed: {killConfirm}");
-                }
-            }
-
-
-
             return;
         }
 
@@ -809,43 +791,18 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, "Checking for game completion");
 
-                foreach (PlayerCompletionGoals playerGoalEnum in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
+                List<string> unmetGoalStatCounts = ArchipelagoCompletion.GetAllUnmetCountsForGoals();
+
+                if (unmetGoalStatCounts.Count > 0)
                 {
-                    List<SaveCountStats> statsToCheck = new List<SaveCountStats>();
+                    ArchipelagoGUI.ConsoleLog($"Remaining goals: ");
 
-                    //Setup stats to check for goal completion
-                    if (playerGoalEnum == PlayerCompletionGoals.PastsFull || playerGoalEnum == PlayerCompletionGoals.PastsBase)
+                    foreach(string goal in unmetGoalStatCounts)
                     {
-                        int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
-
-                        if (pastsCase == 1)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking Base 4 Pasts");
-                            statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsBase).ToList();
-                        }
-                        else if (pastsCase == 2)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking 6 Pasts");
-                            statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsFull).ToList();
-                        }
+                        ArchipelagoGUI.ConsoleLog(goal);
                     }
 
-                    else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoalEnum]]) == 1)
-                    {
-                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{playerGoalEnum} marked for game completion check by Slot Data");
-                        statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(playerGoalEnum).ToList();
-                    }
-
-                    // Iterate through savecountstats enum
-                    foreach (SaveCountStats statCheck in statsToCheck)
-                    {
-                        int statCount = CountSaveData.GetCountStat(statCheck);
-                        if (statCount < 1)
-                        {
-                            ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal {statCheck} not met, STOPPING game completion check");
-                            return;
-                        }
-                    }
+                    return;
                 }
 
                 ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Goal checks passed! Sending completion event");
