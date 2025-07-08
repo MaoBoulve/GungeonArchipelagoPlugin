@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ArchipelagoServer\ArchipelagoGungeonBridge.cs" />
+    <Compile Include="ArchipelagoServer\ArchipelagoCompletion.cs" />
     <Compile Include="Data\LocalFileWriter.cs" />
     <Compile Include="Data\PlayerSaveDataDefinition.cs" />
     <Compile Include="ArchipelagoServer\SessionHandler.cs" />
