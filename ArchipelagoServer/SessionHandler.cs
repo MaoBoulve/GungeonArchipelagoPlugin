@@ -58,8 +58,6 @@ namespace ArchiGungeon.ArchipelagoServer
         public static DeathLinkService DeathLinkService { get; protected set; }
 
         private static bool HandlingDeathlinkEvent { get; set; } = false;
-
-        private static bool ShouldOutputCheckBeInteruppted { get; set; } = false;
         #endregion
 
 
@@ -705,48 +703,45 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public static void OutputGameGoalStatus()
         {
+            // TODO: handle game progression in a nicer list
+
             if (Session == null)
             {
                 ArchipelagoGUI.ConsoleLog("ERROR: Not connected to Archipelago!");
                 return;
             }
-            ShouldOutputCheckBeInteruppted = false;
 
             DataSender.CheckForGameCompletion();
 
-            if (ShouldOutputCheckBeInteruppted)
+            foreach (PlayerCompletionGoals possiblePlayerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
             {
-                ArchipelagoGUI.ConsoleLog("\n\nHad to pull server data for Goal Progress. Please hold ========== \n");
-
-                CheckCoroutineHelperValid();
-                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.DelayOutputRepeatCall());
-
-                return;
-            }
-
-            foreach (PlayerCompletionGoals playerGoal in (PlayerCompletionGoals[])Enum.GetValues(typeof(PlayerCompletionGoals)))
-            {
+                #region CountSaveStat Enum List Collectiing
                 List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
+                //statsForGoal is the countSaveStats enums that will be checked if greater than 0
 
-                if (playerGoal == PlayerCompletionGoals.PastsFull || playerGoal == PlayerCompletionGoals.PastsBase)
+
+                // check all goals and see if player has key for goal set to true/1
+                if (possiblePlayerGoal == PlayerCompletionGoals.PastsFull || possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
                 {
-                    int pastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
+                    int chosenPlayerPastsCase = Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[PlayerCompletionGoals.PastsFull]]);
 
-                    if (pastsCase == 1 && playerGoal == PlayerCompletionGoals.PastsBase)
+                    if (chosenPlayerPastsCase == 1 && possiblePlayerGoal == PlayerCompletionGoals.PastsBase)
                     {
-                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                        statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsBase).ToList();
                     }
-                    else if (pastsCase == 2 && playerGoal == PlayerCompletionGoals.PastsFull)
+                    else if (chosenPlayerPastsCase == 2 && possiblePlayerGoal == PlayerCompletionGoals.PastsFull)
                     {
-                        statsForGoal = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                        statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsFull).ToList();
                     }
                 }
 
-                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoal]]) == 1)
+                else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[possiblePlayerGoal]]) == 1)
                 {
-                    statsForGoal = CountSaveData.GoalToStatChecks[playerGoal].ToList();
+                    statsForGoal = ArchipelagoCompletion.GetCountStatsForCompletionGoal(possiblePlayerGoal).ToList();
 
                 }
+
+                #endregion
 
                 foreach (SaveCountStats statCheck in statsForGoal)
                 {
@@ -758,7 +753,7 @@ namespace ArchiGungeon.ArchipelagoServer
                         killConfirm = "NO";
                     }
 
-                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {playerGoal}: {statCheck} -- Killed: {killConfirm}");
+                    ArchipelagoGUI.ConsoleLog($"Game completion goal -- {possiblePlayerGoal}: {statCheck} -- Killed: {killConfirm}");
                 }
             }
 
@@ -826,19 +821,19 @@ namespace ArchiGungeon.ArchipelagoServer
                         if (pastsCase == 1)
                         {
                             ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking Base 4 Pasts");
-                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsBase].ToList();
+                            statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsBase).ToList();
                         }
                         else if (pastsCase == 2)
                         {
                             ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Checking 6 Pasts");
-                            statsToCheck = CountSaveData.GoalToStatChecks[PlayerCompletionGoals.PastsFull].ToList();
+                            statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(PlayerCompletionGoals.PastsFull).ToList();
                         }
                     }
 
                     else if (Convert.ToInt32(PlayerSlotSettings[GameCompletionGoalKeys[playerGoalEnum]]) == 1)
                     {
                         ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"{playerGoalEnum} marked for game completion check by Slot Data");
-                        statsToCheck = CountSaveData.GoalToStatChecks[playerGoalEnum].ToList();
+                        statsToCheck = ArchipelagoCompletion.GetCountStatsForCompletionGoal(playerGoalEnum).ToList();
                     }
 
                     // Iterate through savecountstats enum
@@ -1011,24 +1006,7 @@ namespace ArchiGungeon.ArchipelagoServer
             SessionHandler.HandleParadoxModeInit();
         }
 
-        public IEnumerator CheckIfStatInitFailed(SaveCountStats statToCheck, float waitTime = 10.0f)
-        {
-            yield return new WaitForSeconds(waitTime);
-
-            if(CountSaveData.GetCountStat(statToCheck) == -1)
-            {
-                ArchipelagoGUI.ConsoleLog("Detected archipelago broken connection, reconnecting");
-                SessionHandler.ReconnectSession();
-            }
-
-        }
-
-        public IEnumerator DelayOutputRepeatCall(float waitTime = 3.0f)
-        {
-            yield return new WaitForSeconds(waitTime);
-
-            SessionHandler.OutputGameGoalStatus();
-        }
+        
     }
 
     #endregion

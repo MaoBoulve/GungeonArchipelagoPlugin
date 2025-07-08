@@ -52,17 +52,6 @@ namespace ArchiGungeon.Data
         #endregion
 
         #region Dictionary Inits
-        public static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
-        {
-            { PlayerCompletionGoals.Lich, new SaveCountStats[] { SaveCountStats.LichKills } },
-            { PlayerCompletionGoals.Dragun, new SaveCountStats[] { SaveCountStats.DragunKills} },
-            { PlayerCompletionGoals.SecretChamber, new SaveCountStats[] { SaveCountStats.OldKingKills, SaveCountStats.BlobulordKills} },
-            { PlayerCompletionGoals.AdvancedGungeon, new SaveCountStats[] { SaveCountStats.AdvancedDragunKills, SaveCountStats.RatKills} },
-            { PlayerCompletionGoals.FarewellArms, new SaveCountStats[] { SaveCountStats.DeptAgunimKills} },
-            { PlayerCompletionGoals.PastsBase, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot} },
-            { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
-        };  
-
         private static Dictionary<SaveCountStats, int> CountSaveDataDict { get; set; } = new Dictionary<SaveCountStats, int>()
         {
             { SaveCountStats.ChestsOpened, 0 },
@@ -319,7 +308,7 @@ namespace ArchiGungeon.Data
         {
             if(SaveDataWriter.InitSaveFilenameAndCheckPrevious(playerInfo.PlayerName, playerInfo.Seed) == true)
             {
-                // todo: define other dicts for multiple save data types to consider
+                // TODO FUTURE: define other dicts for multiple save data types to consider
                 Dictionary<SaveCountStats, int> saveData = SaveDataWriter.RetrieveSaveData();
 
                 CountSaveData.SetFullCountSaveData(saveData);
