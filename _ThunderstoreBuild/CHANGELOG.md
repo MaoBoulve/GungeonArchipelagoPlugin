@@ -1,3 +1,9 @@
+# 0.1.4
+Major refactor of randomizer progress to local save files. This should make the Archipelago Server connection much more stable. Please.
+
+- Count data no longer sent to server, now saved locally
+- Added last connection fast connect, Reload on run start to load the last valid connection!
+
 # 0.1.3
 Stability fixes!
 - Check to only handle 1 deathlink event per run
