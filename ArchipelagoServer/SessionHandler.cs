@@ -11,14 +11,12 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.Collections;
-using Newtonsoft.Json.Linq;
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.ModConsoleVisuals;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
-using System.Collections.ObjectModel;
 using ArchiGungeon.Data;
 
 namespace ArchiGungeon.ArchipelagoServer
@@ -47,6 +45,8 @@ namespace ArchiGungeon.ArchipelagoServer
         #endregion
 
         #region Item Handling Variables
+        private static List<ItemInfo> allItemsReceivedFromServer = new List<ItemInfo>();
+        private static bool hasRetrievedServerItemsOnce = false;
         private static List<long> itemsHandledThisRun = new List<long>();
         private static List<long> item_add_queue = new();
 
@@ -102,8 +102,6 @@ namespace ArchiGungeon.ArchipelagoServer
             //LoginSuccessful loginSuccessful = (LoginSuccessful)loginResult;
 
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Login successful, handling initializing via Slot Data");
-
-            //InitializeServerDataStorage();
             PullPlayerYAMLSlotData();
 
             BindToArchipelagoEvents();
@@ -169,21 +167,6 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        private static void InitializeServerDataStorage()
-        {
-            ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, "Init server storage keys");
-            //session.DataStorage["ChestsOpened"].OnValueChanged += DataReceiver.OnChestsOpenedValueChange;
-
-            // basic counting
-            foreach (SaveCountStats countStatEnum in (SaveCountStats[])Enum.GetValues(typeof(SaveCountStats)))
-            {
-
-                Session.DataStorage[Scope.Slot, CountSaveData.CountStatToKeys[countStatEnum].CountKey].Initialize(0);
-            }
-
-
-            return;
-        }
 
         private static void PullPlayerYAMLSlotData()
         {
@@ -433,7 +416,7 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static void RetrieveServerItems()
+        public static void RetrieveItemsFromServer()
         {
 
             TrapSpawnHandler.SetCanSpawn(false);
@@ -452,10 +435,36 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (var item in itemList)
             {
+                allItemsReceivedFromServer.Add(item);
+
                 if (!itemsHandledThisRun.Contains(item.ItemId))
                 {
                     AddItemToLocalGungeon(item);
                 }       
+            }
+
+            allItemsReceivedFromServer = (List<ItemInfo>)allItemsReceivedFromServer.Distinct();
+
+            hasRetrievedServerItemsOnce = true;
+            TrapSpawnHandler.SetCanSpawn(true);
+            ConsumableSpawnHandler.SetCanSpawn(true);
+
+            return;
+        }
+
+        private static void RetrieveItemsFromLocalData()
+        {
+            TrapSpawnHandler.SetCanSpawn(false);
+            ConsumableSpawnHandler.SetCanSpawn(false);
+
+            ArchipelagoGUI.ConsoleLog($"Retrieving items based on local data!");
+            
+            foreach(ItemInfo item in allItemsReceivedFromServer)
+            {
+                if (!itemsHandledThisRun.Contains(item.ItemId))
+                {
+                    AddItemToLocalGungeon(item);
+                }
             }
 
             TrapSpawnHandler.SetCanSpawn(true);
@@ -488,34 +497,21 @@ namespace ArchiGungeon.ArchipelagoServer
             return;
         }
 
-        public static void CheckForUnhandledServerItems()
+        public static void HandleDelayedItemInitialize()
         {
-            if (Session == null)
+            if(hasRetrievedServerItemsOnce)
             {
-                
-                return;
+                RetrieveItemsFromLocalData();
+            }
+            else
+            {
+                RetrieveItemsFromServer(); 
             }
 
-            if(Session.Socket.Connected == false)
-            {
-                return;
-            }
+            CheckForProgressItems();
 
-            ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking for unhandled items");
-
-            ReadOnlyCollection<ItemInfo> allItemsReceived = Session.Items.AllItemsReceived;
-
-            foreach (var item in allItemsReceived)
-            {
-                ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Checking item on server: {item.ItemName} -- {item.ItemId}");
-                if (!itemsHandledThisRun.Contains(item.ItemId))
-                {
-                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Unhandled item: {item.ItemName} -- {item.ItemId}");
-                    AddItemToLocalGungeon(item);
-                }
-            }
-
-            return;
+            IsValidToSpawnItems = true;
+            //CheckReverseCurse();
         }
 
 
@@ -680,16 +676,6 @@ namespace ArchiGungeon.ArchipelagoServer
             return false;
         }
 
-        public static void HandleParadoxModeInit()
-        {
-
-            RetrieveServerItems();
-            CheckForProgressItems();
-
-            IsValidToSpawnItems = true;
-            //CheckReverseCurse();
-        }
-
         #endregion
 
         #region Reverse Curse
@@ -764,6 +750,11 @@ namespace ArchiGungeon.ArchipelagoServer
                 return;
             }
 
+            public static void SendFoundLocationCheck(long[] idArray)
+            {
+                Session.Locations.CompleteLocationChecks(idArray);
+                return;
+            }
 
             public static void SendDeathlink(string playerName = "Gungeoneer", string causeOfDeath = "Died to Gungeon")
             {
@@ -879,6 +870,7 @@ namespace ArchiGungeon.ArchipelagoServer
                 ItemInfo itemInfo = helper.PeekItem();
                 ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"OnItemReceived - {itemInfo.ItemId} -- {itemInfo.ItemName}");
 
+                allItemsReceivedFromServer.Add(itemInfo);
 
                 AddItemToLocalGungeon(itemInfo);
 
@@ -957,10 +949,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
         public IEnumerator WaitForParadoxReint(float waitTime = 2f)
         {
-            ArchipelagoGUI.ConsoleLog("Starting paradox mode! Need to initialize backend");
+            ArchipelagoGUI.ConsoleLog("Initializing items after initial setup, please standby =========");
             yield return new WaitForSeconds(waitTime);
 
-            SessionHandler.HandleParadoxModeInit();
+            SessionHandler.HandleDelayedItemInitialize();
         }
 
         

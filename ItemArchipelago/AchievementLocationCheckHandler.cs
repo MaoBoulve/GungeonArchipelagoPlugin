@@ -44,12 +44,17 @@ namespace ArchiGungeon.ItemArchipelago
             List<long> fullList = StatToLocationIDs[statCategory];
             List<long> sendList = fullList.GetRange(0, numberOfChecks);
 
+            ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending {statCategory} location check: {sendList}");
+            SessionHandler.DataSender.SendFoundLocationCheck(sendList.ToArray());
+
+            /*
             foreach (long locationID in sendList)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.ServerSend, $"Sending {statCategory} location check: {locationID}");
 
                 SessionHandler.DataSender.SendFoundLocationCheck(locationID);
             }
+            */
 
             fullList.RemoveRange(0, numberOfChecks);
             StatToLocationIDs[statCategory] = fullList;

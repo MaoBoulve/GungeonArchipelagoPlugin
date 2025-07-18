@@ -402,6 +402,11 @@ namespace ArchiGungeon.ModConsoleVisuals
 
                         return;
                 }
+                case ArchipelConsoleCommandParser.unitTestCmd:
+                {
+                        UnitTests.HandleUnitTestCommand(commandInputs[0]);
+                        return;
+                }
                 case "help":
                 {
                         PrintHelpTextToConsole();
@@ -530,7 +535,8 @@ namespace ArchiGungeon.ModConsoleVisuals
 
         public const string deathlinkCmd = "deathlink";
 
-        public const string debugCmd = "debugtool";
+        public const string debugCmd = "debug";
+        public const string unitTestCmd = "test";
         
         
         // Instance archipelago commands inside ETGModConsole
@@ -570,7 +576,7 @@ namespace ArchiGungeon.ModConsoleVisuals
 
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{retrieveCmd}", delegate (string[] args)
             {
-                SessionHandler.RetrieveServerItems();
+                SessionHandler.RetrieveItemsFromServer();
                 return;
             });
 

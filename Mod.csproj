@@ -55,6 +55,7 @@
     <Compile Include="DebugTools\DebugCommands.cs" />
     <Compile Include="DebugTools\ArchDebugPrint.cs" />
     <Compile Include="Data\EnemyGuidDatabase.cs" />
+    <Compile Include="DebugTools\UnitTests.cs" />
     <Compile Include="EnemyHandlers\EnemySwapping.cs" />
     <Compile Include="GungeonEventHandlers\EffectsController.cs" />
     <Compile Include="ItemArchipelago\ReverseCurseItems.cs" />
