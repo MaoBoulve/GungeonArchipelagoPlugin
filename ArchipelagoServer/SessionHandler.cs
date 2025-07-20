@@ -119,8 +119,11 @@ namespace ArchiGungeon.ArchipelagoServer
 
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
-            CheckCoroutineHelperValid();
-            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.RetrieveDataAfterSlotDataPullDelay());
+            if(!TimedServerCalls.IsRetrieveDataCoroutineRunning)
+            {
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.RetrieveDataAfterSlotDataPullDelay());
+            }
 
             return;
         }
@@ -367,10 +370,12 @@ namespace ArchiGungeon.ArchipelagoServer
 
             CheckToInitializeParadoxMode();
 
-            CheckCoroutineHelperValid();
-            CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
-
-
+            if(!TimedServerCalls.IsParadoxReinitCoroutineRunning)
+            {
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
+            }
+            
             return;
 
         }
@@ -435,15 +440,16 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (var item in itemList)
             {
-                allItemsReceivedFromServer.Add(item);
-
-                if (!itemsHandledThisRun.Contains(item.ItemId))
+                if(!allItemsReceivedFromServer.Contains(item))
                 {
-                    AddItemToLocalGungeon(item);
-                }       
-            }
+                    allItemsReceivedFromServer.Add(item);
 
-            allItemsReceivedFromServer = (List<ItemInfo>)allItemsReceivedFromServer.Distinct();
+                    if (!itemsHandledThisRun.Contains(item.ItemId))
+                    {
+                        AddItemToLocalGungeon(item);
+                    }
+                }   
+            }
 
             hasRetrievedServerItemsOnce = true;
             TrapSpawnHandler.SetCanSpawn(true);
@@ -933,9 +939,11 @@ namespace ArchiGungeon.ArchipelagoServer
 
     public class TimedServerCalls:MonoBehaviour
     {
+        public static bool IsRetrieveDataCoroutineRunning { get; private set; } = false;
 
         public IEnumerator RetrieveDataAfterSlotDataPullDelay(float waitTime = 1.0f)
         {
+            IsRetrieveDataCoroutineRunning = true;
             ArchipelagoGUI.ConsoleLog($"Waiting for Archipelago data, please standby ============== ");
 
             yield return new WaitForSeconds(waitTime);
@@ -945,14 +953,20 @@ namespace ArchiGungeon.ArchipelagoServer
             SessionHandler.CheckForSlotDataInstantiation();
             SaveDataManagement.CheckFullCountStatsForGoals();
 
+            IsRetrieveDataCoroutineRunning = false;
+
         }
+
+        public static bool IsParadoxReinitCoroutineRunning { get; private set; } = false;
 
         public IEnumerator WaitForParadoxReint(float waitTime = 2f)
         {
+            IsParadoxReinitCoroutineRunning = true;
             ArchipelagoGUI.ConsoleLog("Initializing items after initial setup, please standby =========");
             yield return new WaitForSeconds(waitTime);
 
             SessionHandler.HandleDelayedItemInitialize();
+            IsParadoxReinitCoroutineRunning = false;
         }
 
         

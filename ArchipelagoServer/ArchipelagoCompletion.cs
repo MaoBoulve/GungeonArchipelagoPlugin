@@ -10,7 +10,7 @@ namespace ArchiGungeon.ArchipelagoServer
     public class ArchipelagoCompletion
     {
         #region Data Inits
-        private static List<PlayerCompletionGoals> CompletionGoalsToCheck { get; } = new List<PlayerCompletionGoals>();
+        public static List<PlayerCompletionGoals> ArchipelagoRequiredGoals { get; } = new List<PlayerCompletionGoals>();
 
         private static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
         {
@@ -45,7 +45,7 @@ namespace ArchiGungeon.ArchipelagoServer
         public static void AddToCompletionGoalsToCheck(PlayerCompletionGoals goalToAdd)
         {
             ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Adding {goalToAdd} to player completion goals.");
-            CompletionGoalsToCheck.Add(goalToAdd);
+            ArchipelagoRequiredGoals.Add(goalToAdd);
         }
 
         public static SaveCountStats[] GetCountStatsForCompletionGoal(PlayerCompletionGoals goalEnum)
@@ -65,7 +65,7 @@ namespace ArchiGungeon.ArchipelagoServer
             List<string> unmetCountStats = new List<string>();
             // string outputs of incomplete count stats, list length > 0 means run is not complete
 
-            foreach (PlayerCompletionGoals playerGoal in CompletionGoalsToCheck)
+            foreach (PlayerCompletionGoals playerGoal in ArchipelagoRequiredGoals)
             {
                 List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
                 //statsForGoal is the countSaveStats enums that will be checked if greater than 0

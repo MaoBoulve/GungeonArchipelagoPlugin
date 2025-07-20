@@ -37,17 +37,12 @@ namespace ArchiGungeon
         {
             ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Starting ArchipelaGunPlugin");
 
-            InitExceptionCatcher();
+            
             ETGModMainBehaviour.WaitForGameManagerStart(GMStart);
             
         }
 
-        private void InitExceptionCatcher()
-        {
-            ArchDebugPrint.ClearOldestDebugLog();
-            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Init Exception Catcher");
-            Application.logMessageReceived += ArchDebugPrint.OnCatchException;
-        }
+
 
         public void GMStart(GameManager g)
         {
@@ -103,17 +98,27 @@ namespace ArchiGungeon
         {
             StartGungeonPlayerListener();
 
-            ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} **=== \n\n");
+            //ArchipelagoGUI.ConsoleLog($"===** Debug text log at {Paths.ConfigPath} **=== \n\n");
             // Print all directories BepInEx will allow
             //LocalSaveDataHandler.TDD_PrintAllPathsDirectory();
 
+            InitExceptionCatcher();
+
             return;
         }
+
 
         private void StartGungeonPlayerListener()
         {
             GungeonPlayerEventListener.StartSystemEventListens();
             return;
+        }
+
+        private void InitExceptionCatcher()
+        {
+            ArchDebugPrint.InitDebugLog();
+            ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Init Exception Catcher");
+            Application.logMessageReceived += ArchDebugPrint.OnCatchException;
         }
 
         private static void Log(string text, string color = "#FFFFFF")

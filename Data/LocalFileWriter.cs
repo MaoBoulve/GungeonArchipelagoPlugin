@@ -143,7 +143,7 @@ namespace ArchiGungeon.Data
         private static string oldestFile = "N/A";
         private static string fileToWrite;
 
-        private static bool isWritingText = true;
+        private static bool isWritingText = false;
         private static List<string> TextLog { get; } = new List<string>();
 
         public static void AppendToLocalDebugLog(string newEntry)
