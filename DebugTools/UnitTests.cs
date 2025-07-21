@@ -1,4 +1,5 @@
 ﻿using ArchiGungeon.ArchipelagoServer;
+using ArchiGungeon.Character;
 using ArchiGungeon.Data;
 using ArchiGungeon.ModConsoleVisuals;
 using System;
@@ -12,44 +13,6 @@ namespace ArchiGungeon.DebugTools
     {
         static string[] unitTestCommands;
         static int commandIndex = -1;
-
-        
-
-        static string[] unitTest2 =
-        [
-            "ff",
-            "fff"
-        ];
-
-        static string[] unitTest3 =
-        [
-            "ff",
-            "fff"
-        ];
-
-        static string[] unitTest4 =
-        [
-            "ff",
-            "fff"
-        ];
-
-        static string[] unitTest5 =
-        [
-            "ff",
-            "fff"
-        ];
-
-        static string[] unitTest6 =
-        [
-            "ff",
-            "fff"
-        ];
-
-        static string[] unitTest7 =
-        [
-            "ff",
-            "fff"
-        ];
 
 
         public static void HandleUnitTestCommand(string commandText)
@@ -156,6 +119,15 @@ namespace ArchiGungeon.DebugTools
                         GoToNextUnitTestStep();
                         return;
                     }
+                case "wait":
+                    {
+                        return;
+                    }
+                case "func":
+                    {
+                        ParseUnitTestFunctionCase(stepCommand[1]);
+                        return;
+                    }
             }
 
             return;
@@ -174,6 +146,46 @@ namespace ArchiGungeon.DebugTools
             return;
         }
 
+        private static void ParseUnitTestFunctionCase(string functionCase)
+        {
+            switch (functionCase)
+            {
+                case "sendDeathlink":
+                    {
+                        SessionHandler.DataSender.SendDeathlink(causeOfDeath: "Died by Unit Test");
+                        return;
+                    }
+                case "bossOutput":
+                    {
+                        ArchDebugPrint.SetDebugState(DebugCategory.PlayerEventListener, true);
+                        return;
+                    }
+                case "spawnAP":
+                    {
+                        ArchipelagoGungeonBridge.SpawnAPItem(5);
+                        return;
+                    }
+                case "identityItems":
+                    {
+                        CharSwap.ReceiveParadoxModeItem(0);
+                        CharSwap.ReceiveParadoxModeItem(1);
+                        CharSwap.ReceiveParadoxModeItem(2);
+                        CharSwap.ReceiveParadoxModeItem(3);
+                        CharSwap.ReceiveParadoxModeItem(4);
+                        CharSwap.ReceiveParadoxModeItem(5);
+                        return;
+                    }
+                case "bulletSpawn":
+                    {
+                        ETGModConsole.SpawnItem(new string[] { "bullet_that_can_kill_the_past", "1" });
+                        return;
+                    }
+            }
+
+            return;
+        }
+
+        #region Unit Test 1 - Game Completion
         private static void LoadUnitTest1()
         {
             /*
@@ -191,40 +203,69 @@ namespace ArchiGungeon.DebugTools
 
             foreach (PlayerCompletionGoals goal in goals)
             {
+                goalConsoleCommands.Add($"print Adding goal to unit test -- {goal}");
+
                 switch (goal)
                 {
                     case PlayerCompletionGoals.SecretChamber:
 
+                        goalConsoleCommands.Add("print Sewers level loading");
                         goalConsoleCommands.Add("cmd load_level sewers");
+                        goalConsoleCommands.Add("print Abbey level loading");
                         goalConsoleCommands.Add("cmd load_level abbey");
 
                         break;
                     case PlayerCompletionGoals.Dragun:
+                        goalConsoleCommands.Add("print Forge level loading");
                         goalConsoleCommands.Add("cmd load_level forge");
                         break;
                     case PlayerCompletionGoals.Lich:
+                        goalConsoleCommands.Add("print Hell level loading");
                         goalConsoleCommands.Add("cmd load_level hell");
                         break;
                     case PlayerCompletionGoals.AdvancedGungeon:
+
+                        goalConsoleCommands.Add("print Forge, level loading. Need to handle weird egg");
                         goalConsoleCommands.Add("cmd load_level forge");
                         goalConsoleCommands.Add("cmd spawn item weird_egg");
+
+                        goalConsoleCommands.Add("print RAT level loading");
                         goalConsoleCommands.Add("cmd load_level ratlair");
                         break;
                     case PlayerCompletionGoals.FarewellArms:
+                        goalConsoleCommands.Add("print RNG Dept loading");
                         goalConsoleCommands.Add("cmd load_level rng_dept");
                         break;
                     case PlayerCompletionGoals.PastsBase:
+                        goalConsoleCommands.Add("print Marine Past loading");
                         goalConsoleCommands.Add("cmd load_level marinepast");
+
+                        goalConsoleCommands.Add("print Convict Past loading");
                         goalConsoleCommands.Add("cmd load_level convictpast");
+
+                        goalConsoleCommands.Add("print Hunter Past loading");
                         goalConsoleCommands.Add("cmd load_level hunterpast");
+
+                        goalConsoleCommands.Add("print Pilot Past loading");
                         goalConsoleCommands.Add("cmd load_level pilotpast");
                         break;
                     case PlayerCompletionGoals.PastsFull:
+                        goalConsoleCommands.Add("print Marine Past loading");
                         goalConsoleCommands.Add("cmd load_level marinepast");
+
+                        goalConsoleCommands.Add("print Convict Past loading");
                         goalConsoleCommands.Add("cmd load_level convictpast");
+
+                        goalConsoleCommands.Add("print Hunter Past loading");
                         goalConsoleCommands.Add("cmd load_level hunterpast");
+
+                        goalConsoleCommands.Add("print Pilot Past loading");
                         goalConsoleCommands.Add("cmd load_level pilotpast");
+
+                        goalConsoleCommands.Add("print Robot Past loading");
                         goalConsoleCommands.Add("cmd load_level robotpast");
+
+                        goalConsoleCommands.Add("print Bullet Past loading");
                         goalConsoleCommands.Add("cmd load_level bulletpast");
                         break;
                 }
@@ -235,6 +276,7 @@ namespace ArchiGungeon.DebugTools
             List<string> unitTest1 = new List<string>()
             {
                 "print GAME COMPLETION UNIT TEST",
+                "print Requires connection to Archipelago, otherwise nothing happens",
                 "cmd quick_kill"
             };
 
@@ -248,6 +290,7 @@ namespace ArchiGungeon.DebugTools
 
         }
 
+        #endregion
 
         private static void LoadUnitTest2()
         {
@@ -261,7 +304,29 @@ namespace ArchiGungeon.DebugTools
                 - See if bullet works
              */
 
-            unitTestCommands = unitTest2;
+            List<string> unitTest2 = new List<string>()
+            {
+                "print BULLET TO PAST ITEM TEST",
+                "print Enter 'test next' to initialize Paradox Mode",
+                "wait ---",
+
+                "print Enter 'test next' to spawn bullet to past",
+                "cmd character paradox",
+
+                "print Enter 'test next' to spawn identity items",
+                "func bulletSpawn",
+
+                "print Enter 'test next' x3 to 1] Load Forge, 2] Visit All Floor 3] Quick_Kill",
+                "func identityItems",
+
+                "cmd load_level forge",
+                "cmd visit_all_rooms",
+                "print ------------ END OF UNIT TEST ----------------",
+                "cmd quick_kill"
+
+            };
+
+            unitTestCommands = unitTest2.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();
@@ -278,7 +343,20 @@ namespace ArchiGungeon.DebugTools
             - Output if each boss is read by gungeon listener
              */
 
-            unitTestCommands = unitTest3;
+            List<string> unitTest3 = new List<string>()
+            {
+                "print BOSS OUTPUT UNIT TEST",
+                "print Test requires going to Boss Rush",
+                "print Enter 'test next' to enable quick_kill",
+                "wait --",
+                "print Enter 'test next' to force output to true for boss kills",
+                "cmd quick_kill",
+                "------------ END OF UNIT TEST -------------",
+                "func bossOutput",
+
+            };
+
+            unitTestCommands = unitTest3.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();
@@ -289,11 +367,22 @@ namespace ArchiGungeon.DebugTools
         {
             /*
              *### Deathlink RECEIVE Test
-        - Connect sudoku
-        - Lose 
+            - Connect sudoku
+            - Lose 
              */
 
-            unitTestCommands = unitTest4;
+            List<string> unitTest4 = new List<string>()
+            {
+                "print DEATHLINK RECEIVE UNIT TEST",
+                "print Connect another client to the server (ie. AP Sudoku)",
+                "print Enter 'test next' to enable Deathlink",
+                "wait --",
+                "print Send Deathlink from other client and see if Gungeon player dies",
+                "print ----------------- END OF UNIT TEST ------------------",
+                "cmd deathlink 1"
+            };
+
+            unitTestCommands = unitTest4.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();
@@ -304,11 +393,22 @@ namespace ArchiGungeon.DebugTools
         {
             /*
              *  ### Deathlink SEND Test
-        - Kill player
-        - See if sudoku lost
+            - Kill player
+            - See if sudoku lost
              */
 
-            unitTestCommands = unitTest5;
+            List<string> unitTest5 = new List<string>()
+            {
+                "print DEATHLINK SEND UNIT TEST",
+                "print Connect another client to server to test Deathlink",
+                "print Send 'test next' to send a Deathlink event",
+                "wait ---",
+                "print Check if deathlink sent",
+                "print ---------- END OF UNIT TEST ---------------",
+                "func sendDeathlink"
+
+            };
+            unitTestCommands = unitTest5.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();
@@ -319,12 +419,31 @@ namespace ArchiGungeon.DebugTools
         {
             /*
              * ### Password & Weird Name Test
-        - Setup password & bad name AP World
-        - Send console command for password and name set commands
-        - full connect
+            - Setup password & bad name AP World
+            - Send console command for password and name set commands
+            - full connect
              */
 
-            unitTestCommands = unitTest6;
+            List<string> unitTest6 = new List<string>()
+            {
+                "print PASSWORD & NAME ARCHIPEL CONNECT UNIT TEST",
+                "print Create APWorld with slot name 'Gun Gie 2Test' and password 'testPass' ",
+                "print Send 'test next' to set Slot Name for fullconnect",
+                "wait ---",
+                
+                "print Send 'test next' to set Password for fullconnect",
+                "cmd set name Gun Gie 2Test",
+
+                "print Send 'test next' to fullconnect",
+                "cmd set password testPass",
+
+                "print Try connection with IP Address and port",
+                "print ---------- END OF UNIT TEST --------------",
+                "wait --"
+
+            };
+
+            unitTestCommands = unitTest6.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();
@@ -340,7 +459,20 @@ namespace ArchiGungeon.DebugTools
             - Repeat 5 AP Items 
              */
 
-            unitTestCommands = unitTest7;
+            List<string> unitTest7 = new List<string>()
+            {
+                "print AP ITEM MULTI SEND UNIT TEST",
+                "print Send 'test next' to spawn 5 AP Items",
+                "wait ---",
+
+                "print Send 'test next' to spawn another 5 AP Items",
+                "func spawnAP",
+
+                "print -------------- END OF UNIT TEST ----------------",
+                "func spawnAP", 
+            };
+
+            unitTestCommands = unitTest7.ToArray();
             commandIndex = -1;
 
             GoToNextUnitTestStep();

@@ -90,6 +90,12 @@ namespace ArchiGungeon.DebugTools
 
             return;
         }
+
+        public static void SetDebugState(DebugCategory debugGroup, bool newState)
+        {
+            DebugActiveStates[debugGroup] = newState;
+            return;
+        }
         
     }
 
