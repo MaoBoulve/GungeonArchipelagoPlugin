@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using ArchiGungeon.DebugTools;
 using Alexandria.Misc;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using Alexandria.ItemAPI;
 using ArchiGungeon.Data;
 

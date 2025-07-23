@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.GungeonEventHandlers;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using ArchiGungeon.Data;
 
 namespace ArchiGungeon.DebugTools

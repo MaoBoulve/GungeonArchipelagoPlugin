@@ -1,7 +1,7 @@
 ﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.Character;
 using ArchiGungeon.Data;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;

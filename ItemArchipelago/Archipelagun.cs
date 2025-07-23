@@ -1,6 +1,6 @@
 ﻿using Alexandria.ItemAPI;
 using Alexandria.SoundAPI;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using System;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;

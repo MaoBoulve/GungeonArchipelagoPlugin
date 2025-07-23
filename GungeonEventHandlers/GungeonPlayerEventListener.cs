@@ -7,7 +7,7 @@ using ArchiGungeon.Data;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.ItemArchipelago;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;

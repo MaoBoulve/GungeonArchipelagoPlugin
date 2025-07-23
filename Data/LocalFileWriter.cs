@@ -5,7 +5,7 @@ using System.Text;
 using BepInEx;
 using System.IO;
 using ArchiGungeon.DebugTools;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 

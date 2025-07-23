@@ -1,6 +1,6 @@
 ﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.ItemArchipelago;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;

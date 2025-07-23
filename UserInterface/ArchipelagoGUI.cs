@@ -9,7 +9,7 @@ using ArchiGungeon.DebugTools;
 using ArchiGungeon.Data;
 
 
-namespace ArchiGungeon.ModConsoleVisuals
+namespace ArchiGungeon.UserInterface
 {
     #region Mod Console Defition
     public delegate void MenuEvent();

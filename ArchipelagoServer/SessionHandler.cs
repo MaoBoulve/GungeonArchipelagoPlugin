@@ -13,7 +13,7 @@ using UnityEngine;
 using System.Collections;
 using ArchiGungeon.ItemArchipelago;
 using ArchiGungeon.GungeonEventHandlers;
-using ArchiGungeon.ModConsoleVisuals;
+using ArchiGungeon.UserInterface;
 using ArchiGungeon.EnemyHandlers;
 using ArchiGungeon.DebugTools;
 using ArchiGungeon.Character;
