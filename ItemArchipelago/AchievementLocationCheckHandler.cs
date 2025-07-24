@@ -11,29 +11,29 @@ namespace ArchiGungeon.ItemArchipelago
 {
     class AchievementLocationCheckHandler
     {
-        private static Dictionary<SaveCountStats, long> StatToStartLocationID { get; } = new Dictionary<SaveCountStats, long>()
+        private static Dictionary<CountStats, long> StatToStartLocationID { get; } = new Dictionary<CountStats, long>()
         {
-            {SaveCountStats.RoomPoints, 8755200},
-            {SaveCountStats.ChestsOpened, 8755300},
-            {SaveCountStats.CashSpent, 8755400},
-            {SaveCountStats.PastKills, 8755600},
+            {CountStats.RoomPoints, 8755200},
+            {CountStats.ChestsOpened, 8755300},
+            {CountStats.CashSpent, 8755400},
+            {CountStats.PastKills, 8755600},
 
-            {SaveCountStats.Floor1Clears, 8755700},
-            {SaveCountStats.Floor2Clears, 8755720},
-            {SaveCountStats.Floor3Clears, 8755740},
-            {SaveCountStats.Floor4Clears, 8755760},
-            {SaveCountStats.Floor5Clears, 8755780},
+            {CountStats.Floor1Clears, 8755700},
+            {CountStats.Floor2Clears, 8755720},
+            {CountStats.Floor3Clears, 8755740},
+            {CountStats.Floor4Clears, 8755760},
+            {CountStats.Floor5Clears, 8755780},
 
-            {SaveCountStats.FloorHellClears, 8755800},
-            {SaveCountStats.FloorGoopClears, 8755820},
-            {SaveCountStats.FloorAbbeyClears, 8755840},
-            {SaveCountStats.FloorRatClears, 8755860},
-            {SaveCountStats.FloorDeptClears, 8755880},
+            {CountStats.FloorHellClears, 8755800},
+            {CountStats.FloorGoopClears, 8755820},
+            {CountStats.FloorAbbeyClears, 8755840},
+            {CountStats.FloorRatClears, 8755860},
+            {CountStats.FloorDeptClears, 8755880},
         };
 
-        private static Dictionary<SaveCountStats, List<long>> StatToLocationIDs = new Dictionary<SaveCountStats, List<long>>();
+        private static Dictionary<CountStats, List<long>> StatToLocationIDs = new Dictionary<CountStats, List<long>>();
 
-        public static void SendStatLocationChecks(SaveCountStats statCategory, int numberOfChecks)
+        public static void SendStatLocationChecks(CountStats statCategory, int numberOfChecks)
         {
             if (StatToLocationIDs.ContainsKey(statCategory) == false)
             {
@@ -62,10 +62,10 @@ namespace ArchiGungeon.ItemArchipelago
             return;
         }
 
-        public static void SetStatLocationIDsFromGoalList(SaveCountStats statToSet)
+        public static void SetStatLocationIDsFromGoalList(CountStats statToSet)
         {
 
-            int numberOfLocationChecks = CountSaveData.GetCountOfStatGoals(statToSet);
+            int numberOfLocationChecks = CountGoalManager.GetCountOfStatGoals(statToSet);
 
             if(numberOfLocationChecks < 1)
             { return; }

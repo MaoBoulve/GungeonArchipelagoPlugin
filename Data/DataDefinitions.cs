@@ -17,7 +17,7 @@ namespace ArchiGungeon.Data
         FarewellArms,
     }
 
-    public enum SaveCountStats
+    public enum CountStats
     {
         // public readonly int location_check_initial_ID = 8755000;
         ChestsOpened,

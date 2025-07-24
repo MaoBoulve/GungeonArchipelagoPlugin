@@ -141,7 +141,16 @@ namespace ArchiGungeon
         {
             if(playerWithArchipelagun.CurrentGun.ToString().Contains("archipelagun"))
             {
-                SessionHandler.ReconnectSession();
+                if(SessionHandler.IsGoalsTextBoxOpen)
+                {
+
+                }
+
+                else
+                {
+                    SessionHandler.ShowGoalsTextbox();
+                }
+
             }
 
             return;

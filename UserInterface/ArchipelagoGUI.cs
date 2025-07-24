@@ -278,6 +278,13 @@ namespace ArchiGungeon.UserInterface
 
         public override void OnClose()
         {
+            if(SessionHandler.IsGoalsTextBoxOpen)
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.UserInterface, "Closing goals box first");
+                SessionHandler.HideGoalsTextbox();
+                return;
+            }
+
             base.OnClose();
             OnMenuClose.Invoke();
             IsOpen = false;
@@ -357,6 +364,12 @@ namespace ArchiGungeon.UserInterface
                 {
                         SessionHandler.DisconnectFromSession();
                         return; 
+                }
+
+                case ArchipelConsoleCommandParser.reconnectCmd:
+                {
+                        SessionHandler.ReconnectSession();
+                        return;
                 }
 
                 case ArchipelConsoleCommandParser.deathlinkCmd:
@@ -480,6 +493,10 @@ namespace ArchiGungeon.UserInterface
             new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.connectCmd}</color> [IP address] [port] [player slot]") { Foreground = UnityEngine.Color.white },
             new SLabel("    Connect to Archipelago") { Foreground = UnityEngine.Color.green },
 
+            // RECONNECT!!
+            new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.reconnectCmd}</color>") { Foreground = UnityEngine.Color.white },
+            new SLabel("    Reconnect to last valid connection. Disconnects and connects if already online") { Foreground = UnityEngine.Color.green },
+
             //FULL CONNECT
             new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.fullConnectCmd}</color> [IP address] [port]") { Foreground = UnityEngine.Color.white },
             new SLabel("    Connect to Archipelago using set Name & Password using the 'set' command") { Foreground = UnityEngine.Color.green },
@@ -526,6 +543,7 @@ namespace ArchiGungeon.UserInterface
         public const string archipelagoCommandGroup = "arch";
 
         public const string connectCmd = "connect";
+        public const string reconnectCmd = "reconnect";
         public const string fullConnectCmd = "fullconnect";
         public const string setConnectionParameterCmd = "set";
         public const string disconnectCmd = "disconnect";
@@ -547,9 +565,10 @@ namespace ArchiGungeon.UserInterface
             // Add commands for use by base ETGModConsole
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup}", "-- Archipelago Multiworld randomizer mod --");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {connectCmd}", "[ip] [port] [player name] - Connect to server, seperated by spaces");
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {disconnectCmd}", "- Disconnect from server");
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "- Pull received location items from server (once per run)");
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "- Output randomizer completion progress");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {reconnectCmd}", "Connect to last valid connection, disconnects and connects if already online");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {disconnectCmd}", "Disconnect from server");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "Force pull received location items from server (once per run)");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "Output randomizer completion progress");
 
             ETGModConsole.Commands.AddGroup($"{archipelagoCommandGroup}");
 
@@ -568,6 +587,11 @@ namespace ArchiGungeon.UserInterface
                 return;
             });
 
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{reconnectCmd}", delegate (string[] args)
+            {
+                SessionHandler.ReconnectSession();
+                return;
+            });
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{disconnectCmd}", delegate (string[] args)
             {
                 SessionHandler.DisconnectFromSession();

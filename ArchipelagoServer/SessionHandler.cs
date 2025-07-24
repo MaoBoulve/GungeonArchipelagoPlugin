@@ -42,6 +42,8 @@ namespace ArchiGungeon.ArchipelagoServer
             { PlayerCompletionGoals.FarewellArms, "FarewellArms" },
         };
 
+        public static bool IsGoalsTextBoxOpen { get; private set; } = false;
+
         #endregion
 
         #region Item Handling Variables
@@ -329,10 +331,10 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Creating Location Checks");
 
             int userAchievementCase = Convert.ToInt32(PlayerSlotSettings["AchievementChecks"]);
-            CountSaveData.SetGoalList(userAchievementCase);
+            CountGoalManager.SetGoalList(userAchievementCase);
 
-            List<SaveCountStats> countStatLocationChecks = CountSaveData.GetListOfStatsWithGoals();
-            foreach (SaveCountStats stats in countStatLocationChecks)
+            List<CountStats> countStatLocationChecks = CountGoalManager.GetListOfStatsWithGoals();
+            foreach (CountStats stats in countStatLocationChecks)
             {
                 AchievementLocationCheckHandler.SetStatLocationIDsFromGoalList(stats);
             }
@@ -370,10 +372,10 @@ namespace ArchiGungeon.ArchipelagoServer
 
             CheckToInitializeParadoxMode();
 
-            if(!TimedServerCalls.IsParadoxReinitCoroutineRunning)
+            if(!TimedServerCalls.IsDelayedItemInitCoroutineRunning)
             {
                 CheckCoroutineHelperValid();
-                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.WaitForParadoxReint());
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.HandleDelayedItemInit());
             }
             
             return;
@@ -701,7 +703,7 @@ namespace ArchiGungeon.ArchipelagoServer
 
 
             // Check for past kills
-            if (reverseCurseModeValue == 1 && CountSaveData.GetCountStat(SaveCountStats.PastKills) > 0)
+            if (reverseCurseModeValue == 1 && CountGoalManager.GetCountStat(CountStats.PastKills) > 0)
             {
                 ArchDebugPrint.DebugLog(DebugCategory.InitializingGameState, $"Giving curse items after past check");
                 ArchipelagoGungeonBridge.GiveReverseCurse(8);
@@ -733,6 +735,37 @@ namespace ArchiGungeon.ArchipelagoServer
             }
 
             DataSender.CheckForGameCompletion();
+
+            return;
+        }
+
+        public static void ShowGoalsTextbox()
+        {
+            if(IsGoalsTextBoxOpen)
+            {
+                return;
+            }
+
+            List<string> completionList = ArchipelagoCompletion.GetAllUnmetCountsForGoals();
+            List<string> locationList = CountGoalManager.GetFormattedListOfRemainingGoals();
+
+            string completionListAsString = String.Join(", ", completionList.ToArray());
+            string locationListAsString = String.Join(", ", locationList.ToArray());
+
+            string textboxOutput = $"To kill: {completionListAsString} \n\n" +
+                $"Location checks: {locationListAsString}";
+
+            TextBoxHandler.ShowArchipelagoLetterBox(GungeonPlayerEventListener.GetFirstAlivePlayer(), textboxOutput);
+            IsGoalsTextBoxOpen = true;
+
+            return;
+
+        }
+
+        public static void HideGoalsTextbox()
+        {
+            IsGoalsTextBoxOpen = false;
+            TextBoxHandler.ClearAllTextboxes();
             return;
         }
 
@@ -792,11 +825,11 @@ namespace ArchiGungeon.ArchipelagoServer
 
                 if (unmetGoalStatCounts.Count > 0)
                 {
-                    ArchipelagoGUI.ConsoleLog($"Remaining goals: ");
+                    ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Remaining goals: ");
 
                     foreach(string goal in unmetGoalStatCounts)
                     {
-                        ArchipelagoGUI.ConsoleLog(goal);
+                        ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, goal);
                     }
 
                     return;
@@ -957,16 +990,17 @@ namespace ArchiGungeon.ArchipelagoServer
 
         }
 
-        public static bool IsParadoxReinitCoroutineRunning { get; private set; } = false;
+        public static bool IsDelayedItemInitCoroutineRunning { get; private set; } = false;
 
-        public IEnumerator WaitForParadoxReint(float waitTime = 2f)
+        public IEnumerator HandleDelayedItemInit(float waitTime = 2f)
         {
-            IsParadoxReinitCoroutineRunning = true;
+            IsDelayedItemInitCoroutineRunning = true;
             ArchipelagoGUI.ConsoleLog("Initializing items after initial setup, please standby =========");
             yield return new WaitForSeconds(waitTime);
 
             SessionHandler.HandleDelayedItemInitialize();
-            IsParadoxReinitCoroutineRunning = false;
+            SessionHandler.ShowGoalsTextbox();
+            IsDelayedItemInitCoroutineRunning = false;
         }
 
         

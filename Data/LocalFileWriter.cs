@@ -31,7 +31,7 @@ namespace ArchiGungeon.Data
             return File.Exists(SaveFilepath);
         }
 
-        public static void WriteSaveFile(Dictionary<SaveCountStats, int> countSaveData)
+        public static void WriteSaveFile(Dictionary<CountStats, int> countSaveData)
         {
             if(!isSavePathInitialized)
             {
@@ -45,7 +45,7 @@ namespace ArchiGungeon.Data
             return;
         }
         
-        public static Dictionary<SaveCountStats, int> RetrieveSaveData(string playerName ="", string seedString="")
+        public static Dictionary<CountStats, int> RetrieveSaveData(string playerName ="", string seedString="")
         {
             if(playerName != "" && seedString != "")
             {
@@ -56,7 +56,7 @@ namespace ArchiGungeon.Data
             if (File.Exists(SaveFilepath))
             {
                 string localData = File.ReadAllText(SaveFilepath);
-                Dictionary<SaveCountStats, int> saveData = JsonConvert.DeserializeObject<Dictionary<SaveCountStats, int>>(localData);
+                Dictionary<CountStats, int> saveData = JsonConvert.DeserializeObject<Dictionary<CountStats, int>>(localData);
 
                 return saveData;
             }

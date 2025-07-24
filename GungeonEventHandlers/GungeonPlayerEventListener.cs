@@ -62,65 +62,65 @@ namespace ArchiGungeon.GungeonEventHandlers
              "39dca963ae2b4688b016089d926308ab",
         };
 
-        private static Dictionary<string, SaveCountStats> GameCompletionGUIds { get; } = new Dictionary<string, SaveCountStats>()
+        private static Dictionary<string, CountStats> GameCompletionGUIds { get; } = new Dictionary<string, CountStats>()
         {
-            { "1b5810fafbec445d89921a4efb4e42b7", SaveCountStats.BlobulordKills},
-            { "5729c8b5ffa7415bb3d01205663a33ef", SaveCountStats.OldKingKills },
-            { "4d164ba3f62648809a4a82c90fc22cae", SaveCountStats.RatKills },
-            { "41ee1c8538e8474a82a74c4aff99c712", SaveCountStats.DeptAgunimKills },
-            { "05b8afe0b6cc4fffa9dc6036fa24c8ec", SaveCountStats.AdvancedDragunKills },
-            { "465da2bb086a4a88a803f79fe3a27677", SaveCountStats.DragunKills },
-            { "7c5d5f09911e49b78ae644d2b50ff3bf", SaveCountStats.LichKills },
+            { "1b5810fafbec445d89921a4efb4e42b7", CountStats.BlobulordKills},
+            { "5729c8b5ffa7415bb3d01205663a33ef", CountStats.OldKingKills },
+            { "4d164ba3f62648809a4a82c90fc22cae", CountStats.RatKills },
+            { "41ee1c8538e8474a82a74c4aff99c712", CountStats.DeptAgunimKills },
+            { "05b8afe0b6cc4fffa9dc6036fa24c8ec", CountStats.AdvancedDragunKills },
+            { "465da2bb086a4a88a803f79fe3a27677", CountStats.DragunKills },
+            { "7c5d5f09911e49b78ae644d2b50ff3bf", CountStats.LichKills },
 
-            { "8d441ad4e9924d91b6070d5b3438d066", SaveCountStats.PastHunter },
-            { "dc3cd41623d447aeba77c77c99598426", SaveCountStats.PastMarine },
-            { "8b913eea3d174184be1af362d441910d", SaveCountStats.PastConvict },
-            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.PastPilot },
-            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.PastRobot },
-            { "39dca963ae2b4688b016089d926308ab", SaveCountStats.PastBullet },
+            { "8d441ad4e9924d91b6070d5b3438d066", CountStats.PastHunter },
+            { "dc3cd41623d447aeba77c77c99598426", CountStats.PastMarine },
+            { "8b913eea3d174184be1af362d441910d", CountStats.PastConvict },
+            { "b98b10fca77d469e80fb45f3c5badec5", CountStats.PastPilot },
+            { "880bbe4ce1014740ba6b4e2ea521e49d", CountStats.PastRobot },
+            { "39dca963ae2b4688b016089d926308ab", CountStats.PastBullet },
         };
 
-        private static Dictionary<string, SaveCountStats> BossGUIDToStat { get; } = new Dictionary<string, SaveCountStats>
+        private static Dictionary<string, CountStats> BossGUIDToStat { get; } = new Dictionary<string, CountStats>
         {
 
             //floor 1
-            { "ffca09398635467da3b1f4a54bcfda80", SaveCountStats.Floor1Clears },
-            { "ec6b674e0acd4553b47ee94493d66422", SaveCountStats.Floor1Clears },
+            { "ffca09398635467da3b1f4a54bcfda80", CountStats.Floor1Clears },
+            { "ec6b674e0acd4553b47ee94493d66422", CountStats.Floor1Clears },
 
             //floor 2
-            { "da797878d215453abba824ff902e21b4", SaveCountStats.Floor2Clears },
-            { "4b992de5b4274168a8878ef9bf7ea36b", SaveCountStats.Floor2Clears },
-            { "c367f00240a64d5d9f3c26484dc35833", SaveCountStats.Floor2Clears },
+            { "da797878d215453abba824ff902e21b4", CountStats.Floor2Clears },
+            { "4b992de5b4274168a8878ef9bf7ea36b", CountStats.Floor2Clears },
+            { "c367f00240a64d5d9f3c26484dc35833", CountStats.Floor2Clears },
 
             //floor 3
-            { "5e0af7f7d9de4755a68d2fd3bbc15df4", SaveCountStats.Floor3Clears },
-            { "fa76c8cfdf1c4a88b55173666b4bc7fb", SaveCountStats.Floor3Clears },
-            { "8b0dd96e2fe74ec7bebc1bc689c0008a", SaveCountStats.Floor3Clears },
-            { "9189f46c47564ed588b9108965f975c9", SaveCountStats.Floor3Clears },
+            { "5e0af7f7d9de4755a68d2fd3bbc15df4", CountStats.Floor3Clears },
+            { "fa76c8cfdf1c4a88b55173666b4bc7fb", CountStats.Floor3Clears },
+            { "8b0dd96e2fe74ec7bebc1bc689c0008a", CountStats.Floor3Clears },
+            { "9189f46c47564ed588b9108965f975c9", CountStats.Floor3Clears },
 
             //floor 4
-            { "f3b04a067a65492f8b279130323b41f0", SaveCountStats.Floor4Clears },
-            { "6c43fddfd401456c916089fdd1c99b1c", SaveCountStats.Floor4Clears },
+            { "f3b04a067a65492f8b279130323b41f0", CountStats.Floor4Clears },
+            { "6c43fddfd401456c916089fdd1c99b1c", CountStats.Floor4Clears },
 
   
             //floor 5
-            { "b98b10fca77d469e80fb45f3c5badec5", SaveCountStats.Floor5Clears },
-            { "880bbe4ce1014740ba6b4e2ea521e49d", SaveCountStats.Floor5Clears },
+            { "b98b10fca77d469e80fb45f3c5badec5", CountStats.Floor5Clears },
+            { "880bbe4ce1014740ba6b4e2ea521e49d", CountStats.Floor5Clears },
 
             //hell
-            { "7c5d5f09911e49b78ae644d2b50ff3bf", SaveCountStats.FloorHellClears},
+            { "7c5d5f09911e49b78ae644d2b50ff3bf", CountStats.FloorHellClears},
 
             //oublie
-            { "1b5810fafbec445d89921a4efb4e42b7", SaveCountStats.FloorGoopClears },
+            { "1b5810fafbec445d89921a4efb4e42b7", CountStats.FloorGoopClears },
 
             //abbey
-            { "5729c8b5ffa7415bb3d01205663a33ef", SaveCountStats.FloorAbbeyClears },
+            { "5729c8b5ffa7415bb3d01205663a33ef", CountStats.FloorAbbeyClears },
 
             //rat
-            { "4d164ba3f62648809a4a82c90fc22cae", SaveCountStats.FloorRatClears },
+            { "4d164ba3f62648809a4a82c90fc22cae", CountStats.FloorRatClears },
 
             //dept
-            { "41ee1c8538e8474a82a74c4aff99c712", SaveCountStats.FloorDeptClears },
+            { "41ee1c8538e8474a82a74c4aff99c712", CountStats.FloorDeptClears },
             
         };
 
@@ -300,7 +300,7 @@ namespace ArchiGungeon.GungeonEventHandlers
                 }
             }
 
-            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.ChestsOpened, 1);
+            SaveDataManagement.AddToCountSaveDataEntry(CountStats.ChestsOpened, 1);
             return shouldOpen;
         }
 
@@ -374,7 +374,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             if(PastKillsGuids.Contains(enemyGuid))
             {
-                SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.PastKills, 1);
+                SaveDataManagement.AddToCountSaveDataEntry(CountStats.PastKills, 1);
             }
             
             if(BossGUIDToStat.ContainsKey(enemyGuid))
@@ -388,7 +388,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                 if(triggerTwinKills == 2)
                 {
-                    SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.Floor1Clears, 1);
+                    SaveDataManagement.AddToCountSaveDataEntry(CountStats.Floor1Clears, 1);
                 }
             }
 
@@ -398,7 +398,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
                 if (killPillarKills == 4)
                 {
-                    SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.Floor4Clears, 1);
+                    SaveDataManagement.AddToCountSaveDataEntry(CountStats.Floor4Clears, 1);
                 }
             }
 
@@ -534,7 +534,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding room points: " + roomsClearedThisRun);
 
-            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.RoomPoints, roomsClearedThisRun);
+            SaveDataManagement.AddToCountSaveDataEntry(CountStats.RoomPoints, roomsClearedThisRun);
             //SessionHandler.CheckForUnhandledServerItems();
 
             return;
@@ -553,7 +553,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             int spentMoney = shopItem.CurrentPrice;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, "Adding cash spent: " + spentMoney);
 
-            SaveDataManagement.AddToCountSaveDataEntry(SaveCountStats.CashSpent, spentMoney);
+            SaveDataManagement.AddToCountSaveDataEntry(CountStats.CashSpent, spentMoney);
 
             return;
         }

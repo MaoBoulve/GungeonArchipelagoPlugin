@@ -12,32 +12,49 @@ namespace ArchiGungeon.ArchipelagoServer
         #region Data Inits
         public static List<PlayerCompletionGoals> ArchipelagoRequiredGoals { get; } = new List<PlayerCompletionGoals>();
 
-        private static Dictionary<PlayerCompletionGoals, SaveCountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, SaveCountStats[]>
+        private static Dictionary<PlayerCompletionGoals, CountStats[]> GoalToStatChecks { get; } = new Dictionary<PlayerCompletionGoals, CountStats[]>
         {
-            { PlayerCompletionGoals.Lich, new SaveCountStats[] { SaveCountStats.LichKills } },
-            { PlayerCompletionGoals.Dragun, new SaveCountStats[] { SaveCountStats.DragunKills} },
-            { PlayerCompletionGoals.SecretChamber, new SaveCountStats[] { SaveCountStats.OldKingKills, SaveCountStats.BlobulordKills} },
-            { PlayerCompletionGoals.AdvancedGungeon, new SaveCountStats[] { SaveCountStats.AdvancedDragunKills, SaveCountStats.RatKills} },
-            { PlayerCompletionGoals.FarewellArms, new SaveCountStats[] { SaveCountStats.DeptAgunimKills} },
-            { PlayerCompletionGoals.PastsBase, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot} },
-            { PlayerCompletionGoals.PastsFull, new SaveCountStats[] { SaveCountStats.PastConvict, SaveCountStats.PastHunter, SaveCountStats.PastMarine, SaveCountStats.PastPilot, SaveCountStats.PastRobot, SaveCountStats.PastBullet} },
+            { PlayerCompletionGoals.Lich, new CountStats[] { CountStats.LichKills } },
+            { PlayerCompletionGoals.Dragun, new CountStats[] { CountStats.DragunKills} },
+            { PlayerCompletionGoals.SecretChamber, new CountStats[] { CountStats.OldKingKills, CountStats.BlobulordKills} },
+            { PlayerCompletionGoals.AdvancedGungeon, new CountStats[] { CountStats.AdvancedDragunKills, CountStats.RatKills} },
+            { PlayerCompletionGoals.FarewellArms, new CountStats[] { CountStats.DeptAgunimKills} },
+            { PlayerCompletionGoals.PastsBase, new CountStats[] { CountStats.PastConvict, CountStats.PastHunter, CountStats.PastMarine, CountStats.PastPilot} },
+            { PlayerCompletionGoals.PastsFull, new CountStats[] { CountStats.PastConvict, CountStats.PastHunter, CountStats.PastMarine, CountStats.PastPilot, CountStats.PastRobot, CountStats.PastBullet} },
         };
 
-        private static Dictionary<SaveCountStats, string> FormattedIncompleteGoalStat { get; } = new Dictionary<SaveCountStats, string>
+        private static Dictionary<CountStats, string> FormattedIncompleteGoalStat_Variation1 { get; } = new Dictionary<CountStats, string>
         {
-            { SaveCountStats.LichKills, "Defeat Lich"},
-            { SaveCountStats.DragunKills, "Defeat Dragun"},
-            { SaveCountStats.OldKingKills, "Defeat Old King"},
-            { SaveCountStats.BlobulordKills, "Defeat Blobulord"},
-            { SaveCountStats.AdvancedDragunKills, "Defeat Advanced Dragun"},
-            { SaveCountStats.RatKills, "Defeat The Resourceful Rat (Mech Phase)"},
-            { SaveCountStats.DeptAgunimKills, "Defeat R&G Dept. Agunim"},
-            { SaveCountStats.PastConvict, "Kill the Convict's Past"},
-            { SaveCountStats.PastHunter, "Kill the Hunter's Past"},
-            { SaveCountStats.PastMarine, "Kill the Marine's Past"},
-            { SaveCountStats.PastPilot, "Kill the Pilot's Past"},
-            { SaveCountStats.PastRobot, "Kill the Robot's Past"},
-            { SaveCountStats.PastBullet, "Kill the Bullet's Past"},
+            { CountStats.LichKills, "Defeat Lich"},
+            { CountStats.DragunKills, "Defeat Dragun"},
+            { CountStats.OldKingKills, "Defeat Old King"},
+            { CountStats.BlobulordKills, "Defeat Blobulord"},
+            { CountStats.AdvancedDragunKills, "Defeat Advanced Dragun"},
+            { CountStats.RatKills, "Defeat The Resourceful Rat (Mech Phase)"},
+            { CountStats.DeptAgunimKills, "Defeat R&G Dept. Agunim"},
+            { CountStats.PastConvict, "Kill the Convict's Past"},
+            { CountStats.PastHunter, "Kill the Hunter's Past"},
+            { CountStats.PastMarine, "Kill the Marine's Past"},
+            { CountStats.PastPilot, "Kill the Pilot's Past"},
+            { CountStats.PastRobot, "Kill the Robot's Past"},
+            { CountStats.PastBullet, "Kill the Bullet's Past"},
+        };
+
+        private static Dictionary<CountStats, string> FormattedIncompleteGoalStat_Variation2 { get; } = new Dictionary<CountStats, string>
+        {
+            { CountStats.LichKills, "Lich"},
+            { CountStats.DragunKills, "Dragun"},
+            { CountStats.OldKingKills, "Old King"},
+            { CountStats.BlobulordKills, "Blobulord"},
+            { CountStats.AdvancedDragunKills, "Advanced Dragun"},
+            { CountStats.RatKills, "The Resourceful Rat (Mech Phase)"},
+            { CountStats.DeptAgunimKills, "R&G Dept. Agunim"},
+            { CountStats.PastConvict, "Convict's Past"},
+            { CountStats.PastHunter, "Hunter's Past"},
+            { CountStats.PastMarine, "Marine's Past"},
+            { CountStats.PastPilot, "Pilot's Past"},
+            { CountStats.PastRobot, "Robot's Past"},
+            { CountStats.PastBullet, "Bullet's Past"},
         };
 
         #endregion
@@ -48,14 +65,14 @@ namespace ArchiGungeon.ArchipelagoServer
             ArchipelagoRequiredGoals.Add(goalToAdd);
         }
 
-        public static SaveCountStats[] GetCountStatsForCompletionGoal(PlayerCompletionGoals goalEnum)
+        public static CountStats[] GetCountStatsForCompletionGoal(PlayerCompletionGoals goalEnum)
         {
             if(!GoalToStatChecks.ContainsKey(goalEnum))
             {
                 return null;
             }
 
-            SaveCountStats[] statsToReturn = GoalToStatChecks[goalEnum];
+            CountStats[] statsToReturn = GoalToStatChecks[goalEnum];
 
             return statsToReturn;
         }
@@ -67,19 +84,19 @@ namespace ArchiGungeon.ArchipelagoServer
 
             foreach (PlayerCompletionGoals playerGoal in ArchipelagoRequiredGoals)
             {
-                List<SaveCountStats> statsForGoal = new List<SaveCountStats>();
+                List<CountStats> statsForGoal = new List<CountStats>();
                 //statsForGoal is the countSaveStats enums that will be checked if greater than 0
 
                 statsForGoal = GetCountStatsForCompletionGoal(playerGoal).ToList();
 
-                foreach (SaveCountStats statCheck in statsForGoal)
+                foreach (CountStats statCheck in statsForGoal)
                 {
-                    int statCount = CountSaveData.GetCountStat(statCheck);
+                    int statCount = CountGoalManager.GetCountStat(statCheck);
 
                     if (statCount < 1)
                     {
                         ArchDebugPrint.DebugLog(DebugCategory.GameCompletion, $"Count {statCheck} not met in completion check");
-                        unmetCountStats.Add(FormattedIncompleteGoalStat[statCheck]);
+                        unmetCountStats.Add(FormattedIncompleteGoalStat_Variation2[statCheck]);
                     }
                 }
             }
