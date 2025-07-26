@@ -121,6 +121,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             ArchipelagoGUI.ConsoleLog("Connected to Archipelago server.");
 
+            // close console UI on successful connect
+            ArchipelagoGUI.Instance.OnClose();
+
             if(!TimedServerCalls.IsRetrieveDataCoroutineRunning)
             {
                 CheckCoroutineHelperValid();
@@ -613,12 +616,15 @@ namespace ArchiGungeon.ArchipelagoServer
             switch (modeToSet)
             {
                 case 0:
+                    ArchipelagoGUI.ConsoleLog("Deathlink has been DISABLED");
                     DeathLinkService.DisableDeathLink();
                     return;
                 case 1:
+                    ArchipelagoGUI.ConsoleLog("Deathlink has been ENABLED");
                     DeathLinkService.EnableDeathLink();
                     return;
                 case 2:
+                    ArchipelagoGUI.ConsoleLog("Deathlink has been ENABLED");
                     DeathLinkService.EnableDeathLink();
                     return;
                 default:
@@ -657,6 +663,31 @@ namespace ArchiGungeon.ArchipelagoServer
             int seed = BitConverter.ToInt32(hashed, 0);
 
             EnemySwapping.MakeNormalShuffleEnemies(seed);
+            return;
+        }
+
+        public static void SetEnemyShuffleMode(int modeEntry)
+        {
+            if (Session == null)
+            {
+                ArchipelagoGUI.ConsoleLog("Not connected to a session!");
+                return;
+            }
+
+            if (modeEntry == 0)
+            {
+                ArchipelagoGUI.ConsoleLog("Enemy shuffle has been DISABLED");
+                EnemySwapping.ClearAllShuffleLists();
+            }
+            else if (modeEntry == 1)
+            {
+                ArchipelagoGUI.ConsoleLog("Enemy shuffle has been ENABLED");
+                InitializeEnemySwapper();
+            }
+            else
+            {
+                ArchipelagoGUI.ConsoleLog("Invalid enemy shuffle mode setting!");
+            }
             return;
         }
 
@@ -964,6 +995,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
             return;
         }
+
+        
 
         #endregion
     }

@@ -26,8 +26,8 @@ namespace ArchiGungeon
 
         private static string itemName = "Archipelagun";
 
-        private static string shortDesc = "Fire - Menu, Reload - Reconnect";
-        private static string longDesc = "A Breach to other worlds. Fire to open the main mod menu, reload to reconnect. Please don't spam reconnect ;(";
+        private static string shortDesc = "Fire - Menu, Reload - Goals";
+        private static string longDesc = "A Breach to other worlds. Fire to open the main mod menu, reload to see goals.";
 
         public static void Register()
         {
@@ -143,7 +143,7 @@ namespace ArchiGungeon
             {
                 if(SessionHandler.IsGoalsTextBoxOpen)
                 {
-
+                    SessionHandler.HideGoalsTextbox();
                 }
 
                 else
@@ -163,9 +163,21 @@ namespace ArchiGungeon
             if(canBeWielded == false)
             {
                 owner.ChangeToGunSlot(inventory.AllGuns.IndexOf(oldGun));
+                return;
             }
 
             return;
+        }
+
+        public override void OnSwitchedAwayFromPlayer(PlayerController owner, GunInventory inventory, Gun newGun, bool isNewGun)
+        {
+            //base.OnSwitchedAwayFromPlayer(owner, inventory, newGun, isNewGun);
+
+            if (SessionHandler.IsGoalsTextBoxOpen)
+            {
+                SessionHandler.HideGoalsTextbox();
+            }
+
         }
 
         // open archipelago menu on firing gun

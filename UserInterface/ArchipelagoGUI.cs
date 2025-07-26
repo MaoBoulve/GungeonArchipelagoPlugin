@@ -330,12 +330,36 @@ namespace ArchiGungeon.UserInterface
                         break;
                 }
 
+                case ArchipelConsoleCommandParser.enemyShuffleCmd:
+                {
+                        if (commandInputs.Length > 1)
+                        {
+                            ConsoleLog("ERROR: Too many inputs - [Enemy Shuffle] expected input [Enemy Shuffle Mode Number]");
+                            return;
+                        }
+
+                        bool IsValid = Int32.TryParse(commandInputs[0], out int convertedInt);
+
+                        if(IsValid)
+                        {
+                            SessionHandler.SetEnemyShuffleMode(convertedInt);
+                        }
+                        else
+                        {
+                            ConsoleLog("ERROR: Invalid input - [Enemy Shuffle] expected input [Enemy Shuffle Mode Number]");
+                        }
+                        
+
+                        return;
+                }
+
+                /*
                 case ArchipelConsoleCommandParser.progressCmd:
                 {
                         consoleCommand = $"{ArchipelConsoleCommandParser.archipelagoCommandGroup} {ArchipelConsoleCommandParser.progressCmd} ";
                         break;
                 }
-
+                */
 
                 case ArchipelConsoleCommandParser.setConnectionParameterCmd:
                 {
@@ -519,10 +543,15 @@ namespace ArchiGungeon.UserInterface
             new SLabel("    Set deathlink mode") { Foreground = UnityEngine.Color.green },
             new SLabel("    0 - Deathlink OFF, 1 - Basic Deathlink, 2 - Advanced Co-Op Deathlink") { Foreground = UnityEngine.Color.green },
 
+            // ENEMY
+            new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.enemyShuffleCmd}</color> [enemy shuffle mode number]") { Foreground = UnityEngine.Color.white},
+            new SLabel("    Set enemy shuffle mode") { Foreground = UnityEngine.Color.green },
+            new SLabel("    0 - Enemy Shuffle OFF, 1 - Enemy Shuffle ON") { Foreground = UnityEngine.Color.green },
+
             // GOAL
-            new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.progressCmd}</color>") { Foreground = UnityEngine.Color.white },
-            new SLabel("    Display game completion goal progress\n\n") { Foreground = UnityEngine.Color.green },
-            
+            //new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.progressCmd}</color>") { Foreground = UnityEngine.Color.white },
+            //new SLabel("    Display game completion goal progress\n\n") { Foreground = UnityEngine.Color.green },
+
 
             // --- Debug
             new SLabel($"<color=#f4d03f>{ArchipelConsoleCommandParser.debugCmd}</color> [command string]") { Foreground = UnityEngine.Color.blue },
@@ -549,9 +578,10 @@ namespace ArchiGungeon.UserInterface
         public const string disconnectCmd = "disconnect";
 
         public const string retrieveCmd = "retrieve";
-        public const string progressCmd = "progress";
+        //public const string progressCmd = "progress";
 
         public const string deathlinkCmd = "deathlink";
+        public const string enemyShuffleCmd = "enemy";
 
         public const string debugCmd = "debug";
         public const string unitTestCmd = "test";
@@ -568,7 +598,7 @@ namespace ArchiGungeon.UserInterface
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {reconnectCmd}", "Connect to last valid connection, disconnects and connects if already online");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {disconnectCmd}", "Disconnect from server");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "Force pull received location items from server (once per run)");
-            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "Output randomizer completion progress");
+            //ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "Output randomizer completion progress");
 
             ETGModConsole.Commands.AddGroup($"{archipelagoCommandGroup}");
 
@@ -604,11 +634,13 @@ namespace ArchiGungeon.UserInterface
                 return;
             });
 
+            /*
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{progressCmd}", delegate (string[] args)
             {
                 SessionHandler.OutputGameGoalStatus();
                 return;
             });
+            */
         }
 
         public void SendETGConsoleCommand(string command)
