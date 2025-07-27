@@ -22,7 +22,7 @@ namespace ArchiGungeon
     {
         public const string GUID = "maoboulve.etg.archipelagogungeon";
         public const string NAME = "Archipelago Gungeon Randomizer";
-        public const string VERSION = "0.1.4";
+        public const string VERSION = "0.1.5";
         public const string TEXT_COLOR = "#B6FFB8";
 
         public const string MOD_ITEM_PREFIX = "arch";
