@@ -48,7 +48,11 @@ namespace ArchiGungeon.UserInterface
         {
             foreach(PlayerController player in playersWithPossibleTextbox)
             {
-                TextBoxManager.ClearTextBoxImmediate(player.transform);
+                if(player != null)
+                {
+                    TextBoxManager.ClearTextBoxImmediate(player.transform);
+                }
+                
             }
 
             return;

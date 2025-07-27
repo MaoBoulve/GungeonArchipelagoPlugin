@@ -295,6 +295,13 @@ namespace ArchiGungeon.UserInterface
         #endregion
 
         #region Archipelago Command Frontend
+        public void SendCommandFromEtGConsoleToArchipelago(string[] commands)
+        {
+            string joinCommands = String.Join(" ", commands);
+
+            ParseCommandForArchipelago(joinCommands);
+        }
+
         protected void ParseCommandForArchipelago(string command)
         {
             string[] commandInputs;
@@ -598,6 +605,7 @@ namespace ArchiGungeon.UserInterface
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {reconnectCmd}", "Connect to last valid connection, disconnects and connects if already online");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {disconnectCmd}", "Disconnect from server");
             ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {retrieveCmd}", "Force pull received location items from server (once per run)");
+            ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} console", "[input #1] [input #2] [etc] - Send commands to Archipelago console manager");
             //ETGModConsole.CommandDescriptions.Add($"{archipelagoCommandGroup} {progressCmd}", "Output randomizer completion progress");
 
             ETGModConsole.Commands.AddGroup($"{archipelagoCommandGroup}");
@@ -631,6 +639,12 @@ namespace ArchiGungeon.UserInterface
             ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"{retrieveCmd}", delegate (string[] args)
             {
                 SessionHandler.RetrieveItemsFromServer();
+                return;
+            });
+
+            ETGModConsole.Commands.GetGroup($"{archipelagoCommandGroup}").AddGroup($"console", delegate (string[] args)
+            {
+                ArchipelagoGUI.Instance.SendCommandFromEtGConsoleToArchipelago(args);
                 return;
             });
 

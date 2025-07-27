@@ -107,8 +107,11 @@ namespace ArchiGungeon
             playerWithArchipelagun.OnEnteredCombat += OnEnterCombat;
             playerWithArchipelagun.OnRoomClearEvent += OnRoomClear;
 
-
-            SessionHandler.CheckForSlotDataInstantiation();
+            if(SessionHandler.Session != null)
+            {
+                SessionHandler.CallRetrieveDataCoroutine();
+            }
+            
 
             return;
         }

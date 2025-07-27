@@ -203,81 +203,134 @@ namespace ArchiGungeon.DebugTools
 
             foreach (PlayerCompletionGoals goal in goals)
             {
-                goalConsoleCommands.Add($"print Adding goal to unit test -- {goal}");
 
                 switch (goal)
                 {
                     case PlayerCompletionGoals.SecretChamber:
 
-                        goalConsoleCommands.Add("print Sewers level loading");
+                        goalConsoleCommands.Add("print Sewers level loading, repeat 'test next' for teleport");
                         goalConsoleCommands.Add("cmd load_level sewers");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
+
                         goalConsoleCommands.Add("print Abbey level loading");
                         goalConsoleCommands.Add("cmd load_level abbey");
-
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
                         break;
                     case PlayerCompletionGoals.Dragun:
                         goalConsoleCommands.Add("print Forge level loading");
                         goalConsoleCommands.Add("cmd load_level forge");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
                         break;
                     case PlayerCompletionGoals.Lich:
                         goalConsoleCommands.Add("print Hell level loading");
                         goalConsoleCommands.Add("cmd load_level hell");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
                         break;
                     case PlayerCompletionGoals.AdvancedGungeon:
 
-                        goalConsoleCommands.Add("print Forge, level loading. Need to handle weird egg");
+                        goalConsoleCommands.Add("print Forge, level loading, repeat TWICE 'test next' for teleport and weird egg");
                         goalConsoleCommands.Add("cmd load_level forge");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
                         goalConsoleCommands.Add("cmd spawn item weird_egg");
 
-                        goalConsoleCommands.Add("print RAT level loading");
+                        goalConsoleCommands.Add("print RAT level loading, repeat 'test next' for teleport");
                         goalConsoleCommands.Add("cmd load_level ratlair");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
                         break;
                     case PlayerCompletionGoals.FarewellArms:
-                        goalConsoleCommands.Add("print RNG Dept loading");
+                        goalConsoleCommands.Add("print RNG Dept loading, repeat 'test next' for teleport");
                         goalConsoleCommands.Add("cmd load_level rng_dept");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd visit_all_rooms");
                         break;
                     case PlayerCompletionGoals.PastsBase:
+                        goalConsoleCommands.Add("print =========== CAUTION. Pasts are VERY glitchy if you start them with quick_kill on. Next test_next will DISABLE IT");
+                        goalConsoleCommands.Add("wait --");
+                        goalConsoleCommands.Add("cmd quick_kill");
                         goalConsoleCommands.Add("print Marine Past loading");
                         goalConsoleCommands.Add("cmd load_level marinepast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Convict Past loading");
                         goalConsoleCommands.Add("cmd load_level convictpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Hunter Past loading");
                         goalConsoleCommands.Add("cmd load_level hunterpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Pilot Past loading");
                         goalConsoleCommands.Add("cmd load_level pilotpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
                         break;
                     case PlayerCompletionGoals.PastsFull:
+                        goalConsoleCommands.Add("print =========== CAUTION. Pasts are VERY glitchy if you start them with quick_kill on. Next test_next will DISABLE IT");
+                        goalConsoleCommands.Add("wait --");
+                        goalConsoleCommands.Add("cmd quick_kill");
                         goalConsoleCommands.Add("print Marine Past loading");
                         goalConsoleCommands.Add("cmd load_level marinepast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Convict Past loading");
                         goalConsoleCommands.Add("cmd load_level convictpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Hunter Past loading");
                         goalConsoleCommands.Add("cmd load_level hunterpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Pilot Past loading");
                         goalConsoleCommands.Add("cmd load_level pilotpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Robot Past loading");
                         goalConsoleCommands.Add("cmd load_level robotpast");
+                        goalConsoleCommands.Add("cmd quick_kill");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
 
                         goalConsoleCommands.Add("print Bullet Past loading");
                         goalConsoleCommands.Add("cmd load_level bulletpast");
+                        goalConsoleCommands.Add("cmd character bullet");
+                        goalConsoleCommands.Add("print Enter 'test next' to load NEXT goal level");
+                        goalConsoleCommands.Add("cmd quick_kill");
                         break;
                 }
-
-                goalConsoleCommands.Add("cmd visit_all_rooms");
             }
+
+            goalConsoleCommands.Add("print ------------------- END OF UNIT TEST ------------------------");
 
             List<string> unitTest1 = new List<string>()
             {
                 "print GAME COMPLETION UNIT TEST",
                 "print Requires connection to Archipelago, otherwise nothing happens",
-                "cmd quick_kill"
+                "print Enter 'test next' x2 to initialize quick_kill",
+                "cmd quick_kill",
+                "cmd godmode",
+                "print Enter 'test next' to load NEXT goal level",
+                "wait --"
             };
 
             unitTest1.AddRange(goalConsoleCommands);

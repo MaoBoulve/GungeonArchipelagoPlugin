@@ -123,16 +123,19 @@ namespace ArchiGungeon.ArchipelagoServer
 
             // close console UI on successful connect
             ArchipelagoGUI.Instance.OnClose();
-
-            if(!TimedServerCalls.IsRetrieveDataCoroutineRunning)
-            {
-                CheckCoroutineHelperValid();
-                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.RetrieveDataAfterSlotDataPullDelay());
-            }
+            CallRetrieveDataCoroutine();
 
             return;
         }
 
+        public static void CallRetrieveDataCoroutine()
+        {
+            if (!TimedServerCalls.IsRetrieveDataCoroutineRunning)
+            {
+                CheckCoroutineHelperValid();
+                CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.RetrieveDataAfterSlotDataPullDelay());
+            }
+        }
 
         private static LoginResult LoginToArchipelago(string ip, string port, string name, string password = "")
         {
