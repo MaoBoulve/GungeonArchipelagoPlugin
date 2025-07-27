@@ -10,14 +10,16 @@ APWorld releases found here (https://github.com/MaoBoulve/ArchipelaGunAPWorld/re
 * **v0.0.1 - 0.0.3**: KinTheInfinite Gungeon APWorld (https://github.com/KinTheInfinite/Archipelago/releases)
 
 # Connecting To A Server
-![archipelagun sprite](archipelagun.png)
 
- * On run start, the Archipelagun will spawn. Fire to open the mod menu
+ * On run start, the Archipelagun will spawn. FIRE to open the mod menu
+	* RELOAD will open/close the randomizer goals menu
  
- * Following commands are available:
+ * Use 'archipel console [input A] [input B] [etc]' in the main Gungeon console to send commands to Archipelago console
+
+ * Following commands are available in the Archipelago menu:
  * connect (ip) (port) (slot name) --- [Connect to room. Space separated, without the parenthesis]
  * retrieve --- [Retrieve items from server, once per run ]
- * progress --- [Print out goals and current state of game completion]
+ * reconnect -- [Connect to last valid connection. Disconnects if already online, then reconnects.]
  
  * fullconnect (ip) (port) --- [Workaround connection option for handling player names with spaces & rooms with passwords. Use with 'set'.]
  * set (option) --- [Replace 'option' with Name or Password. Set parameters for 'fullconnect']

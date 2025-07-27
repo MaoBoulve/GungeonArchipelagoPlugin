@@ -1,3 +1,16 @@
+# 0.1.5
+Additional stability updates with local data. Also text box for goals! Hit reload with the ArchipelaGun to show and hide the text box.
+
+- Item history should persist without needing to pull from server multiple times.
+- Stability update to randomizer completion check
+- Now sending multiple location checks in single server call
+- Added Archipelago Info Box
+	- Automatically opens when connecting to server
+	- Reload on the Archipelagun open/closes menu
+- Added console command to standard console (default to tilde key) to send command to Archipelago console
+	- In format 'archipel console [input A] [input B] [etc]'
+- Added unit test system, should speed up testing between versions
+
 # 0.1.4
 Major refactor of randomizer progress to local save files. This should make the Archipelago Server connection much more stable. Please.
 
