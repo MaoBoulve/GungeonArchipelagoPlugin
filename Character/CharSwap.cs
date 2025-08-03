@@ -305,11 +305,11 @@ namespace ArchiGungeon.Character
             {
                 case PlayableCharacters.Pilot:
                     identityID = PilotParadoxItem.SpawnItemID;
-                    spawnDirec = new Vector2(0.7f, 0.7f);
+                    spawnDirec = new Vector2(0.7f, 0.5f);
                     break;
                 case PlayableCharacters.Convict:
                     identityID = ConvictParadoxItem.SpawnItemID;
-                    spawnDirec = new Vector2(-0.7f, 0.7f);
+                    spawnDirec = new Vector2(-0.7f, 0.5f);
                     break;
                 case PlayableCharacters.Robot:
                     identityID = RobotParadoxItem.SpawnItemID;
@@ -317,11 +317,11 @@ namespace ArchiGungeon.Character
                     break;
                 case PlayableCharacters.Soldier:
                     identityID = MarineParadoxItem.SpawnItemID;
-                    spawnDirec = new Vector2(0.7f, -0.7f);
+                    spawnDirec = new Vector2(0.7f, -0.5f);
                     break;
                 case PlayableCharacters.Guide:
                     identityID = HunterParadoxItem.SpawnItemID;
-                    spawnDirec = new Vector2(-0.7f, -0.7f);
+                    spawnDirec = new Vector2(-0.7f, -0.5f);
                     break;
                 case PlayableCharacters.Bullet:
                     identityID = BulletParadoxItem.SpawnItemID;
@@ -331,7 +331,7 @@ namespace ArchiGungeon.Character
                     break;
             }
 
-            DebrisObject identityObject = LootEngine.SpawnItem(PickupObjectDatabase.GetById(identityID).gameObject, player.specRigidbody.UnitCenter, spawnDirec, 3f, false, true, false);
+            DebrisObject identityObject = LootEngine.SpawnItem(PickupObjectDatabase.GetById(identityID).gameObject, player.specRigidbody.UnitCenter, spawnDirec, 6f, false, true, false);
             
             return;
         }

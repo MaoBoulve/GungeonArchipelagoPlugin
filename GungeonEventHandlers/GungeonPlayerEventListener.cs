@@ -306,9 +306,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void ModifyChestContentsByChestType(Chest chestToEdit)
         {
-            // TODO: test
-            PickupObject.ItemQuality chestContentQuality = chestToEdit.contents[0].quality;
-
+            
             if (chestToEdit.IsRainbowChest)
             {
                 chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
@@ -317,11 +315,11 @@ namespace ArchiGungeon.GungeonEventHandlers
             {
                 chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
             }
-            else if(chestContentQuality == PickupObject.ItemQuality.S)
+            else if(chestToEdit.name.Contains("chest_black"))
             {
                 chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
             }
-            else if(chestContentQuality == PickupObject.ItemQuality.A)
+            else if(chestToEdit.name.Contains("chest_red"))
             {
                 chestToEdit.forceContentIds = new List<int> { APPickUpItem.SpawnItemID, APPickUpItem.SpawnItemID };
             }
@@ -458,7 +456,6 @@ namespace ArchiGungeon.GungeonEventHandlers
             playerToListen.OnRoomClearEvent += OnRoomClear;
 
             playerToListen.OnItemPurchased += OnItemPurchased;
- 
 
             playerToListen.OnKilledEnemyContext += OnKilledEnemy;
             playerToListen.OnTableFlipped += OnTableFlip;

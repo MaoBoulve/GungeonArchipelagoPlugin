@@ -1,3 +1,10 @@
+# 0.1.6
+Bugfixes found through testing from Archipelago players. Thanks y'all!
+
+- Fix to chests not opening after using key
+	- Caused by issue in trying to determine A/S rarity chests
+- Increased spawning distance of Paradox Items, reducing overlap issue 
+
 # 0.1.5
 Additional stability updates with local data. Also text box for goals! Hit reload with the ArchipelaGun to show and hide the text box.
 

@@ -101,6 +101,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
+        
         public static void GivePlayerRandomPassive(PickupObject.ItemQuality[] itemquals)
         {
             PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
@@ -116,6 +117,113 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
+        #region Active ItemIds
+        private static List<int> LowRarityActives { get; } = new List<int>()
+        {
+            485,
+            252,
+            443,
+            105,
+            201,
+            433,
+            448,
+            643,
+            458,
+            206,
+            525,
+            499,
+            449, // C after
+            63,
+            104,
+            460,
+            308,
+            242,
+            234,
+            155,
+            438,
+            403,
+            462,
+            432,
+            447,
+            814,
+            272,
+            106, // D after
+            291,
+            558,
+            108,
+            109,
+            66,
+            136,
+            366,
+            77,
+            625,
+            69,
+            71,
+            820,
+            356,
+            64,
+            205,
+            174,
+            65,
+            250,
+            644,
+            203,
+            209,
+            306
+
+        };
+
+        private static List<int> HighRarityActives { get; } = new List<int>()
+        {
+            536,
+            439,
+            237,
+            216,
+            573,
+            276,
+            267,
+            320,
+            239,
+            663, // B after this point
+            485,
+            252,
+            443,
+            105,
+            201,
+            433,
+            448,
+            643,
+            458,
+            206,
+            525,
+            499,
+            449
+
+        };
+
+        #endregion
+
+        public static void GivePlayerRandomActive(bool rollHigherRarityItems = false)
+        {
+            int itemID = 0;
+
+            if (rollHigherRarityItems)
+            {
+                int randomIndex =  random.Next(0, HighRarityActives.Count);
+                itemID = HighRarityActives[randomIndex];
+            }
+            else
+            {
+                int randomIndex = random.Next(0, LowRarityActives.Count);
+                itemID = LowRarityActives[randomIndex];
+            }
+
+            PlayerController playerToSpawnOn = GungeonPlayerEventListener.GetFirstAlivePlayer();
+
+            GameObject itemToGive = PickupObjectDatabase.GetById(itemID).gameObject;
+            LootEngine.SpawnItem(itemToGive, playerToSpawnOn.CenterPosition, Vector2.zero, 0);
+        }
+
         public static void GiveRandomizedItemByCase(int itemCase)
         {
             EffectsController.PlaySynergyVFX();
@@ -123,10 +231,12 @@ namespace ArchiGungeon.GungeonEventHandlers
             switch (itemCase)
             {
                 case 0:
-                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D, PickupObject.ItemQuality.C });
                     break;
                 case 1:
-                    GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+                    //GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+                    //TODO: implement D, C, B active
+                    GivePlayerRandomActive(false);
                     break;
                 case 2:
                     GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });
@@ -138,10 +248,13 @@ namespace ArchiGungeon.GungeonEventHandlers
                     GivePlayerRandomGun(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.S });
                     break;
                 case 5:
-                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D });
+                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.D, PickupObject.ItemQuality.C });
                     break;
                 case 6:
-                    GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+
+                    GivePlayerRandomActive(true);
+                    //GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.C });
+                    //TODO: implement B, A, S
                     break;
                 case 7:
                     GivePlayerRandomPassive(new PickupObject.ItemQuality[] { PickupObject.ItemQuality.B });

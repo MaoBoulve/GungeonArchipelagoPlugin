@@ -1,6 +1,7 @@
 ﻿using ArchiGungeon.ArchipelagoServer;
 using ArchiGungeon.Character;
 using ArchiGungeon.Data;
+using ArchiGungeon.GungeonEventHandlers;
 using ArchiGungeon.UserInterface;
 using System;
 using System.Collections.Generic;
@@ -65,6 +66,21 @@ namespace ArchiGungeon.DebugTools
                 case "7":
                     {
                         LoadUnitTest7();
+                        return;
+                    }
+                case "8":
+                    {
+                        LoadUnitTest8();
+                        return;
+                    }
+                case "9":
+                    {
+                        LoadUnitTest9();
+                        return;
+                    }
+                case "10":
+                    {
+                        LoadUnitTest10();
                         return;
                     }
                 default:
@@ -178,6 +194,25 @@ namespace ArchiGungeon.DebugTools
                 case "bulletSpawn":
                     {
                         ETGModConsole.SpawnItem(new string[] { "bullet_that_can_kill_the_past", "1" });
+                        return;
+                    }
+                case "activeItem":
+                    {
+
+                        RandomizedByQualityItems.GivePlayerRandomActive(false);
+                        RandomizedByQualityItems.GivePlayerRandomActive(true);
+                        
+
+                        return;
+                    }
+                case "paradoxItem":
+                    {
+                        CharSwap.ReceiveParadoxModeItem(0);
+                        CharSwap.ReceiveParadoxModeItem(1);
+                        CharSwap.ReceiveParadoxModeItem(2);
+                        CharSwap.ReceiveParadoxModeItem(3);
+                        CharSwap.ReceiveParadoxModeItem(4);
+                        CharSwap.ReceiveParadoxModeItem(5);
                         return;
                     }
             }
@@ -530,6 +565,84 @@ namespace ArchiGungeon.DebugTools
 
             GoToNextUnitTestStep();
             return;
+        }
+
+        private static void LoadUnitTest8()
+        {
+            /*
+             * Test check on active items
+             */
+
+            List<string> unitTest8 = new List<string>()
+            {
+                "print ACTIVE ITEM DOUBLE UNIT TEST",
+                "print Send 'test next' to spawn Active Item",
+                "wait ---",
+
+                "print 'test next' to give active by console command",
+                "cmd spawn item weird_egg",
+
+                "print 'test next' to give active by Acquire Passive function",
+                "cmd give weird_egg",
+
+                "print ------------- END OF UNIT TEST ----------------",
+                "func activeItem"
+
+
+            };
+
+            unitTestCommands = unitTest8.ToArray();
+            commandIndex = -1;
+
+            GoToNextUnitTestStep();
+            return;
+        }
+
+        private static void LoadUnitTest9()
+        {
+            /*
+             * Paradox item test
+             */
+
+            List<string> unitTest9 = new List<string>()
+            {
+                "print PARADOX ITEM UNIT TEST",
+                "print Send 'test next' to spawn Paradox Items",
+                "wait ---",
+
+                "print --------- END OF UNIT TEST -----------",
+                "func paradoxItem"
+            };
+
+
+
+            unitTestCommands = unitTest9.ToArray();
+            commandIndex = -1;
+
+            GoToNextUnitTestStep();
+            return;
+        }
+
+        private static void LoadUnitTest10()
+        {
+
+            List<string> unitTest9 = new List<string>()
+            {
+                "print CHEST UNIT TEST",
+                "print Send 'test next' to visit All Rooms",
+                "cmd spawn item key",
+
+                "print --------- END OF UNIT TEST -----------",
+                "cmd visit_all_rooms",
+            };
+
+
+            unitTestCommands = unitTest9.ToArray();
+            commandIndex = -1;
+
+            GoToNextUnitTestStep();
+            return;
+
         }
 
 
