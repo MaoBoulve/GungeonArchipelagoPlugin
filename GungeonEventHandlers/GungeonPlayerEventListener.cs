@@ -168,6 +168,10 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnShopItemCreated(ShopItemController obj)
         {
+            if(!APPickUpItem.HasAPItemChecksRemaining())
+            {
+                return;
+            }
 
             if (obj.m_baseParentShop == null)
             {
