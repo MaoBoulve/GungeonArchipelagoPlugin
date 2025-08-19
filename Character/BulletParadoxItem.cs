@@ -40,8 +40,15 @@ namespace ArchiGungeon.Character
             SpawnItemID = PickupObjectDatabase.GetId(item);
             CharSwap.OnCharacterSelected += SetInvalidToPickup;
 
+           
             //ArchipelagoGUI.ConsoleLog("APItem spawn ID: " + SpawnItemID);
 
+            return;
+        }
+
+        public static void SetValidToPickup()
+        {
+            IsValid = false;
             return;
         }
 

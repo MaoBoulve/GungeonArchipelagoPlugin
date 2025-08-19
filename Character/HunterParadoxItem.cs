@@ -44,6 +44,11 @@ namespace ArchiGungeon.Character
         }
 
         private static bool IsValid = true;
+        public static void SetValidToPickup()
+        {
+            IsValid = false;
+            return;
+        }
         private static void SetInvalidToPickup()
         {
             IsValid = false;
