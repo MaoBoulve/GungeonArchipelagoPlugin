@@ -229,6 +229,13 @@ namespace ArchiGungeon.Character
 
             IsParadoxModeOn = true;
             IsChosenCharForRun = false;
+            BulletParadoxItem.SetValidToPickup();
+            RobotParadoxItem.SetValidToPickup();
+            ConvictParadoxItem.SetValidToPickup();
+            HunterParadoxItem.SetValidToPickup();
+            MarineParadoxItem.SetValidToPickup();
+            PilotParadoxItem.SetValidToPickup();
+
             paradoxPassiveItems.Clear();
             paradoxGunItems.Clear();
             DoCharacterSwap(PlayableCharacters.Eevee, player);
@@ -246,12 +253,7 @@ namespace ArchiGungeon.Character
             ArchDebugPrint.DebugLog(DebugCategory.CharacterSystems, "Resetting paradox mode");
 
             IsParadoxModeOn = false;
-            BulletParadoxItem.SetValidToPickup();
-            RobotParadoxItem.SetValidToPickup();
-            ConvictParadoxItem.SetValidToPickup();
-            HunterParadoxItem.SetValidToPickup();
-            MarineParadoxItem.SetValidToPickup();
-            PilotParadoxItem.SetValidToPickup();
+            
         }
 
         public static void ReceiveParadoxModeItem(int itemCase)

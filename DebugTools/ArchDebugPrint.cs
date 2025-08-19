@@ -17,11 +17,11 @@ namespace ArchiGungeon.DebugTools
         private static Dictionary<DebugCategory, bool> DebugActiveStates { get; set; } = new Dictionary<DebugCategory, bool>()
         {
             {DebugCategory.PluginStartup, false },
-            {DebugCategory.PlayerEventListener, false },
+            {DebugCategory.PlayerEventListener, true },
             {DebugCategory.LocalSaveData, true },
             {DebugCategory.ServerReceive, true },
-            {DebugCategory.ServerSend, true },
-            {DebugCategory.CountingGoal, true },
+            {DebugCategory.ServerSend, false },
+            {DebugCategory.CountingGoal, false },
             {DebugCategory.EnemyRandomization, false },
             {DebugCategory.InitializingGameState, false },
             {DebugCategory.ItemHandling, false },

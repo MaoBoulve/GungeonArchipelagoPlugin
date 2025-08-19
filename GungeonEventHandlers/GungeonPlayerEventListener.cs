@@ -148,6 +148,7 @@ namespace ArchiGungeon.GungeonEventHandlers
             ArchipelagoGUI.OnMenuOpen += OnArchipelagoMenuOpen;
             ArchipelagoGUI.OnMenuClose += OnArchipelagoMenuClose;
 
+            
             CustomActions.OnRunStart += OnRunStarted;
             CustomActions.OnBossKilled += OnBossKilled;
             CustomActions.OnNewPlayercontrollerSpawned += OnPlayerControllerSpawned;
@@ -225,9 +226,10 @@ namespace ArchiGungeon.GungeonEventHandlers
 
             else
             {
-                if(CharSwap.IsParadoxModeOn == true && controller.characterIdentity == PlayableCharacters.Eevee && PickedUpArchipelagun)
+                if(CharSwap.IsParadoxModeOn == true && controller.characterIdentity == PlayableCharacters.Eevee && PickedUpArchipelagun && IsStartOfRun)
                 {
                     CharSwap.HandleLostItemsOnCharacterSwap(controller);
+                    IsStartOfRun = false;
                 }
 
                 ArchDebugPrint.DebugLog(DebugCategory.PluginStartup, "Player One Controller Listener Started");

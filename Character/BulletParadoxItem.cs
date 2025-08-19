@@ -48,7 +48,7 @@ namespace ArchiGungeon.Character
 
         public static void SetValidToPickup()
         {
-            IsValid = false;
+            IsValid = true;
             return;
         }
 
@@ -65,7 +65,8 @@ namespace ArchiGungeon.Character
             
             if (!IsValid)
             {
-                player.RemoveItemFromInventory(PickupObjectDatabase.GetById(SpawnItemID));
+                //player.RemoveItemFromInventory(PickupObjectDatabase.GetById(SpawnItemID));
+                player.RemovePassiveItem(SpawnItemID);
                 return;
             }
             
