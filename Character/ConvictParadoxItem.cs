@@ -1,12 +1,13 @@
 ﻿using Alexandria.ItemAPI;
+using Alexandria.Misc;
 using ArchiGungeon.ArchipelagoServer;
+using ArchiGungeon.Data;
+using ArchiGungeon.DebugTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using ArchiGungeon.DebugTools;
-using ArchiGungeon.Data;
 
 namespace ArchiGungeon.Character
 {
@@ -50,13 +51,14 @@ namespace ArchiGungeon.Character
         }
         public override void Pickup(PlayerController player)
         {
-            if(IsValid == false)
+            base.Pickup(player);
+
+
+            if (!IsValid)
             {
+                player.RemoveItemFromInventory(PickupObjectDatabase.GetById(SpawnItemID));
                 return;
             }
-
-                
-            base.Pickup(player);
 
             CharSwap.DoCharacterSwap(PlayableCharacters.Convict, player);
 
