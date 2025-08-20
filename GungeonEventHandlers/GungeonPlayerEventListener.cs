@@ -473,29 +473,38 @@ namespace ArchiGungeon.GungeonEventHandlers
             return;
         }
 
-        private static int lastFloorLoaded;
+        private static string lastFloorLoaded;
         // need to give PASTS items
-        private static List<int> characterPastFloors = new List<int>()
+        private static List<string> characterPastFloors = new List<string>()
         {
             // TODO: figure these out
-            -99
+            "fs_pilot",
+            "fs_convict",
+            "fs_soldier",
+            "fs_guide",
+            "fs_robot",
+            "fs_bullet",
         };
 
         private static void OnNewFloorLoad(PlayerController playerController)
         {
-            if(GameManager.Instance.CurrentFloor == lastFloorLoaded)
+            GameLevelDefinition levelDef = GameManager.Instance.GetLastLoadedLevelDefinition();
+
+            if (levelDef.dungeonSceneName == lastFloorLoaded)
             {
                 return;
             }
 
-            lastFloorLoaded = GameManager.Instance.CurrentFloor;
+
+            lastFloorLoaded = levelDef.dungeonSceneName;
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Floor loaded: {lastFloorLoaded}");
 
             SaveDataManagement.SaveCurrentRandomizerProgress();
-            if (characterPastFloors.Contains(lastFloorLoaded))
+            if (characterPastFloors.Contains(levelDef.dungeonSceneName))
             {
                 ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Loading past: {lastFloorLoaded}");
-                CharSwap.HandleLostItemsOnPastsLoading(lastFloorLoaded, playerController);
+                GameManager.Instance.OnNewLevelFullyLoaded += OnNewLevelCompleteLoad;
+                
             }
             else
             {
@@ -503,6 +512,15 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
             
 
+            return;
+        }
+
+        
+
+        private static void OnNewLevelCompleteLoad()
+        {
+            CharSwap.HandleLostItemsOnPastsLoading(lastFloorLoaded, PlayerOne);
+            GameManager.Instance.OnNewLevelFullyLoaded -= OnNewLevelCompleteLoad;
             return;
         }
 

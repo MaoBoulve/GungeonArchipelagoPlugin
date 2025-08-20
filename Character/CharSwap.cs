@@ -92,32 +92,32 @@ namespace ArchiGungeon.Character
             player.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
         }
 
-        public static void HandleLostItemsOnPastsLoading(int floor, PlayerController player)
+        public static void HandleLostItemsOnPastsLoading(string floor, PlayerController player)
         {
             switch (floor)
             {
                 // TODO: correct these
-                case 0:
+                case "fs_pilot":
                     // pilot, can ignore
                     HandlePastForPilot(player);
                     return;
-                case 1:
+                case "fs_guide":
                     // hunter
                     HandlePastForHunter(player);
                     return;
-                case 2:
+                case "fs_convict":
                     // convict
                     HandlePastForConvict(player);
                     return;
-                case 3:
+                case "fs_soldier":
                     // marine
                     HandlePastForMarine(player);
                     return;
-                case 4:
+                case "fs_bullet":
                     // bullet
                     HandlePastForBullet(player);
                     return;
-                case 5:
+                case "fs_robot":
                     // robot
                     HandlePastForRobot(player);
                     return;
