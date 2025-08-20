@@ -1,3 +1,12 @@
+# 0.1.7
+Bug hunt! Primarily with paradox mode's various edge cases. Working with console command behavior is pain.
+
+- AP Items no longer replace shop items when out of checks
+- Paradox Items now correctly handle restarting runs, previously locked out after picking up one Paradox Identity
+- Changed Paradox Items to be picked up then removed from inventory for ones picked up after the 1st
+- Addressed edge case of Paradox Mode causing player to load into Pasts without the Gungeoneer's corresponding items
+	- Now spawns the PASTS' items when level is loaded
+
 # 0.1.6
 Bugfixes found through testing from Archipelago players. Thanks y'all!
 
