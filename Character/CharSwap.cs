@@ -92,6 +92,38 @@ namespace ArchiGungeon.Character
             player.inventory.AddGunToInventory((Gun)archipelaGun, makeActive: true);
         }
 
+        public static void HandleLostItemsOnPastsLoading(int floor, PlayerController player)
+        {
+            switch (floor)
+            {
+                // TODO: correct these
+                case 0:
+                    // pilot, can ignore
+                    HandlePastForPilot(player);
+                    return;
+                case 1:
+                    // hunter
+                    HandlePastForHunter(player);
+                    return;
+                case 2:
+                    // convict
+                    HandlePastForConvict(player);
+                    return;
+                case 3:
+                    // marine
+                    HandlePastForMarine(player);
+                    return;
+                case 4:
+                    // bullet
+                    HandlePastForBullet(player);
+                    return;
+                case 5:
+                    // robot
+                    HandlePastForRobot(player);
+                    return;
+            }
+        }
+
         #endregion
 
         #region Character Swap Defitions
@@ -211,6 +243,85 @@ namespace ArchiGungeon.Character
 
             // active
             LootEngine.SpawnItem(PickupObjectDatabase.GetById(417).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            return;
+        }
+
+        #endregion
+
+        #region Character Pasts Definition
+
+        private static void HandlePastForPilot(PlayerController player)
+        {
+            // TODO: FIGURE OUT ITEMS FOR PASTS
+            // https://enterthegungeon.wiki.gg/wiki/The_Pilot
+            player.characterIdentity = PlayableCharacters.Pilot;
+
+            // Pilot spawns in a whole ship lol
+
+            return;
+        }
+
+        private static void HandlePastForConvict(PlayerController player)
+        {
+            //https://enterthegungeon.wiki.gg/wiki/The_Convict
+            // 2
+            player.characterIdentity = PlayableCharacters.Convict;
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(366).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(353).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(202).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(80).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(2).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+
+            return;
+        }
+
+        private static void HandlePastForRobot(PlayerController player)
+        {
+            // https://enterthegungeon.wiki.gg/wiki/The_Robot
+            player.characterIdentity = PlayableCharacters.Robot;
+            //576
+
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(410).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(88).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(411).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(576).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            return;
+        }
+
+        private static void HandlePastForMarine(PlayerController player)
+        {
+            //https://enterthegungeon.wiki.gg/wiki/The_Marine
+            // 59
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(77).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+
+            player.characterIdentity = PlayableCharacters.Soldier;
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(86).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(354).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(59).gameObject, player.CenterPosition, Vector2.left, 1f, false, true, false);
+
+            return;
+        }
+
+        private static void HandlePastForHunter(PlayerController player)
+        {
+            //https://enterthegungeon.wiki.gg/wiki/The_Hunter
+            //4, 492
+            player.characterIdentity = PlayableCharacters.Guide;
+
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(492).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(12).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(99).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(4).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+
+            return;
+        }
+
+        private static void HandlePastForBullet(PlayerController player)
+        {
+            // https://enterthegungeon.wiki.gg/wiki/The_Bullet
+            // 574, DO NOT GIVE 417
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(414).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
+            LootEngine.SpawnItem(PickupObjectDatabase.GetById(574).gameObject, player.specRigidbody.UnitCenter, Vector2.left, 1f, false, true, false);
             return;
         }
 

@@ -154,13 +154,15 @@ namespace ArchiGungeon.GungeonEventHandlers
             CustomActions.OnNewPlayercontrollerSpawned += OnPlayerControllerSpawned;
             CustomActions.OnRewardPedestalSpawned += OnRewardPedestalSpawn;
             CustomActions.OnRewardPedestalDetermineContents += OnRewardPedestalDetermineContent;
-
+           
             CustomActions.OnShopItemStarted += OnShopItemCreated;
 
             ETGMod.Chest.OnPreOpen += OnChestPreOpen;
             ETGMod.Chest.OnPostOpen += OnChestOpen;
 
             Archipelagun.OnPickup += OnArchipelagunPickup;
+
+            
 
             return;
         }
@@ -472,6 +474,12 @@ namespace ArchiGungeon.GungeonEventHandlers
         }
 
         private static int lastFloorLoaded;
+        // need to give PASTS items
+        private static List<int> characterPastFloors = new List<int>()
+        {
+            // TODO: figure these out
+            -99
+        };
 
         private static void OnNewFloorLoad(PlayerController playerController)
         {
@@ -481,12 +489,19 @@ namespace ArchiGungeon.GungeonEventHandlers
             }
 
             lastFloorLoaded = GameManager.Instance.CurrentFloor;
-
-            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Floor loaded: {GameManager.Instance.CurrentFloor}");
-
-            EnemySwapping.ReduceEnemyDamageMult(1);
+            ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Floor loaded: {lastFloorLoaded}");
 
             SaveDataManagement.SaveCurrentRandomizerProgress();
+            if (characterPastFloors.Contains(lastFloorLoaded))
+            {
+                ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Loading past: {lastFloorLoaded}");
+                CharSwap.HandleLostItemsOnPastsLoading(lastFloorLoaded, playerController);
+            }
+            else
+            {
+                EnemySwapping.ReduceEnemyDamageMult(1);
+            }
+            
 
             return;
         }
