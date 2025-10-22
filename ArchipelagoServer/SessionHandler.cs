@@ -321,8 +321,8 @@ namespace ArchiGungeon.ArchipelagoServer
             // binds
 
             Session.Items.ItemReceived += DataReceiver.OnItemReceived;
-
-            //Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
+            // boy i hope this doesn't cause connection issues
+            Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
             //Session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
 
             return;
@@ -960,26 +960,30 @@ namespace ArchiGungeon.ArchipelagoServer
             #region Low Priority Receive Calls
             public static void OnPacketReceived(ArchipelagoPacketBase packet)
             {
-
-                //ArchipelagoGUI.ConsoleLog(packet);
-
-                /*
                 if (packet is ItemPrintJsonPacket)
-                {
-                    ItemPrintJsonPacket itemPrintJsonPacket = (ItemPrintJsonPacket)packet;
-                    if (itemPrintJsonPacket.ReceivingPlayer == session.ConnectionInfo.Slot || session.Locations.AllLocations.Contains(itemPrintJsonPacket.Item.Location))
-                    {
-                        string game = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.Item.Player].Game;
-                        string game2 = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.ReceivingPlayer].Game;
-                        ArchipelagoPickupNotification(session.Players.GetPlayerName(itemPrintJsonPacket.ReceivingPlayer) + " got " + session.Items.GetItemName(itemPrintJsonPacket.Item.Item, game2), "from " + session.Locations.GetLocationNameFromId(itemPrintJsonPacket.Item.Location, game));
-                    }
+                { 
+                    ArchipelagoGUI.ConsoleLog(packet.ToString());
                 }
-                */
+
+                    //ArchipelagoGUI.ConsoleLog(packet);
+
+                    /*
+                    if (packet is ItemPrintJsonPacket)
+                    {
+                        ItemPrintJsonPacket itemPrintJsonPacket = (ItemPrintJsonPacket)packet;
+                        if (itemPrintJsonPacket.ReceivingPlayer == session.ConnectionInfo.Slot || session.Locations.AllLocations.Contains(itemPrintJsonPacket.Item.Location))
+                        {
+                            string game = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.Item.Player].Game;
+                            string game2 = session.Players.Players[session.ConnectionInfo.Team][itemPrintJsonPacket.ReceivingPlayer].Game;
+                            ArchipelagoPickupNotification(session.Players.GetPlayerName(itemPrintJsonPacket.ReceivingPlayer) + " got " + session.Items.GetItemName(itemPrintJsonPacket.Item.Item, game2), "from " + session.Locations.GetLocationNameFromId(itemPrintJsonPacket.Item.Location, game));
+                        }
+                    }
+                    */
             }
 
             public static void OnMessageReceived(LogMessage message)
             {
-                ArchipelagoGUI.ConsoleLog(message.ToString());
+                //ArchipelagoGUI.ConsoleLog(message.ToString());
             }
             #endregion
         }
