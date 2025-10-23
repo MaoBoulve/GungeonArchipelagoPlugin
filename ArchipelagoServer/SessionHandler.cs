@@ -7,6 +7,7 @@ using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -43,6 +44,8 @@ namespace ArchiGungeon.ArchipelagoServer
         };
 
         public static bool IsGoalsTextBoxOpen { get; private set; } = false;
+
+        private static Dictionary<int, ReadOnlyCollection<PlayerInfo>> playerLists;
 
         #endregion
 
@@ -322,8 +325,8 @@ namespace ArchiGungeon.ArchipelagoServer
 
             Session.Items.ItemReceived += DataReceiver.OnItemReceived;
             // boy i hope this doesn't cause connection issues
-            Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
-            //Session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
+            //Session.Socket.PacketReceived += DataReceiver.OnPacketReceived;
+            Session.MessageLog.OnMessageReceived += DataReceiver.OnMessageReceived;
 
             return;
         }
@@ -960,9 +963,19 @@ namespace ArchiGungeon.ArchipelagoServer
             #region Low Priority Receive Calls
             public static void OnPacketReceived(ArchipelagoPacketBase packet)
             {
-                if (packet is ItemPrintJsonPacket)
+                ArchipelagoGUI.ConsoleLog("Packet?? " + packet.PacketType);
+
+                ItemPrintJsonPacket itemPrintJsonPacket = (ItemPrintJsonPacket)packet;
+
+                if (itemPrintJsonPacket != null)
                 { 
-                    ArchipelagoGUI.ConsoleLog(packet.ToString());
+                    //ArchipelagoGUI.ConsoleLog(packet.ToString());
+
+                    string itemOutput = $"{playerLists[itemPrintJsonPacket.Item.Player]} sent {itemPrintJsonPacket.Item.Item} to {playerLists[itemPrintJsonPacket.ReceivingPlayer]}";
+
+                    ArchipelagoGUI.ConsoleLog(itemOutput);
+
+    
                 }
 
                     //ArchipelagoGUI.ConsoleLog(packet);
@@ -983,7 +996,9 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void OnMessageReceived(LogMessage message)
             {
-                //ArchipelagoGUI.ConsoleLog(message.ToString());
+                ArchipelagoGUI.ConsoleLog(message.ToString());
+
+                // [Name] sent [Item of varying lengths] to [Name] ([Source  Item])
             }
             #endregion
         }

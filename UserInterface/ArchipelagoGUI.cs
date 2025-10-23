@@ -448,7 +448,13 @@ namespace ArchiGungeon.UserInterface
                 }
                 case ArchipelConsoleCommandParser.unitTestCmd:
                 {
-                        UnitTests.HandleUnitTestCommand(commandInputs[0]);
+                        if (commandInputs.Length > 0)
+                        {
+                            UnitTests.HandleUnitTestCommand(commandInputs[0]);
+
+                            return;
+                        }
+                        
                         return;
                 }
                 case "help":

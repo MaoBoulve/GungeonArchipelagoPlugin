@@ -166,28 +166,30 @@ namespace ArchiGungeon
             if(canBeWielded == false)
             {
                 // TODO: test
-                Gun archiGunRef = (Gun)PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
-                int newIndex = inventory.AllGuns.IndexOf(archiGunRef);
+                //Gun archiGunRef = (Gun)PickupObjectDatabase.GetById(Archipelagun.SpawnItemID);
+                //int newIndex = inventory.AllGuns.IndexOf(archiGunRef);
                 int oldIndex = inventory.AllGuns.IndexOf(oldGun);
                 int gunsOwned = inventory.AllGuns.Count;
 
-                if(newIndex > oldIndex)
+                ArchipelagoGUI.ConsoleLog(equippedslot + "  old  " + oldIndex);
+
+                if(equippedslot > oldIndex)
                 {
                     // go to gun AFTER archigun
 
-                    if(newIndex == ((gunsOwned - 1)))
+                    if(equippedslot == ((gunsOwned - 1)))
                     {
                         // if archiGun is last, just swap to gun 0
                         owner.ChangeToGunSlot(0);
                     }
 
-                    owner.ChangeToGunSlot(newIndex + 1);
+                    owner.ChangeToGunSlot(equippedslot + 1);
                 }
                 else
                 {
                     // go to gun BEFORE archigun, which should typically always exist
 
-                    owner.ChangeToGunSlot(newIndex - 1);
+                    owner.ChangeToGunSlot(equippedslot - 1);
                 }
 
                 return;
