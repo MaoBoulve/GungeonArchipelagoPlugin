@@ -479,7 +479,6 @@ namespace ArchiGungeon.GungeonEventHandlers
         // need to give PASTS items
         private static List<string> characterPastFloors = new List<string>()
         {
-            // TODO: figure these out
             "fs_pilot",
             "fs_convict",
             "fs_soldier",
@@ -487,6 +486,9 @@ namespace ArchiGungeon.GungeonEventHandlers
             "fs_robot",
             "fs_bullet",
         };
+
+        // can only start run on 1st floor!
+        private static string validRunStartFloor = "keep";
 
         private static void OnNewFloorLoad(PlayerController playerController)
         {
@@ -508,6 +510,11 @@ namespace ArchiGungeon.GungeonEventHandlers
                 GameManager.Instance.OnNewLevelFullyLoaded += OnNewLevelCompleteLoad;
                 
             }
+            else if(levelDef.dungeonSceneName != validRunStartFloor) 
+            {
+                EnemySwapping.ReduceEnemyDamageMult(1);
+                IsStartOfRun = false;
+            }
             else
             {
                 EnemySwapping.ReduceEnemyDamageMult(1);
@@ -521,6 +528,7 @@ namespace ArchiGungeon.GungeonEventHandlers
 
         private static void OnNewLevelCompleteLoad()
         {
+            // handling lost past items
             CharSwap.HandleLostItemsOnPastsLoading(lastFloorLoaded, PlayerOne);
             GameManager.Instance.OnNewLevelFullyLoaded -= OnNewLevelCompleteLoad;
             return;

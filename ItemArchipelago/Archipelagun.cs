@@ -1,11 +1,8 @@
 ﻿using Alexandria.ItemAPI;
 using Alexandria.SoundAPI;
 using ArchiGungeon.UserInterface;
-using System;
 using ArchiGungeon.DebugTools;
-using ArchiGungeon.Character;
 using ArchiGungeon.ArchipelagoServer;
-using static ArchiGungeon.Character.CharSwap;
 using ArchiGungeon.Data;
 
 namespace ArchiGungeon

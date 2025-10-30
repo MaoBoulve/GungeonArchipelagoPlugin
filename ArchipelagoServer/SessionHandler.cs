@@ -447,21 +447,37 @@ namespace ArchiGungeon.ArchipelagoServer
 
 
             var itemList = Session.Items.AllItemsReceived;
-
-            ArchipelagoGUI.ConsoleLog($"Retrieving server items!");
-
             foreach (var item in itemList)
             {
-                if(!allItemsReceivedFromServer.Contains(item))
+                if (!allItemsReceivedFromServer.Contains(item))
                 {
                     allItemsReceivedFromServer.Add(item);
+                }
+            }
+
+            // restriction against retrieving items outside run start
+            if (GungeonPlayerEventListener.IsStartOfRun == false)
+            {
+                string warningText = "=== WARNING!! Did NOT spawn server items - Not at start of run  WARNING !!====";
+                ArchipelagoGUI.ConsoleLog(warningText);
+                TextBoxHandler.AddEntryForQueuedSmallTextbox(warningText);
+            }
+            else 
+            {
+                ArchipelagoGUI.ConsoleLog($"Spawning server items!");
+
+                foreach (var item in allItemsReceivedFromServer)
+                {
 
                     if (!itemsHandledThisRun.Contains(item.ItemId))
                     {
                         AddItemToLocalGungeon(item);
                     }
-                }   
+
+                }
             }
+
+            
 
             hasRetrievedServerItemsOnce = true;
             TrapSpawnHandler.SetCanSpawn(true);
@@ -475,7 +491,22 @@ namespace ArchiGungeon.ArchipelagoServer
             TrapSpawnHandler.SetCanSpawn(false);
             ConsumableSpawnHandler.SetCanSpawn(false);
 
-            ArchipelagoGUI.ConsoleLog($"Retrieving items based on local data!");
+            // restriction against spawning items outside run start
+
+            if (GungeonPlayerEventListener.IsStartOfRun == false)
+            {
+                string warningText = "=== WARNING!! Did NOT spawn server items - Not at start of run  WARNING !!====";
+                ArchipelagoGUI.ConsoleLog(warningText);
+                TextBoxHandler.AddEntryForQueuedSmallTextbox(warningText);
+
+                TrapSpawnHandler.SetCanSpawn(true);
+                ConsumableSpawnHandler.SetCanSpawn(true);
+
+                return;
+            }
+
+
+            ArchipelagoGUI.ConsoleLog($"Spawning items based on local data!");
             
             foreach(ItemInfo item in allItemsReceivedFromServer)
             {
@@ -498,7 +529,7 @@ namespace ArchiGungeon.ArchipelagoServer
             {
                 if(itemInfo.ItemId >= 8754200 && itemInfo.ItemId < 8754300)
                 {
-                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Skipping item on Retrieve command: {itemInfo.ItemName}");
+                    ArchDebugPrint.DebugLog(DebugCategory.ServerReceive, $"Skipping item on Spawn command: {itemInfo.ItemName}");
 
                     itemsHandledThisRun.Add(itemInfo.ItemId);
 
