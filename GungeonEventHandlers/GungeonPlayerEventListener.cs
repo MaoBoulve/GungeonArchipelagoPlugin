@@ -468,6 +468,8 @@ namespace ArchiGungeon.GungeonEventHandlers
             playerToListen.OnKilledEnemyContext += OnKilledEnemy;
             playerToListen.OnTableFlipped += OnTableFlip;
 
+            TextBoxHandler.SetPlayerReferenceForQueueText(playerToListen);
+
             ArchDebugPrint.DebugLog(DebugCategory.PlayerEventListener, $"Listening to {playerToListen}");
 
             return;

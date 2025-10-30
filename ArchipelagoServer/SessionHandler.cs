@@ -272,6 +272,7 @@ namespace ArchiGungeon.ArchipelagoServer
             Session = null;
 
             EnemySwapping.ClearAllShuffleLists();
+            TextBoxHandler.ClearQueueText();
 
             return;
         }
@@ -792,7 +793,7 @@ namespace ArchiGungeon.ArchipelagoServer
             string textboxOutput = $"To kill: {completionListAsString} \n\n" +
                 $"Location checks: {locationListAsString}";
 
-            TextBoxHandler.ShowArchipelagoLetterBox(GungeonPlayerEventListener.GetFirstAlivePlayer(), textboxOutput);
+            TextBoxHandler.ShowLargeTextBox(GungeonPlayerEventListener.GetFirstAlivePlayer(), textboxOutput);
             IsGoalsTextBoxOpen = true;
 
             return;
@@ -996,9 +997,27 @@ namespace ArchiGungeon.ArchipelagoServer
 
             public static void OnMessageReceived(LogMessage message)
             {
-                ArchipelagoGUI.ConsoleLog(message.ToString());
+                //ArchipelagoGUI.ConsoleLog(message.ToString());
 
                 // [Name] sent [Item of varying lengths] to [Name] ([Source  Item])
+
+                // TODO: TEST!!
+                if (UserTextFormatHelper.CheckIsItemEventMessage(message.ToString()))
+                {
+                    string formattedText = UserTextFormatHelper.FormatArchipelagoMessage(message.ToString());
+
+                    ArchipelagoGUI.ConsoleLog(formattedText);
+                    TextBoxHandler.AddEntryForQueuedSmallTextbox(message.ToString());
+                  
+
+                    if (!TimedServerCalls.IsArchipelagoQueueMessageRunning)
+                    {
+                        CheckCoroutineHelperValid();
+                        CoroutineHelperObject.StartCoroutine(CoroutineHelperObject.HandleNextQueuedTextOnTimer());
+                    }
+                }
+
+                return;
             }
             #endregion
         }
@@ -1058,7 +1077,19 @@ namespace ArchiGungeon.ArchipelagoServer
             IsDelayedItemInitCoroutineRunning = false;
         }
 
-        
+        public static bool IsArchipelagoQueueMessageRunning { get; set; } = false;
+
+        public IEnumerator HandleNextQueuedTextOnTimer(float waitTime = 5.0f)
+        {
+            IsDelayedItemInitCoroutineRunning = true;
+            while (IsDelayedItemInitCoroutineRunning)
+            {
+                yield return new WaitForSeconds(waitTime);
+
+                TextBoxHandler.HandleNextQueuedTextbox();
+            }
+            
+        }
     }
 
     #endregion
